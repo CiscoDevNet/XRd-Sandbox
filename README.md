@@ -58,6 +58,30 @@ networks:
 
 See the [docker-compose.xr.yml file](docker-compose.xr.yml#L186) to see the full configuration.
 
+### Management Addresses in XRd
+
+For assigning the management address in XRd, we used the flag `snoop_v4` to ensure XRd picks the address that is defined under `networks/mgmt/ipv4_address`.
+
+The flag `snoop_v4_default_route` was also used to create a default route for this interface, to ensure that management traffic is able to return.
+
+```yml
+xrd-3:
+  xr_startup_cfg: xrd-3-startup.cfg
+  xr_interfaces:
+    - Gi0/0/0/0
+    - Gi0/0/0/1
+    - Gi0/0/0/2
+    - Gi0/0/0/3
+    - Mg0/RP0/CPU0/0:
+        snoop_v4: True
+        snoop_v4_default_route: True
+  networks:
+    mgmt:
+      ipv4_address: 10.10.20.103
+```
+
+To learn more about these and other flags, see [User Interface and Knobs for XRd.](https://xrdocs.io/virtual-routing/tutorials/2022-08-25-user-interface-and-knobs-for-xrd/#interface-specification)
+
 ### Host-check
 
 When working on your own environment, ensure you run [host-check](https://github.com/ios-xr/xrd-tools/blob/main/scripts/host-check) to verify your host is ready for `XRd`. Make sure you pick the right choices for your image (control plane or vrouter). The host in the Sandbox is already prepared.
@@ -177,9 +201,9 @@ developer@ubuntu:~$
 
 ### How the Sandbox was built
 
-A ubuntu server LTS was used as OS.
+A Ubuntu server LTS was used as OS.
 
-We install Docker from the [official Docker documentation](https://docs.docker.com/engine/install/ubuntu/) to ensure using the latest.
+We installed Docker from the [official Docker documentation](https://docs.docker.com/engine/install/ubuntu/) to ensure using the latest version available.
 
 The following settings were applied to the VM. These settings were requested by the `host-check` script.
 
