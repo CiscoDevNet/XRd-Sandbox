@@ -7,7 +7,7 @@ XRd inherits all the programmability aspects, including NETCONF and YANG models,
 The XRd Sandbox provides an environment where developers and network engineers can explore the programmability options available.
 
 > [!IMPORTANT]
-> On this repository, you can find the files that are used to create the XRd Sandbox for reference.
+> On this repository, you can find the **files used to create the XRd Sandbox** for reference.
 
 Find the XRd Sandbox at [developer.cisco.com/sandbox](https://developer.cisco.com/site/sandbox/) click on _"Launch Sandbox"_ look for the XRd Sandbox and create a reservation.
 
