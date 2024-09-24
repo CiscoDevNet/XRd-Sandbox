@@ -158,7 +158,9 @@ For _issues_ with the Sandbox, first, release your current reservation and initi
 
 ### Docker Pools
 
-We set up default address pools to avoid overlapping with networks used by the Sandbox, which caused traffic blackholes.
+We set up default address pools to avoid overlapping with networks used by the Sandbox infrastructure, which caused traffic blackholes. The bridge networks that are created between `XRd` containers that are used as links, overlapped with IP segments used by the Sandbox, routing traffic incorrectly as a result.
+
+The fix was to define a default network pool to be used by the Docker bridge driver.
 
 ```bash
 developer@ubuntu:~$ cat /etc/docker/daemon.json
@@ -172,3 +174,44 @@ developer@ubuntu:~$ cat /etc/docker/daemon.json
 }
 developer@ubuntu:~$
 ```
+
+### How the Sandbox was built
+
+A ubuntu server LTS was used as OS.
+
+We install Docker from the [official Docker documentation](https://docs.docker.com/engine/install/ubuntu/) to ensure using the latest.
+
+The following settings were applied to the VM. These settings were requested by the `host-check` script.
+
+```bash
+echo -e "fs.inotify.max_user_instances=64000\n\
+net.core.netdev_max_backlog=300000\n\
+net.core.optmem_max=67108864\n\
+net.core.rmem_default=67108864\n\
+net.core.rmem_max=67108864\n\
+net.core.wmem_default=67108864\n\
+net.core.wmem_max=67108864\n\
+net.bridge.bridge-nf-call-iptables=0\n\
+net.bridge.bridge-nf-call-ip6tables=0\n\
+net.ipv4.udp_mem=1124736 10000000 67108864" | sudo tee /etc/sysctl.d/local.conf \
+&& sudo service procps force-reload
+```
+
+<details>
+<summary>OUTPUT</summary>
+
+```bash
+developer@ubuntu:~/xrd-tools/scripts$ cat /etc/sysctl.d/local.conf
+fs.inotify.max_user_instances=64000
+net.core.netdev_max_backlog=300000
+net.core.optmem_max=67108864
+net.core.rmem_default=67108864
+net.core.rmem_max=67108864
+net.core.wmem_default=67108864
+net.core.wmem_max=67108864
+net.bridge.bridge-nf-call-iptables=0
+net.bridge.bridge-nf-call-ip6tables=0
+net.ipv4.udp_mem=1124736 10000000 67108864
+```
+
+</details>
