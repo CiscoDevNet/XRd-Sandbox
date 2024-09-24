@@ -7,11 +7,9 @@ XRd inherits all the programmability aspects, including NETCONF and YANG models,
 The XRd Sandbox provides an environment where developers and network engineers can explore the programmability options available.
 
 > [!IMPORTANT]
-> On this repository you can find the files used to create the XRd sandbox.
+> On this repository, you can find the files that are used to create the XRd Sandbox for reference.
 
-Find the XRd sandbox at [developer.cisco.com/sandbox](https://developer.cisco.com/site/sandbox/) click on _"Launch Sandbox"_ look for the XRd Sandbox and create a reservation.
-
-![xrd-sandbox](img/xrd-sandbox.png)
+Find the XRd Sandbox at [developer.cisco.com/sandbox](https://developer.cisco.com/site/sandbox/) click on _"Launch Sandbox"_ look for the XRd Sandbox and create a reservation.
 
 On the XRd Sandbox, you find:
 
@@ -23,7 +21,9 @@ At the end of the Sandbox, you learn how to work with XRd in a containerized env
 
 ## Lab
 
-We have prepared one Lab to run a segment routing topology that consists of seven (7) XRd routers. One of the XRd routers functions as a PCE, and another XRd router serves as a vRR. Also, we use two alpine containers as the source and destination hosts.
+We have prepared one Lab to run a segment routing topology that consists of seven (7) XRd routers.
+
+One of the XRd routers functions as a PCE, and another XRd router serves as a vRR. Also, we use two alpine containers as the source and destination hosts.
 
 ```bash
 
@@ -60,10 +60,10 @@ See the [docker-compose.xr.yml file](docker-compose.xr.yml#L186) to see the full
 
 ### Host-check
 
-When working on your own environment, ensure you run [host-check](https://github.com/ios-xr/xrd-tools/blob/main/scripts/host-check) to verify your host is ready for `XRd`. Make sure you pick the right choices for your image (control plave or vrouter). The host in the Sandbox is already prepared.
+When working on your own environment, ensure you run [host-check](https://github.com/ios-xr/xrd-tools/blob/main/scripts/host-check) to verify your host is ready for `XRd`. Make sure you pick the right choices for your image (control plane or vrouter). The host in the Sandbox is already prepared.
 
 > [!NOTE]
-> You won't be able to run the command since it requires `sudo` privileges. Look at the output to become familiar with it.
+> You won't be able to run the command in the Sandbox since it requires `sudo` privileges. Look at the output to become familiar with it.
 
 ```bash
 sudo ~/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
@@ -146,7 +146,7 @@ Look at the [xrdocs tutorials](https://xrdocs.io/virtual-routing/tutorials/) whi
 
 You can find additional Labs on the [xrd-tools samples GitHub repository.](https://github.com/ios-xr/xrd-tools/tree/main/samples/xr_compose_topos)
 
-Checkout our [IOS-XR Dev Center](https://developer.cisco.com/site/ios-xr/) on DevNet to find more material around `IOS-XR` programmability.
+Check out our [IOS-XR Dev Center](https://developer.cisco.com/site/ios-xr/) on DevNet to find more material around `IOS-XR` programmability.
 
 ## Help
 
