@@ -90,7 +90,7 @@ When working on your own environment, ensure you run [host-check](https://github
 > You won't be able to run the command in the Sandbox since it requires `sudo` privileges. Look at the output to become familiar with it.
 
 ```bash
-sudo ~/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+sudo /home/developer/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ```
 
 <details>
@@ -111,7 +111,7 @@ Platform checks - xrd-control-plane
  PASS -- Inotify max user instances
          64000 - this is expected to be sufficient for 16 XRd instance(s).
  PASS -- Inotify max user watches
-         249493 - this is expected to be sufficient for 62 XRd instance(s).
+         186581 - this is expected to be sufficient for 46 XRd instance(s).
  PASS -- Socket kernel parameters (valid settings)
  PASS -- UDP kernel parameters (valid settings)
  INFO -- Core pattern (core files managed by the host)
@@ -124,8 +124,8 @@ Platform checks - xrd-control-plane
  PASS -- Kernel module parameters
          Kernel modules loaded with expected parameters.
  PASS -- RAM
-         Available RAM is 30.6 GiB.
-         This is estimated to be sufficient for 15 XRd instance(s), although memory
+         Available RAM is 22.6 GiB.
+         This is estimated to be sufficient for 11 XRd instance(s), although memory
          usage depends on the running configuration.
          Note that any swap that may be available is not included.
 
@@ -137,23 +137,12 @@ xr-compose checks
 -----------------------
  PASS -- docker-compose (version 2.24.0)
  PASS -- PyYAML (installed)
- FAIL -- Bridge iptables
-         For xr-compose to be able to use Docker bridges, bridge IP tables must
-         be disabled. Note that there may be security considerations associated
-         with doing so.
-         Bridge IP tables can be disabled by setting the kernel parameters
-         net.bridge.bridge-nf-call-iptables and net.bridge.bridge-nf-call-ip6tables
-         to 0. These can be modified by adding 'net.bridge.bridge-nf-call-iptables=0'
-         and 'net.bridge.bridge-nf-call-ip6tables=0' to /etc/sysctl.conf or in a
-         dedicated conf file under /etc/sysctl.d/.
-         For a temporary fix, run:
-           sysctl -w net.bridge.bridge-nf-call-iptables=0
-           sysctl -w net.bridge.bridge-nf-call-ip6tables=0
+ PASS -- Bridge iptables (disabled)
 
 ============================================================================
 !! One or more platform checks resulted in a warning, see warnings above !!
 ----------------------------------------------------------------------------
-Extra checks failed: xr-compose
+Extra checks passed: xr-compose
 ============================================================================
 developer@ubuntu:~$
 ```
