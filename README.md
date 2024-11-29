@@ -194,7 +194,7 @@ A Ubuntu server LTS was used as OS.
 
 We installed Docker from the [official Docker documentation](https://docs.docker.com/engine/install/ubuntu/) to ensure using the latest version available.
 
-The following settings were applied to the VM. These settings were requested by the `host-check` script.
+The following settings were applied to the VM. These settings were requested by the `host-check` script. You can [learn more here.](https://xrdocs.io/virtual-routing/tutorials/2022-08-22-setting-up-host-environment-to-run-xrd/)
 
 ```bash
 echo -e "fs.inotify.max_user_instances=64000\n\
@@ -225,6 +225,12 @@ net.core.wmem_max=67108864
 net.bridge.bridge-nf-call-iptables=0
 net.bridge.bridge-nf-call-ip6tables=0
 net.ipv4.udp_mem=1124736 10000000 67108864
+```
+
+To make changes to `iptables` persistent across reboots we need to load the `br_netfilter` module.
+
+```bash
+echo "br_netfilter" | sudo tee /etc/modules-load.d/br_netfilter.conf
 ```
 
 </details>
