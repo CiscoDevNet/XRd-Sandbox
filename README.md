@@ -227,10 +227,10 @@ net.bridge.bridge-nf-call-ip6tables=0
 net.ipv4.udp_mem=1124736 10000000 67108864
 ```
 
+</details>
+
 To make changes to `iptables` persistent across reboots we need to load the `br_netfilter` module.
 
 ```bash
 echo "br_netfilter" | sudo tee /etc/modules-load.d/br_netfilter.conf
 ```
-
-</details>
