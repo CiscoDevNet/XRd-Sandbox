@@ -17,6 +17,10 @@ export CONTAINER_ENGINE CONTAINER_ENGINE_NAME
 # Only used for sandbox development
 setup-ssh:
 	@echo "=== Setting up SSH keys for Git operations ==="
-	chmod +x ./deploy-to-sandbox/setup_ssh.sh
-	./deploy-to-sandbox/setup_ssh.sh
+	chmod +x ./scripts/setup_ssh.sh
+	./scripts/setup_ssh.sh
 
+deploy-segment-routing:
+	@echo "=== Deploying Segment Routing Sandbox ==="
+	chmod +x ./scripts/deploy_segment_routing.sh
+	./scripts/deploy_segment_routing.sh
