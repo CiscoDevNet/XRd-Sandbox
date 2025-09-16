@@ -22,5 +22,13 @@ setup-ssh:
 
 deploy-segment-routing:
 	@echo "=== Deploying Segment Routing Sandbox ==="
-	chmod +x ./scripts/deploy_segment_routing.sh
-	./scripts/deploy_segment_routing.sh
+	chmod +x ./scripts/deploy-segment-routing.sh
+	./scripts/deploy-segment-routing.sh
+
+undeploy-segment-routing:
+	@echo "=== Undeploying Segment Routing Sandbox ==="
+	$(CONTAINER_ENGINE) compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml down --volumes --remove-orphans
+
+follow-segment-routing-logs:
+	@echo "=== Following Segment Routing Sandbox logs ==="
+	$(CONTAINER_ENGINE) compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml logs --follow
