@@ -189,7 +189,7 @@ networks:
           gateway: 10.10.20.254
     driver: macvlan
     driver_opts:
-      parent: ens160
+      parent: ens192
   source-xrd-1:
     ipam:
       config:
