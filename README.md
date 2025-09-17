@@ -188,11 +188,10 @@ Clone the xrd-tools repository:
 make clone-xrd-tools
 ```
 
-Extract and load the XRd container image:
+Setup the XRd container image:
 
 ```bash
-make extract-xrd
-make load-xrd
+make setup-xrd
 ```
 
 4. **Validate the environment is ready**
