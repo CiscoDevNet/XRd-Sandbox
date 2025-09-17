@@ -237,9 +237,100 @@ init_sandbox_environment() {
     return 0
 }
 
+# Function to detect network interface with specific IP address
+detect_network_interface() {
+    local target_ip="$1"
+    
+    if [[ -z "$target_ip" ]]; then
+        print_error "Target IP address is required"
+        return 1
+    fi
+    
+    print_info "Detecting network interface for IP: $target_ip" >&2
+    
+    # Method 1: Check if the IP is assigned to any interface (preferred for local IPs)
+    local interface
+    interface=$(ip addr show | grep -B2 "$target_ip" | grep -oP '^\d+: \K[^:]+' | head -n1)
+    
+    if [[ -n "$interface" ]]; then
+        print_success "Found network interface: $interface (IP assigned to interface)" >&2
+        echo "$interface"
+        return 0
+    fi
+    
+    # Method 2: Try using ip route to find the interface (for remote IPs)
+    interface=$(ip route get "$target_ip" 2>/dev/null | grep -oP 'dev \K\w+' | head -n1)
+    
+    if [[ -n "$interface" ]] && [[ "$interface" != "lo" ]]; then
+        print_success "Found network interface: $interface (via ip route)" >&2
+        echo "$interface"
+        return 0
+    fi
+    
+    # Method 3: Check routing table for subnet
+    local subnet="${target_ip%.*}.0/24"
+    interface=$(ip route | grep "$subnet" | grep -oP 'dev \K\w+' | head -n1)
+    
+    if [[ -n "$interface" ]] && [[ "$interface" != "lo" ]]; then
+        print_success "Found network interface: $interface (via subnet routing)" >&2
+        echo "$interface"
+        return 0
+    fi
+    
+    print_error "Could not detect suitable network interface for IP: $target_ip" >&2
+    return 1
+}
+
+# Function to update macvlan parent interface in docker-compose file
+update_macvlan_parent_interface() {
+    local compose_file="$1"
+    local interface="$2"
+    local backup_suffix="${3:-.bak}"
+    
+    if [[ -z "$compose_file" ]]; then
+        print_error "Docker compose file path is required"
+        return 1
+    fi
+    
+    if [[ -z "$interface" ]]; then
+        print_error "Network interface name is required"
+        return 1
+    fi
+    
+    if ! validate_file_exists "$compose_file" "Docker compose file"; then
+        return 1
+    fi
+    
+    print_info "Updating macvlan parent interface to '$interface' in $compose_file"
+    
+    # Create backup
+    if [[ "$backup_suffix" != "no-backup" ]]; then
+        if ! cp "$compose_file" "$compose_file$backup_suffix"; then
+            print_error "Failed to create backup file"
+            return 1
+        fi
+        print_info "Backup created: $compose_file$backup_suffix"
+    fi
+    
+    # Update the parent interface in driver_opts section
+    if ! sed -i "s/parent: .*/parent: $interface/" "$compose_file"; then
+        print_error "Failed to update parent interface in compose file"
+        return 1
+    fi
+    
+    # Verify the change was made
+    if grep -q "parent: $interface" "$compose_file"; then
+        print_success "Successfully updated macvlan parent interface to: $interface"
+        return 0
+    else
+        print_warning "Update command completed but could not verify the change"
+        return 1
+    fi
+}
+
 # Export all functions for use in other scripts
 export -f print_info print_success print_warning print_error
 export -f get_sandbox_root load_sandbox_env validate_env_vars
 export -f detect_container_engine check_image_exists validate_file_exists
 export -f construct_xrd_image_name verify_compose_deployment run_command
-export -f init_sandbox_environment
+export -f init_sandbox_environment detect_network_interface update_macvlan_parent_interface

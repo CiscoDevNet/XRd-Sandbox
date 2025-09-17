@@ -17,7 +17,7 @@ fi
 print_info "Starting Segment Routing sandbox deployment..."
 
 # Initialize sandbox environment
-if ! init_sandbox_environment; then
+if ! init_sandbox_environment SANDBOX_IP; then
     exit 1
 fi
 
@@ -56,11 +56,22 @@ if ! run_command "Updating interface names in docker-compose.yml..." \
 fi
 print_success "Interface names updated successfully"
 
-# Step 3: Deploy the topology
+# Step 3: Detect and update macvlan parent interface
+DETECTED_INTERFACE=$(detect_network_interface "$SANDBOX_IP")
+if [[ $? -eq 0 ]] && [[ -n "$DETECTED_INTERFACE" ]]; then
+    if ! run_command "Updating macvlan parent interface to $DETECTED_INTERFACE..." \
+        update_macvlan_parent_interface "$OUTPUT_FILE" "$DETECTED_INTERFACE" "no-backup"; then
+        print_warning "Failed to update macvlan parent interface, continuing with existing configuration"
+    fi
+else
+    print_warning "Could not detect network interface for $SANDBOX_IP, using existing configuration"
+fi
+
+# Step 4: Deploy the topology
 if ! run_command "Deploying the Segment Routing topology..." \
     $CONTAINER_ENGINE compose --file "$OUTPUT_FILE" up --detach; then
     exit 1
 fi
 
-# Step 4: Verify deployment
+# Step 5: Verify deployment
 verify_compose_deployment "$OUTPUT_FILE"
