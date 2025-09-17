@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to load XRd container into Docker
+# Script to load XRd container into Docker/Podman
 # This script handles both direct container format and nested archive format
 # It can work with either the original archive or extracted content
 
@@ -11,28 +11,14 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Project root directory (parent of scripts directory)
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
+# Source common utilities
+source "$SCRIPT_DIR/common_utils.sh"
+
 # Source format detection utilities
 source "$SCRIPT_DIR/xrd-format-utils.sh"
 
-# Source environment variables (only if not already set)
-if [[ -z "$XRD_CONTAINER_VERSION" ]] || [[ -z "$XRD_CONTAINER_ARCHIVE" ]]; then
-    ENV_VARS_FILE="$PROJECT_ROOT/sandbox_env_vars.sh"
-    if [[ ! -f "$ENV_VARS_FILE" ]]; then
-        echo "Error: Environment variables file not found at $ENV_VARS_FILE"
-        exit 1
-    fi
-    
-    source "$ENV_VARS_FILE"
-fi
-
-# Validate required environment variables
-if [[ -z "$XRD_CONTAINER_VERSION" ]]; then
-    echo "Error: XRD_CONTAINER_VERSION is not set"
-    exit 1
-fi
-
-if [[ -z "$XRD_CONTAINER_ARCHIVE" ]]; then
-    echo "Error: XRD_CONTAINER_ARCHIVE is not set"
+# Initialize environment (load env vars, validate, detect container engine)
+if ! init_sandbox_environment "XRD_CONTAINER_VERSION" "XRD_CONTAINER_ARCHIVE"; then
     exit 1
 fi
 
@@ -41,10 +27,10 @@ ARCHIVE_PATH="$PROJECT_ROOT/$XRD_CONTAINER_ARCHIVE"
 EXTRACT_DIR="$PROJECT_ROOT/xrd-container"
 IMAGE_INFO=$(get_xrd_image_info)
 
-echo "XRd Container Docker Load Script"
-echo "==============================="
-echo "Project root: $PROJECT_ROOT"
-echo "Target image: $IMAGE_INFO"
+print_info "XRd Container $CONTAINER_ENGINE_NAME Load Script"
+print_info "==============================================="
+print_info "Project root: $PROJECT_ROOT"
+print_info "Target image: $IMAGE_INFO"
 echo ""
 
 # Function to load container from file
@@ -52,39 +38,38 @@ load_container() {
     local container_file="$1"
     local file_type="$2"
     
-    echo "Loading container from: $container_file"
-    echo "File type: $file_type"
+    print_info "Loading container from: $container_file"
+    print_info "File type: $file_type"
     
-    if [[ ! -f "$container_file" ]]; then
-        echo "Error: Container file not found: $container_file"
+    if ! validate_file_exists "$container_file" "Container file"; then
         return 1
     fi
     
     if ! is_valid_container "$container_file"; then
-        echo "Error: Invalid container file: $container_file"
+        print_error "Invalid container file: $container_file"
         return 1
     fi
     
-    echo "Loading into Docker..."
-    if docker load < "$container_file"; then
-        echo "Successfully loaded container into Docker!"
+    print_info "Loading into $CONTAINER_ENGINE_NAME..."
+    if $CONTAINER_ENGINE load < "$container_file"; then
+        print_success "Successfully loaded container into $CONTAINER_ENGINE_NAME!"
         echo ""
-        echo "Checking loaded images:"
-        docker images | grep -E "(REPOSITORY|xrd|control-plane)" || docker images | head -5
+        print_info "Checking loaded images:"
+        $CONTAINER_ENGINE images | grep -E "(REPOSITORY|xrd|control-plane)" || $CONTAINER_ENGINE images | head -5
         echo ""
         
         # Try to tag the image if we can identify it
-        if docker images --format "table {{.Repository}}:{{.Tag}}" | grep -q "xrd-control-plane"; then
-            local loaded_image=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "xrd-control-plane" | head -1)
+        if $CONTAINER_ENGINE images --format "table {{.Repository}}:{{.Tag}}" | grep -q "xrd-control-plane"; then
+            local loaded_image=$($CONTAINER_ENGINE images --format "{{.Repository}}:{{.Tag}}" | grep "xrd-control-plane" | head -1)
             if [[ "$loaded_image" != "$IMAGE_INFO" ]]; then
-                echo "Tagging image as $IMAGE_INFO..."
-                docker tag "$loaded_image" "$IMAGE_INFO" || echo "Warning: Could not tag image"
+                print_info "Tagging image as $IMAGE_INFO..."
+                $CONTAINER_ENGINE tag "$loaded_image" "$IMAGE_INFO" || print_warning "Could not tag image"
             fi
         fi
         
         return 0
     else
-        echo "Error: Failed to load container into Docker"
+        print_error "Failed to load container into $CONTAINER_ENGINE_NAME"
         return 1
     fi
 }
@@ -92,38 +77,38 @@ load_container() {
 # Check what's available and determine the approach
 if [[ -f "$ARCHIVE_PATH" ]] && [[ ! -d "$EXTRACT_DIR" ]]; then
     # Archive exists but not extracted - detect format and handle accordingly
-    echo "Archive found but not extracted. Analyzing format..."
+    print_info "Archive found but not extracted. Analyzing format..."
     
     ARCHIVE_FORMAT=$(detect_xrd_format "$ARCHIVE_PATH")
     show_format_info "$ARCHIVE_FORMAT" "$ARCHIVE_PATH"
     
     case "$ARCHIVE_FORMAT" in
         "container")
-            echo "Loading directly from archive (container format)..."
+            print_info "Loading directly from archive (container format)..."
             load_container "$ARCHIVE_PATH" "Direct container archive"
             ;;
         "nested")
-            echo "Archive contains nested structure. Extraction required."
-            echo "Please run './scripts/extract-xrd-container.sh' first, then run this script again."
+            print_warning "Archive contains nested structure. Extraction required."
+            print_info "Please run './scripts/extract-xrd-container.sh' first, then run this script again."
             exit 1
             ;;
         *)
-            echo "Unknown format. Please extract first using './scripts/extract-xrd-container.sh'"
+            print_warning "Unknown format. Please extract first using './scripts/extract-xrd-container.sh'"
             exit 1
             ;;
     esac
     
 elif [[ -d "$EXTRACT_DIR" ]]; then
     # Extracted directory exists - find and load the container
-    echo "Using extracted content from: $EXTRACT_DIR"
+    print_info "Using extracted content from: $EXTRACT_DIR"
     
     # First, check if this is a direct container extraction (manifest.json at root)
     if [[ -f "$EXTRACT_DIR/manifest.json" ]]; then
-        echo "Direct container format detected in extracted content."
+        print_info "Direct container format detected in extracted content."
         
         # Create a temporary tar file from the extracted content
         TEMP_TAR=$(mktemp --suffix=.tar)
-        echo "Creating temporary container file: $TEMP_TAR"
+        print_info "Creating temporary container file: $TEMP_TAR"
         
         cd "$EXTRACT_DIR"
         tar -cf "$TEMP_TAR" .
@@ -133,44 +118,44 @@ elif [[ -d "$EXTRACT_DIR" ]]; then
         
         # Clean up temporary file
         rm -f "$TEMP_TAR"
-        echo "Temporary file cleaned up."
+        print_info "Temporary file cleaned up."
         
     else
         # Look for nested container files
-        echo "Searching for container files in extracted content..."
+        print_info "Searching for container files in extracted content..."
         
         CONTAINER_FILE=$(find_container_file "$EXTRACT_DIR")
         if [[ -n "$CONTAINER_FILE" ]]; then
             load_container "$CONTAINER_FILE" "Container file from nested structure"
         else
-            echo "Error: No valid container file found in $EXTRACT_DIR"
+            print_error "No valid container file found in $EXTRACT_DIR"
             echo ""
-            echo "Directory contents:"
+            print_info "Directory contents:"
             ls -la "$EXTRACT_DIR"
             echo ""
-            echo "Please ensure the archive was extracted properly or contains valid container files."
+            print_error "Please ensure the archive was extracted properly or contains valid container files."
             exit 1
         fi
     fi
     
 elif [[ -f "$ARCHIVE_PATH" ]] && [[ -d "$EXTRACT_DIR" ]]; then
     # Both archive and extracted content exist - prefer extracted content
-    echo "Both archive and extracted content exist. Using extracted content..."
+    print_info "Both archive and extracted content exist. Using extracted content..."
     # Re-run the script logic for extracted directory
     exec "$0"
     
 else
-    echo "Error: Neither archive file nor extracted content found."
-    echo "Expected archive: $ARCHIVE_PATH"
-    echo "Expected extract directory: $EXTRACT_DIR"
+    print_error "Neither archive file nor extracted content found."
+    print_info "Expected archive: $ARCHIVE_PATH"
+    print_info "Expected extract directory: $EXTRACT_DIR"
     echo ""
-    echo "Please ensure you have either:"
-    echo "1. The original archive file: $XRD_CONTAINER_ARCHIVE"
-    echo "2. Extracted content in: $EXTRACT_DIR (run './scripts/extract-xrd-container.sh' first)"
+    print_info "Please ensure you have either:"
+    print_info "1. The original archive file: $XRD_CONTAINER_ARCHIVE"
+    print_info "2. Extracted content in: $EXTRACT_DIR (run './scripts/extract-xrd-container.sh' first)"
     exit 1
 fi
 
 echo ""
-echo "Docker load process completed!"
+print_success "$CONTAINER_ENGINE_NAME load process completed!"
 echo ""
-echo "You can now use the XRd container with Docker Compose or docker run commands."
+print_info "You can now use the XRd container with $CONTAINER_ENGINE_NAME Compose or $CONTAINER_ENGINE_NAME run commands."

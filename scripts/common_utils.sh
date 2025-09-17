@@ -38,6 +38,12 @@ load_sandbox_env() {
     local sandbox_root="${1:-$(get_sandbox_root)}"
     local env_vars_file="$sandbox_root/sandbox_env_vars.sh"
     
+    # Check if critical environment variables are already set
+    if [[ -n "$XRD_CONTAINER_VERSION" ]] && [[ -n "$XRD_CONTAINER_ARCHIVE" ]]; then
+        print_info "Using existing environment variables (XRD_CONTAINER_VERSION=$XRD_CONTAINER_VERSION)"
+        return 0
+    fi
+    
     if [[ -f "$env_vars_file" ]]; then
         print_info "Loading environment variables from $env_vars_file"
         source "$env_vars_file"
