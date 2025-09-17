@@ -16,13 +16,13 @@ fi
 
 print_info "Starting Segment Routing sandbox deployment..."
 
-# Initialize sandbox environment with required variables
-if ! init_sandbox_environment "BASE_IMAGE" "TAG_IMAGE"; then
+# Initialize sandbox environment
+if ! init_sandbox_environment; then
     exit 1
 fi
 
-# Construct image name from environment variables
-IMAGE_NAME=$(construct_image_name "$BASE_IMAGE" "$TAG_IMAGE")
+# Construct XRd image name using standard format
+IMAGE_NAME=$(construct_xrd_image_name "$XRD_CONTAINER_VERSION")
 print_info "Using Docker image: $IMAGE_NAME"
 
 # Check if the Docker image exists

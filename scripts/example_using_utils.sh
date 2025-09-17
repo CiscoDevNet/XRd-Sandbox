@@ -19,22 +19,21 @@ fi
 
 print_info "Example script demonstrating common utilities usage"
 
-# Example 1: Initialize environment with required variables
+# Example 1: Initialize environment
 print_info "=== Example 1: Environment Initialization ==="
-if init_sandbox_environment "BASE_IMAGE" "TAG_IMAGE"; then
+if init_sandbox_environment; then
     print_success "Environment initialized successfully"
-    print_info "BASE_IMAGE: $BASE_IMAGE"
-    print_info "TAG_IMAGE: $TAG_IMAGE"
+    print_info "XRD_CONTAINER_VERSION: $XRD_CONTAINER_VERSION"
     print_info "Container Engine: $CONTAINER_ENGINE_NAME"
 else
     print_error "Failed to initialize environment"
     exit 1
 fi
 
-# Example 2: Construct and check image
-print_info "=== Example 2: Image Operations ==="
-IMAGE_NAME=$(construct_image_name "$BASE_IMAGE" "$TAG_IMAGE")
-print_info "Constructed image name: $IMAGE_NAME"
+# Example 2: Construct and check XRd image
+print_info "=== Example 2: XRd Image Operations ==="
+IMAGE_NAME=$(construct_xrd_image_name "$XRD_CONTAINER_VERSION")
+print_info "Constructed XRd image name: $IMAGE_NAME"
 
 # Note: Image check will likely fail in test environment, so we'll catch it
 if check_image_exists "$IMAGE_NAME"; then

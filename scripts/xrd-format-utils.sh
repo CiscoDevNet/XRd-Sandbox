@@ -99,10 +99,9 @@ is_valid_container() {
 
 # Function to get XRd image name and tag from environment
 get_xrd_image_info() {
-    local base_image="${BASE_IMAGE:-xrd-control-plane}"
-    local tag="${TAG_IMAGE:-latest}"
+    local version="${XRD_CONTAINER_VERSION:-25.3.1}"
     
-    echo "${base_image}:${tag}"
+    echo "ios-xr/xrd-control-plane:${version}"
 }
 
 # Function to display format information

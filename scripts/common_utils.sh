@@ -137,17 +137,21 @@ validate_file_exists() {
     return 0
 }
 
-# Function to construct image name from base and tag
-construct_image_name() {
-    local base_image="$1"
-    local tag_image="$2"
+# Function to construct XRd image name using standard format
+construct_xrd_image_name() {
+    local version="$1"
     
-    if [[ -z "$base_image" ]] || [[ -z "$tag_image" ]]; then
-        print_error "Both base_image and tag_image are required"
+    if [[ -z "$version" ]]; then
+        # Fallback to environment variable if no version provided
+        version="$XRD_CONTAINER_VERSION"
+    fi
+    
+    if [[ -z "$version" ]]; then
+        print_error "XRD version is required (either as parameter or XRD_CONTAINER_VERSION env var)"
         return 1
     fi
     
-    echo "${base_image}:${tag_image}"
+    echo "ios-xr/xrd-control-plane:${version}"
 }
 
 # Function to verify docker compose deployment
@@ -212,7 +216,13 @@ init_sandbox_environment() {
         return 1
     fi
     
-    # Validate required environment variables
+    # Always ensure XRD_CONTAINER_VERSION is available for the new image format
+    if [[ -z "$XRD_CONTAINER_VERSION" ]]; then
+        print_error "XRD_CONTAINER_VERSION is required but not set"
+        return 1
+    fi
+    
+    # Validate any additional required environment variables
     if [[ ${#required_vars[@]} -gt 0 ]]; then
         if ! validate_env_vars "${required_vars[@]}"; then
             return 1
@@ -231,5 +241,5 @@ init_sandbox_environment() {
 export -f print_info print_success print_warning print_error
 export -f get_sandbox_root load_sandbox_env validate_env_vars
 export -f detect_container_engine check_image_exists validate_file_exists
-export -f construct_image_name verify_compose_deployment run_command
+export -f construct_xrd_image_name verify_compose_deployment run_command
 export -f init_sandbox_environment
