@@ -21,13 +21,9 @@ setup-ssh:
 	@./scripts/setup_ssh.sh
 
 clone-xrd-tools:
-	@echo "=== Cloning xrd-tools repository ==="
-	@if [ -d "xrd-tools" ]; then \
-		echo "xrd-tools directory already exists, skipping clone..."; \
-	else \
-		git clone https://github.com/ios-xr/xrd-tools.git && \
-		echo "xrd-tools repository cloned successfully"; \
-	fi
+	@echo "=== Setting up xrd-tools repository and PATH ==="
+	@chmod +x ./scripts/clone-xrd-tools.sh
+	@./scripts/clone-xrd-tools.sh
 
 validate-environment:
 	@echo "=== Validating Environment ==="
@@ -75,7 +71,7 @@ cleanup-temp-files:
 help:
 	@echo "Available targets:"
 	@echo "  setup-ssh                   - Set up SSH keys for Git operations"
-	@echo "  clone-xrd-tools             - Clone xrd-tools repository"
+	@echo "  clone-xrd-tools             - Clone xrd-tools repository and add scripts to PATH"
 	@echo "  validate-environment        - Validate environment for XRd Sandbox"
 	@echo "  deploy-segment-routing      - Deploy Segment Routing Sandbox"
 	@echo "  undeploy-segment-routing    - Undeploy Segment Routing Sandbox"

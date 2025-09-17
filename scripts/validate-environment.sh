@@ -39,7 +39,7 @@ if command -v xr-compose >/dev/null 2>&1; then
     print_info "xr-compose version: $(xr-compose --version 2>/dev/null || echo 'version check failed')"
 else
     print_error "xr-compose tool not found in PATH"
-    print_info "Please ensure xrd-tools is installed and xr-compose is in your PATH"
+    print_info "Run 'make clone-xrd-tools' to set up xrd-tools and add scripts to PATH"
     exit 1
 fi
 
@@ -48,12 +48,6 @@ print_info "Validating required files..."
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 ARCHIVE_PATH="$PROJECT_ROOT/$XRD_CONTAINER_ARCHIVE"
 
-if validate_file_exists "$ARCHIVE_PATH" "XRD Container Archive"; then
-    print_success "XRD Container Archive found: $ARCHIVE_PATH"
-else
-    print_error "XRD Container Archive not found: $ARCHIVE_PATH"
-    exit 1
-fi
 
 if validate_file_exists "$SANDBOX_ROOT/topologies/segment-routing/docker-compose.xr.yml" "Segment Routing template"; then
     print_success "Segment Routing template found"
