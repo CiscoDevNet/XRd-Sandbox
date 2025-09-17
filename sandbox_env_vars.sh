@@ -1,3 +1,6 @@
+XRD_CONTAINER_VERSION=25.3.1
+XRD_CONTAINER_ARCHIVE=xrd-control-plane-container-x64.${XRD_CONTAINER_VERSION}.tgz
+
 BASE_IMAGE=xrd-control-plane
 TAG_IMAGE=latest-24.4
 
