@@ -14,7 +14,7 @@ Find the XRd Sandbox at [developer.cisco.com/sandbox](https://developer.cisco.co
 On the XRd Sandbox, you find:
 
 - Ubuntu VM with a Docker image of XRd control plane.
-- Sample Sandbox XRd Topology.
+- Copy of this repository.
 - Copy of [xrd-tools GitHub repository.](https://github.com/ios-xr/xrd-tools/tree/main)
 
 At the end of the Sandbox, you learn how to work with XRd in a containerized environment with a working segment routing topology.
@@ -40,6 +40,8 @@ src --- xrd-1  |        |  xrd-2 --- dst
 
 The Lab is a copy of the [segment-routing sample topology](https://github.com/ios-xr/xrd-tools/tree/main/samples/xr_compose_topos/segment-routing) from [xrd-tools](https://github.com/ios-xr/xrd-tools) with additional _modifications_ to work on the Sandbox management network.
 
+On the sandbox instructions you will find the steps to run the Lab. Additionally you can run them directly using `make deploy-segment-routing`
+
 ### Docker Driver
 
 [Docker macvlan](https://docs.docker.com/engine/network/drivers/macvlan/) represents one modification that allows the `XRd` containers to be on the same management network as the host.
@@ -56,7 +58,7 @@ networks:
       parent: ens160
 ```
 
-See the [docker-compose.xr.yml file](docker-compose.xr.yml#L186) to see the full configuration.
+See the [docker-compose.xr.yml file](topologies/segment-routing/docker-compose.xr.yml#L186) to see the full configuration.
 
 ### Management Addresses in XRd
 
