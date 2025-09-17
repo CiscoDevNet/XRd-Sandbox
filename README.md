@@ -180,6 +180,12 @@ Replace <version> with the actual XRd version you are updating to, e.g., `25.3.1
 
 3. **Set the Sandbox Environment**
 
+Clone the xrd-tools repository:
+
+```bash
+make clone-xrd-tools
+```
+
 Extract and load the XRd container image:
 
 ```bash

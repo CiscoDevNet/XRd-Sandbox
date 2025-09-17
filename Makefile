@@ -20,6 +20,15 @@ setup-ssh:
 	chmod +x ./scripts/setup_ssh.sh
 	./scripts/setup_ssh.sh
 
+clone-xrd-tools:
+	@echo "=== Cloning xrd-tools repository ==="
+	@if [ -d "xrd-tools" ]; then \
+		echo "xrd-tools directory already exists, skipping clone..."; \
+	else \
+		git clone https://github.com/ios-xr/xrd-tools.git; \
+		echo "xrd-tools repository cloned successfully"; \
+	fi
+
 deploy-segment-routing:
 	@echo "=== Deploying Segment Routing Sandbox ==="
 	chmod +x ./scripts/deploy-segment-routing.sh
@@ -61,6 +70,7 @@ cleanup-temp-files:
 help:
 	@echo "Available targets:"
 	@echo "  setup-ssh                   - Set up SSH keys for Git operations"
+	@echo "  clone-xrd-tools             - Clone xrd-tools repository"
 	@echo "  deploy-segment-routing      - Deploy Segment Routing Sandbox"
 	@echo "  undeploy-segment-routing    - Undeploy Segment Routing Sandbox"
 	@echo "  follow-segment-routing-logs - Follow Segment Routing Sandbox logs"
@@ -70,4 +80,4 @@ help:
 	@echo "  cleanup-temp-files          - Clean up temporary files after deployment"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs extract-xrd load-xrd setup-xrd cleanup-temp-files help
+.PHONY: setup-ssh clone-xrd-tools deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs extract-xrd load-xrd setup-xrd cleanup-temp-files help
