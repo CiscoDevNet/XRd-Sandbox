@@ -153,6 +153,53 @@ developer@ubuntu:~$
 
 To practice, go to [developer.cisco.com/sandbox](https://developer.cisco.com/site/sandbox/) click on _"Launch Sandbox"_ look for the XRd Sandbox and create a reservation.
 
+## 🚀 Sandbox Deployment Workflow
+
+### For Sandbox Team
+
+1. **Clone the repository**
+
+Clone the repository with the specific XRd version specified on the [sandbox_env_vars.sh](sandbox_env_vars.sh#l1) file as a tag. You can also find all the tags created on the GitHub tags page.
+
+```bash
+git clone --branch v<version> https://github.com/CiscoDevNet/XRd-Sandbox.git
+cd XRd-Sandbox
+```
+
+2. **Download XRd container image**
+
+Download the corresponding XRd container image archive (`.tgz` file) from software.cisco.com and **place it in the project root**. The filename should match one of these patterns:
+
+Replace <version> with the actual XRd version you are updating to, e.g., `25.3.1`
+
+- `xrd-control-plane-container-x64.<version>.tgz`
+- `xrd-control-plane-container-x86.<version>.tgz`
+
+> [!NOTE]
+> Search for _XRd Control Plane_ on software.cisco.com to find the correct image.
+
+3. **Set the Sandbox Environment**
+
+Extract and load the XRd container image:
+
+```bash
+make extract-xrd
+make load-xrd
+```
+
+4. **Clean up temporary files after deployment**
+
+After successful deployment, clean up temporary files to free up disk space:
+
+```bash
+make cleanup-temp-files
+```
+
+This command will:
+
+- Remove the extracted `xrd-container` directory
+- Remove the original `.tgz` archive files
+
 ## Learn more
 
 Look at the [xrdocs tutorials](https://xrdocs.io/virtual-routing/tutorials/) which explain in detail all the _in-and-outs_ of XRd.
