@@ -44,7 +44,7 @@ fi
 
 # Example 3: File validation
 print_info "=== Example 3: File Validation ==="
-if validate_file_exists "$HOME/XRd-Sandbox/sandbox_env_vars.sh" "Environment variables file"; then
+if validate_file_exists "$SANDBOX_ROOT/sandbox_env_vars.sh" "Environment variables file"; then
     print_success "Environment file validation passed"
 fi
 

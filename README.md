@@ -193,7 +193,13 @@ make extract-xrd
 make load-xrd
 ```
 
-4. **Clean up temporary files after deployment**
+4. **Validate the environment is ready**
+
+```bash
+make validate-environment
+```
+
+5. **Clean up temporary files after deployment**
 
 After successful deployment, clean up temporary files to free up disk space:
 

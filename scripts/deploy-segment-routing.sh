@@ -31,8 +31,8 @@ if ! check_image_exists "$IMAGE_NAME"; then
 fi
 
 # Define file paths
-INPUT_FILE="$HOME/XRd-Sandbox/topologies/segment-routing/docker-compose.xr.yml"
-OUTPUT_FILE="$HOME/XRd-Sandbox/topologies/segment-routing/docker-compose.yml"
+INPUT_FILE="$SANDBOX_ROOT/topologies/segment-routing/docker-compose.xr.yml"
+OUTPUT_FILE="$SANDBOX_ROOT/topologies/segment-routing/docker-compose.yml"
 
 # Validate input file exists
 if ! validate_file_exists "$INPUT_FILE" "Input file"; then

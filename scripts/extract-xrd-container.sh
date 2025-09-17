@@ -48,18 +48,15 @@ fi
 
 show_format_info "$ARCHIVE_FORMAT" "$ARCHIVE_PATH"
 
-# Create extraction directory if it doesn't exist
+# Create extraction directory if it doesn't exist, or clean existing one
 if [[ ! -d "$EXTRACT_DIR" ]]; then
     print_info "Creating extraction directory: $EXTRACT_DIR"
     mkdir -p "$EXTRACT_DIR"
 else
     print_warning "Extraction directory already exists: $EXTRACT_DIR"
-    read -p "Do you want to continue and potentially overwrite existing files? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        print_info "Extraction cancelled."
-        exit 0
-    fi
+    print_info "Removing existing content and continuing with extraction..."
+    rm -rf "$EXTRACT_DIR"
+    mkdir -p "$EXTRACT_DIR"
 fi
 
 # Extract the archive based on format
