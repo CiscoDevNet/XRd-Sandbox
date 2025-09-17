@@ -22,3 +22,11 @@ get the interface
 ```
 ip -o -4 addr show | awk '/10\.10\.20\.15\/24/ {print $2}'
 ```
+
+```
+git checkout -b update origin/update
+scp -i ~/.ssh/sandbox_key ../../../Downloads/xrd-control-plane-container-x64.25.3.1.tgz developer@10.10.20.15:/home/developer
+
+git config --global user.name "user"
+git config --global user.email "user@example.com"
+```
