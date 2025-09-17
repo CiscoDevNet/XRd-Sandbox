@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to extract XRd container archive
 # This script extracts the XRd control plane container archive to a version-independent directory

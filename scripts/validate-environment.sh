@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to validate the environment for XRd Sandbox
 # This script performs all necessary checks without executing deployment tasks

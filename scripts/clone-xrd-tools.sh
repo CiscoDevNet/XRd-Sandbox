@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to clone xrd-tools repository and add its scripts to PATH
 # This script clones the xrd-tools repo and sets up the PATH for the current session

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Common utilities for XRd Sandbox scripts
 # This script should be sourced by other scripts to provide common functionality

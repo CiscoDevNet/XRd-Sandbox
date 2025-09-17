@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # XRd Container Format Detection Utilities
 # This file contains common functions for detecting and handling different XRd archive formats

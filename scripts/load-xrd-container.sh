@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to load XRd container into Docker/Podman
 # This script handles both direct container format and nested archive format

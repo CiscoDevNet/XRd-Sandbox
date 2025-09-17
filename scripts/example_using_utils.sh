@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Example script showing how to use common utilities
 # This can serve as a template for creating new deployment scripts
