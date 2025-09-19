@@ -40,7 +40,7 @@ src --- xrd-1  |        |  xrd-2 --- dst
 
 The Lab is a copy of the [segment-routing sample topology](https://github.com/ios-xr/xrd-tools/tree/main/samples/xr_compose_topos/segment-routing) from [xrd-tools](https://github.com/ios-xr/xrd-tools) with additional _modifications_ to work on the Sandbox management network.
 
-On the sandbox instructions you will find the steps to run the Lab. Additionally you can run them directly using `make deploy-segment-routing`
+On the sandbox instructions you will find the steps to run the Lab. Additionally you can run them directly using `make -C ~/XRd-Sandbox deploy-segment-routing`
 
 ### Docker Driver
 

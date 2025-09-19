@@ -69,7 +69,7 @@ networks:
       parent: ens160
 ```
 
-See full `compose` file on [the XRd-Sandbox Github repository](https://github.com/CiscoDevNet/XRd-Sandbox/blob/main/docker-compose.xr.yml) or in `~/sandbox/docker-compose.xr.yml` inside the Sandbox.
+See full `compose` file on [the XRd-Sandbox Github repository](https://github.com/CiscoDevNet/XRd-Sandbox/blob/main/topologies/segment-routing/docker-compose.xr.yml) or in `~/XRd-Sandbox/topologies/segment-routing/docker-compose.xr.yml` inside the Sandbox.
 
 ### Host-check
 
@@ -150,6 +150,10 @@ developer@ubuntu:~$
 
 ### Start the Lab
 
+> **QUICK START:** If you want to play with XRd right away, you can run the command `make -C ~/XRd-Sandbox deploy-segment-routing` to automatically set up and deploy the segment routing topology in a single command. This will handle all the preparation steps described below.
+>
+> **WATCHING LOGS:** You can use `make -C ~/XRd-Sandbox follow-segment-routing-logs` to watch the logs of XRd containers. Press `Ctrl+C` to stop watching the logs.
+
 Host Credentials
 
 - Username: `developer`
@@ -166,16 +170,16 @@ ssh developer@10.10.20.15
 Explore the `docker-compose.xr.yml` file to become more familiar with how the `XRd` containers are defined.
 
 ```bash
-cat ~/sandbox/docker-compose.xr.yml
+cat ~/XRd-Sandbox/topologies/segment-routing/docker-compose.xr.yml
 ```
 
 Create a `compose` file using the script `xr-compose`. This is the easiest way to work with `XRd` topologies.
 
 ```bash
 xr-compose \
-  --input-file ~/sandbox/docker-compose.xr.yml \
-  --output-file ~/sandbox/docker-compose.yml \
-  --image xrd-control-plane:latest-24.4
+  --input-file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.xr.yml \
+  --output-file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml \
+  --image ios-xr/xrd-control-plane:25.3.1
 ```
 
 > **NOTE:** The Sandbox already has `xr-compose` installed, which is part of the [xrd-tools repository.](https://github.com/ios-xr/xrd-tools)
@@ -183,13 +187,13 @@ xr-compose \
 See the `docker-compose.yml` file created.
 
 ```bash
-cat ~/sandbox/docker-compose.yml
+cat ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml
 ```
 
 For the Sandbox environment, modify the `docker-compose.yml` file created. You should specify the interface (inside the container) that should be mapped to the interface `MgmtEth0/RP0/CPU0/0` in `XRd`.
 
 ```bash
-sed -i.bak 's/linux:xr-120/linux:eth0/g' ~/sandbox/docker-compose.yml
+sed -i.bak 's/linux:xr-120/linux:eth0/g' ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml
 ```
 
 The `sed` command creates a backup of `docker-compose.yml` and replaces all occurrences of `linux:xr-120` with `linux:eth0`. `eth0` is the interface `macvlan` creates in the `XRd` container.
@@ -197,7 +201,7 @@ The `sed` command creates a backup of `docker-compose.yml` and replaces all occu
 See the changes the `sed` command did.
 
 ```bash
-diff ~/sandbox/docker-compose.yml.bak ~/sandbox/docker-compose.yml
+diff ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml.bak ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml
 ```
 
 ### Start the XRd containers
@@ -205,7 +209,7 @@ diff ~/sandbox/docker-compose.yml.bak ~/sandbox/docker-compose.yml
 Bring up the containers and run them in the background.
 
 ```bash
-docker-compose --file ~/sandbox/docker-compose.yml up --detach
+docker-compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml up --detach
 ```
 
 > **NOTE:** After starting the XRd containers with Docker Compose, you may experience temporary slowness on the VM. This slowness will disappear once the XRd containers finish booting up.
@@ -227,7 +231,7 @@ See the containers available.
 docker ps
 ```
 
-The official ways to connect to `XRd` is using `docker attach` and `SSH` directly to `XRd`. You can still do `docker exec -it <XRD_CONTAINER_NAME> bash` or the equivalent in other platforms, but it bypasses some security checks.
+The official ways to connect to `XRd` is using `docker attach` and `SSH` directly to `XRd`. You can still do `docker exec -it <XRD_CONTAINER_NAME> bash` (and then `/pkg/bin/xr_cli.sh`) or the equivalent in other platforms, but it bypasses some security checks.
 
 ```bash
 docker attach <XRD_CONTAINER_NAME>
@@ -235,16 +239,16 @@ docker attach <XRD_CONTAINER_NAME>
 
 > **NOTE:** When log in using `docker attach` you must press `enter` to get the `IOS-XR` prompt.
 
-**To exit an attached container** use `ctrl-p`, `ctrl+q` to escape the session.
+**To exit an attached container** use `ctrl-p`, `ctrl+q` to escape the session. This only works with terminal clients. VSCode's terminal does not support this escape sequence.
 
 > **NOTE:** If the startup config used by XRd does not define credentials, you must use `docker attach <XRD_CONTAINER_NAME>` to create a session, **press Enter**, and it will prompt you for a username and password.
 
 You can restart individual XRd containers.
 
 ```bash
-docker-compose --file ~/sandbox/docker-compose.yml stop <XRD_CONTAINER_NAME>
-docker-compose --file ~/sandbox/docker-compose.yml rm -f <XRD_CONTAINER_NAME>
-docker-compose --file ~/sandbox/docker-compose.yml up -d <XRD_CONTAINER_NAME>
+docker-compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml stop <XRD_CONTAINER_NAME>
+docker-compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml rm -f <XRD_CONTAINER_NAME>
+docker-compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml up -d <XRD_CONTAINER_NAME>
 ```
 
 ### XRd management IP
@@ -268,14 +272,14 @@ ssh cisco@10.10.20.101
 
 > **NOTE:** `SSH` from the host VM to the container doesn't work due to the `macvlan` driver.
 
-You can find the credentials set on the `xrd-<ID>-startup.cfg` file. For example, refer to `~/sandbox/xrd-1-startup.cfg`.
+You can find the credentials set on the `xrd-<ID>-startup.cfg` file. For example, refer to `~/XRd-Sandbox/topologies/segment-routing/xrd-1-startup.cfg`.
 
 ### End the XRd topology
 
 To bring down the Lab, do:
 
 ```bash
-docker-compose --file ~/sandbox/docker-compose.yml down --volumes
+docker-compose --file ~/XRd-Sandbox/topologies/segment-routing/docker-compose.yml down --volumes
 ```
 
 > **NOTE:** We remove the volumes in case that you want to test more topologies.
