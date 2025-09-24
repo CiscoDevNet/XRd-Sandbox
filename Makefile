@@ -58,15 +58,10 @@ setup-xrd: extract-xrd load-xrd
 	@echo "Container has been extracted and loaded into $(CONTAINER_ENGINE_NAME)"
 	@echo "You can now use it with $(CONTAINER_ENGINE_NAME) compose or $(CONTAINER_ENGINE_NAME) run commands"
 
-cleanup-temp-files:
-	@echo "=== Cleaning up temporary files after deployment ==="
-	@if [ -d "./xrd-container" ]; then \
-		echo "Removing extracted container directory..." && \
-		rm -rf ./xrd-container; \
-	fi
-	@echo "Removing XRd container archive files..."
-	@find . -name "*.tgz" -type f -exec echo "Removing {}" \; -delete
-	@echo "Cleanup complete"
+cleanup-environment:
+	@echo "=== Cleaning Up Environment After Setup ==="
+	@chmod +x ./scripts/cleanup-environment.sh
+	@./scripts/cleanup-environment.sh
 
 help:
 	@echo "Available targets:"
@@ -79,7 +74,7 @@ help:
 	@echo "  extract-xrd                 - Extract XRd container archive"
 	@echo "  load-xrd                    - Load XRd container into $(CONTAINER_ENGINE_NAME)"
 	@echo "  setup-xrd                   - Extract and load XRd container (full setup)"
-	@echo "  cleanup-temp-files          - Clean up temporary files after deployment"
+	@echo "  cleanup-environment         - Clean up environment after successful setup"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs extract-xrd load-xrd setup-xrd cleanup-temp-files help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs extract-xrd load-xrd setup-xrd cleanup-environment help
