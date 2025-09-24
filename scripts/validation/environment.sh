@@ -66,9 +66,9 @@ if ! validate_developer_user; then
     exit 1
 fi
 
-# Force SANDBOX_ROOT to be based on the script location, not user's home
+# Force SANDBOX_ROOT to be the XRd Sandbox project root (fixed path)
 # This ensures correct path when running as root via sudo
-SCRIPT_SANDBOX_ROOT="$(dirname "$SCRIPT_DIR")"
+readonly SCRIPT_SANDBOX_ROOT="/home/developer/XRd-Sandbox"
 export SANDBOX_ROOT="$SCRIPT_SANDBOX_ROOT"
 
 print_info "Script location: $SCRIPT_DIR"
