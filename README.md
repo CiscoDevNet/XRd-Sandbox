@@ -202,7 +202,7 @@ sudo make -C /home/developer/XRd-Sandbox validate-environment
 After successful deployment, clean up temporary files to free up disk space:
 
 ```bash
-sudo make -C /home/developer/XRd-Sandbox cleanup-temp-files
+sudo make -C /home/developer/XRd-Sandbox cleanup-environment
 ```
 
 This command will:
