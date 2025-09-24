@@ -328,9 +328,53 @@ update_macvlan_parent_interface() {
     fi
 }
 
+# Function to run command as specific user (if not already that user)
+run_as_user() {
+    local target_user="$1"
+    local cmd="$2"
+    local current_user=$(whoami)
+    
+    if [[ -z "$target_user" ]] || [[ -z "$cmd" ]]; then
+        print_error "run_as_user requires target_user and command parameters"
+        return 1
+    fi
+    
+    if [[ "$current_user" == "$target_user" ]]; then
+        # Already running as target user, execute directly with full shell environment
+        bash -l -c "$cmd"
+    else
+        # Running as different user, switch to target user context with login shell
+        su - "$target_user" -c "$cmd"
+    fi
+}
+
+# Function to validate user exists and has proper home directory
+validate_user_exists() {
+    local user="$1"
+    local user_home="/home/$user"
+    
+    if [[ -z "$user" ]]; then
+        print_error "validate_user_exists requires a username parameter"
+        return 1
+    fi
+    
+    if ! id "$user" &>/dev/null; then
+        print_error "User '$user' does not exist"
+        return 1
+    fi
+    
+    if [[ ! -d "$user_home" ]]; then
+        print_error "User home directory does not exist: $user_home"
+        return 1
+    fi
+    
+    return 0
+}
+
 # Export all functions for use in other scripts
 export -f print_info print_success print_warning print_error
 export -f get_sandbox_root load_sandbox_env validate_env_vars
 export -f detect_container_engine check_image_exists validate_file_exists
 export -f construct_xrd_image_name verify_compose_deployment run_command
 export -f init_sandbox_environment detect_network_interface update_macvlan_parent_interface
+export -f run_as_user validate_user_exists
