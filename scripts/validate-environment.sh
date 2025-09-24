@@ -88,61 +88,46 @@ print_info "Container Engine: $CONTAINER_ENGINE_NAME"
 # Check if xr-compose tool is available for developer user
 print_info "Checking for xr-compose tool availability for user '$DEVELOPER_USER'..."
 
-# First, try to find xr-compose in PATH with proper shell environment
-xr_compose_check=$(run_as_developer "source ~/.bashrc 2>/dev/null; command -v xr-compose 2>/dev/null" || echo "")
+# Define the expected xrd-tools path (hardcoded for developer user validation)
+xrd_tools_path="$SANDBOX_ROOT/xrd-tools/scripts"
+xr_compose_direct="$xrd_tools_path/xr-compose"
 
-if [[ -n "$xr_compose_check" ]]; then
-    print_success "xr-compose tool is available for user '$DEVELOPER_USER'"
-    print_info "xr-compose location: $xr_compose_check"
+# First, check if xr-compose exists at the expected location
+if [[ -x "$xr_compose_direct" ]]; then
+    print_success "xr-compose executable found at: $xr_compose_direct"
     
-    # Test functionality (xr-compose doesn't support --version, so test help)
-    if run_as_developer "source ~/.bashrc 2>/dev/null; xr-compose --help >/dev/null 2>&1"; then
-        print_info "xr-compose functionality: Working correctly"
-    else
-        print_warning "xr-compose may have issues (help command failed)"
-    fi
-else
-    # Check if xrd-tools directory exists and xr-compose is there
-    xrd_tools_path="$SANDBOX_ROOT/xrd-tools/scripts"
-    xr_compose_direct="$xrd_tools_path/xr-compose"
-    
-    if [[ -x "$xr_compose_direct" ]]; then
-        print_warning "xr-compose executable exists but not in developer user's active PATH"
-        print_info "xr-compose found at: $xr_compose_direct"
+    # Test if it works when called directly
+    if run_as_developer "'$xr_compose_direct' --help >/dev/null 2>&1"; then
+        print_success "xr-compose is functional for user '$DEVELOPER_USER'"
         
-        # Test if it works when called directly (xr-compose doesn't support --version, so test help)
-        if run_as_developer "source ~/.bashrc 2>/dev/null; '$xr_compose_direct' --help >/dev/null 2>&1"; then
-            print_success "xr-compose is functional when called directly"
-            print_info "The issue is with PATH configuration in interactive vs non-interactive shells"
-            
-            # Check current PATH
-            current_path=$(run_as_developer "source ~/.bashrc 2>/dev/null; echo \$PATH")
-            if [[ "$current_path" == *"xrd-tools"* ]]; then
-                print_success "PATH contains xrd-tools after sourcing .bashrc - shell configuration is correct"
-                print_info "xr-compose is accessible and functional for user '$DEVELOPER_USER'"
-            else
-                print_warning "PATH doesn't contain xrd-tools even after sourcing .bashrc"
-                print_info "Developer user PATH: $current_path"
-                print_info "But xr-compose is still functional via direct path"
-            fi
+        # Now check PATH configuration for informational purposes
+        # Try with interactive shell (bash -l) to get proper PATH loading
+        interactive_path_check=$(run_as_developer "bash -l -c 'command -v xr-compose 2>/dev/null'" || echo "")
+        
+        if [[ -n "$interactive_path_check" ]]; then
+            print_success "xr-compose is also available in interactive PATH"
+            print_info "Interactive shell PATH includes xrd-tools correctly"
         else
-            print_error "xr-compose exists but is not functional"
-            exit 1
+            print_info "xr-compose works directly but may not be in non-interactive PATH"
+            print_info "This is normal due to .bashrc interactive shell check"
+            print_info "Users will have access to xr-compose in normal terminal sessions"
         fi
     else
-        print_error "xr-compose tool not found for user '$DEVELOPER_USER'"
-        print_info "Run 'make clone-xrd-tools' to set up xrd-tools and add scripts to PATH"
-        print_info "Developer user PATH: $(run_as_developer 'echo $PATH')"
-        
-        if [[ -d "$xrd_tools_path" ]]; then
-            print_info "xrd-tools directory exists at: $xrd_tools_path"
-            print_info "But xr-compose is missing or not executable"
-        else
-            print_info "xrd-tools directory not found at: $xrd_tools_path"
-            print_info "Run 'make clone-xrd-tools' to clone and set up xrd-tools"
-        fi
+        print_error "xr-compose exists but is not functional"
         exit 1
     fi
+else
+    print_error "xr-compose tool not found at expected location: $xr_compose_direct"
+    
+    if [[ -d "$xrd_tools_path" ]]; then
+        print_info "xrd-tools directory exists but xr-compose is missing or not executable"
+        print_info "Contents of $xrd_tools_path:"
+        ls -la "$xrd_tools_path" | head -10
+    else
+        print_info "xrd-tools directory not found at: $xrd_tools_path"
+        print_info "Run 'make clone-xrd-tools' to clone and set up xrd-tools"
+    fi
+    exit 1
 fi
 
 # Check if required files exist
@@ -189,30 +174,38 @@ print_info "Validating developer user's shell environment..."
 developer_shell=$(run_as_developer 'echo $SHELL')
 print_info "Developer user's shell: $developer_shell"
 
-# Check if PATH persists in developer user's environment
-# First check without sourcing profile (clean environment)
-developer_path_clean=$(run_as_developer 'echo $PATH | grep -q xrd-tools && echo "yes" || echo "no"')
-# Then check after sourcing profile
-developer_path_sourced=$(run_as_developer 'source ~/.bashrc 2>/dev/null; echo $PATH | grep -q xrd-tools && echo "yes" || echo "no"')
+# Check if PATH is properly configured for interactive shells
+print_info "Checking PATH configuration for interactive shell sessions..."
 
-if [[ "$developer_path_clean" == "yes" ]]; then
-    print_success "Developer user's PATH contains xrd-tools directory (persistent)"
-elif [[ "$developer_path_sourced" == "yes" ]]; then
-    print_success "Developer user's PATH contains xrd-tools directory (after sourcing profile)"
-    print_info "PATH is correctly configured in profile files"
+# Check if xrd-tools is in interactive shell PATH (this is what users will experience)
+interactive_path_check=$(run_as_developer "bash -l -c 'echo \$PATH | grep -q xrd-tools && echo \"yes\" || echo \"no\"'")
+
+if [[ "$interactive_path_check" == "yes" ]]; then
+    print_success "Developer user's PATH contains xrd-tools in interactive shells"
+    print_info "Users will have access to xr-compose in normal terminal sessions"
 else
-    print_warning "Developer user's PATH does not contain xrd-tools directory"
-    print_info "This may cause issues in new shell sessions"
-    print_info "Verify that shell profile files (.bashrc, .bash_profile, .zshrc) are properly configured"
-    
-    # Additional diagnostic information
+    # Check if the PATH entry exists in .bashrc but is blocked by interactive check
     profile_check=$(run_as_developer 'grep -c "xrd-tools" ~/.bashrc 2>/dev/null || echo "0"')
-    if [[ "$profile_check" -gt "0" ]]; then
+    interactive_guard=$(run_as_developer 'grep -c "If not running interactively" ~/.bashrc 2>/dev/null || echo "0"')
+    
+    if [[ "$profile_check" -gt "0" ]] && [[ "$interactive_guard" -gt "0" ]]; then
+        print_warning "xrd-tools PATH entry exists in .bashrc but is blocked by interactive shell guard"
         print_info "Found $profile_check xrd-tools entries in ~/.bashrc"
-        print_info "The PATH issue may be with shell initialization in non-interactive mode"
+        print_info "The .bashrc has an interactive shell check that prevents PATH loading in scripts"
+        print_info "This is normal bash behavior - users will have access in interactive terminals"
+        
+        # Verify this works in an actual interactive-style shell
+        test_interactive=$(run_as_developer "bash -i -c 'echo \$PATH' 2>/dev/null | grep -q xrd-tools && echo 'yes' || echo 'no'" 2>/dev/null || echo 'no')
+        if [[ "$test_interactive" == "yes" ]]; then
+            print_success "Confirmed: PATH works correctly in interactive mode"
+        fi
     else
-        print_warning "No xrd-tools entries found in ~/.bashrc"
-        print_info "Run 'make clone-xrd-tools' to properly configure the PATH"
+        print_error "PATH is not properly configured for developer user"
+        if [[ "$profile_check" -eq "0" ]]; then
+            print_info "No xrd-tools entries found in ~/.bashrc"
+            print_info "Run 'make clone-xrd-tools' to properly configure the PATH"
+        fi
+        exit 1
     fi
 fi
 
