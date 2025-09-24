@@ -75,17 +75,15 @@ See full `compose` file on [the XRd-Sandbox Github repository](https://github.co
 
 When working on your own environment, ensure you run `host-check` to verify your host is ready for `XRd`. The host in the Sandbox is already prepared.
 
-**You won't be able to run the command** since it requires `sudo` privileges. Look at the output to become familiar with it.
-
 ```bash
-sudo ~/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+sudo /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ```
 
 <details>
 <summary>OUTPUT</summary>
 
 ```bash
-developer@ubuntu:~$ sudo ~/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+developer@ubuntu:~$ sudo /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ==============================
 Platform checks - xrd-control-plane
 ==============================

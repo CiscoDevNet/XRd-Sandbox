@@ -88,18 +88,15 @@ To learn more about these and other flags, see [User Interface and Knobs for XRd
 
 When working on your own environment, ensure you run [host-check](https://github.com/ios-xr/xrd-tools/blob/main/scripts/host-check) to verify your host is ready for `XRd`. Make sure you pick the right choices for your image (control plane or vrouter). The host in the Sandbox is already prepared.
 
-> [!NOTE]
-> You won't be able to run the command in the Sandbox since it requires `sudo` privileges. Look at the output to become familiar with it.
-
 ```bash
-sudo /home/developer/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+sudo /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ```
 
 <details>
 <summary>OUTPUT</summary>
 
 ```bash
-developer@ubuntu:~$ sudo ~/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+developer@ubuntu:~$ sudo /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ==============================
 Platform checks - xrd-control-plane
 ==============================
