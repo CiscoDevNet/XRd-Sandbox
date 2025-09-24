@@ -91,12 +91,22 @@ else
     print_info "xrd-tools scripts already in PATH"
 fi
 
-# Create or update shell profile entries for persistent PATH
-SHELL_PROFILES=("$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.zshrc")
+# Define the target user for PATH setup (developer user)
+DEVELOPER_USER="developer"
+DEVELOPER_HOME="/home/$DEVELOPER_USER"
+
+# Verify developer user exists
+if ! id "$DEVELOPER_USER" &>/dev/null; then
+    print_error "Developer user '$DEVELOPER_USER' does not exist"
+    exit 1
+fi
+
+# Create or update shell profile entries for persistent PATH (for developer user)
+SHELL_PROFILES=("$DEVELOPER_HOME/.bashrc" "$DEVELOPER_HOME/.bash_profile" "$DEVELOPER_HOME/.zshrc")
 PATH_EXPORT_LINE="export PATH=\"$XRD_SCRIPTS_DIR:\$PATH\""
 PATH_COMMENT="# Added by XRd-Sandbox for xrd-tools scripts"
 
-print_info "Setting up persistent PATH in shell profiles..."
+print_info "Setting up persistent PATH in shell profiles for user '$DEVELOPER_USER'..."
 for profile in "${SHELL_PROFILES[@]}"; do
     if [ -f "$profile" ]; then
         # Remove any existing xrd-tools PATH entries to avoid duplicates
@@ -105,7 +115,16 @@ for profile in "${SHELL_PROFILES[@]}"; do
         echo "" >> "$profile"
         echo "$PATH_COMMENT" >> "$profile"
         echo "$PATH_EXPORT_LINE" >> "$profile"
+        # Ensure proper ownership
+        chown "$DEVELOPER_USER:$DEVELOPER_USER" "$profile"
         print_success "Updated PATH in $profile"
+    elif [ "$profile" = "$DEVELOPER_HOME/.bashrc" ]; then
+        # Always create .bashrc if it doesn't exist (most important for login shells)
+        print_info "Creating $profile for user '$DEVELOPER_USER'"
+        echo "$PATH_COMMENT" > "$profile"
+        echo "$PATH_EXPORT_LINE" >> "$profile"
+        chown "$DEVELOPER_USER:$DEVELOPER_USER" "$profile"
+        print_success "Created and updated PATH in $profile"
     fi
 done
 
@@ -124,9 +143,11 @@ fi
 
 echo ""
 print_success "xrd-tools setup completed successfully!"
-print_info "All xrd-tools scripts are now available in your PATH"
+print_info "PATH has been configured for user '$DEVELOPER_USER'"
 print_info "Available commands: xr-compose, host-check, launch-xrd, apply-bugfixes"
 print_info ""
-print_info "Note: If running in a new terminal, you may need to:"
-print_info "  source ~/.bashrc   # or your shell profile"
+print_info "For the developer user to use these tools, they need to:"
+print_info "  source ~/.bashrc   # or their shell profile"
 print_info "  or start a new terminal session"
+print_info ""
+print_info "The tools will be available at: $XRD_SCRIPTS_DIR"
