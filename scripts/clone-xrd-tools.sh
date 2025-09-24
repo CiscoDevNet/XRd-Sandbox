@@ -43,6 +43,28 @@ else
     fi
 fi
 
+# Set read-only permissions to prevent modifications
+print_info "Setting read-only permissions on xrd-tools repository..."
+
+# Remove write permissions for all users (owner, group, others)
+if chmod -R a-w "$XRD_TOOLS_DIR"; then
+    print_success "Write permissions removed from xrd-tools repository"
+else
+    print_warning "Failed to remove write permissions"
+fi
+
+# Additionally, make scripts executable but not writable
+if find "$XRD_TOOLS_DIR" -name "*.py" -o -name "xr-compose" -o -name "host-check" -o -name "launch-xrd" -o -name "apply-bugfixes" | xargs chmod a+x,a-w 2>/dev/null; then
+    print_success "Script files set to executable but read-only"
+else
+    print_info "Some script permission updates may have failed (non-critical)"
+fi
+
+# Set directory permissions to allow traversal but prevent modifications
+find "$XRD_TOOLS_DIR" -type d -exec chmod a+rx,a-w {} \; 2>/dev/null || print_warning "Some directory permission updates failed"
+
+print_success "xrd-tools repository secured with read-only permissions"
+
 # Verify the scripts directory exists
 XRD_SCRIPTS_DIR="$XRD_TOOLS_DIR/scripts"
 if [ ! -d "$XRD_SCRIPTS_DIR" ]; then

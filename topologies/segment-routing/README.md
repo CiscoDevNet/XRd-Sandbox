@@ -314,3 +314,14 @@ developer@ubuntu:~$ cat /etc/docker/daemon.json
 }
 developer@ubuntu:~$
 ```
+
+### Allow host-check to run with sudo without password
+
+To allow the users to run `host-check` with `sudo` without password, we created a file `/etc/sudoers.d/developer-hostcheck` with the following content.
+
+```bash
+root@xrd-base:/etc/sudoers.d# cat developer-hostcheck
+developer ALL=(ALL) NOPASSWD: /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check
+root@xrd-base:/etc/sudoers.d# pwd
+/etc/sudoers.d
+```
