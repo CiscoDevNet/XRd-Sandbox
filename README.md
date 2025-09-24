@@ -182,19 +182,19 @@ Replace <version> with the actual XRd version you are updating to, e.g., `25.3.1
 Clone the xrd-tools repository:
 
 ```bash
-make clone-xrd-tools
+sudo make -C /home/developer/XRd-Sandbox clone-xrd-tools
 ```
 
 Setup the XRd container image:
 
 ```bash
-make setup-xrd
+sudo make -C /home/developer/XRd-Sandbox setup-xrd
 ```
 
 4. **Validate the environment is ready**
 
 ```bash
-make validate-environment
+sudo make -C /home/developer/XRd-Sandbox validate-environment
 ```
 
 5. **Clean up temporary files after deployment**
@@ -202,7 +202,7 @@ make validate-environment
 After successful deployment, clean up temporary files to free up disk space:
 
 ```bash
-make cleanup-temp-files
+sudo make -C /home/developer/XRd-Sandbox cleanup-temp-files
 ```
 
 This command will:
