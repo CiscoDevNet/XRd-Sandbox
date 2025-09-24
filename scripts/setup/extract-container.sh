@@ -8,14 +8,14 @@ set -e  # Exit on any error
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Project root directory (parent of scripts directory)
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# Project root directory - XRd Sandbox root (fixed path)
+readonly PROJECT_ROOT="/home/developer/XRd-Sandbox"
 
 # Source common utilities
-source "$SCRIPT_DIR/common_utils.sh"
+source "$SCRIPT_DIR/../lib/common.sh"
 
 # Source format detection utilities
-source "$SCRIPT_DIR/xrd-format-utils.sh"
+source "$SCRIPT_DIR/../lib/container-format.sh"
 
 # Initialize environment (load env vars, validate, detect container engine)
 if ! init_sandbox_environment "XRD_CONTAINER_VERSION" "XRD_CONTAINER_ARCHIVE"; then
@@ -117,5 +117,5 @@ echo ""
 print_success "Extraction process finished."
 echo ""
 print_info "Next steps:"
-print_info "- Use './scripts/load-xrd-container.sh' to load the container into $CONTAINER_ENGINE_NAME"
+print_info "- Use './scripts/setup/load-container.sh' to load the container into $CONTAINER_ENGINE_NAME"
 print_info "- The load script will automatically detect and handle the correct format"

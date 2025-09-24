@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMON_UTILS="$SCRIPT_DIR/common_utils.sh"
+<parameter name="COMMON_UTILS">="$SCRIPT_DIR/../lib/common.sh"
 
 # Source common utilities
 if [[ -f "$COMMON_UTILS" ]]; then

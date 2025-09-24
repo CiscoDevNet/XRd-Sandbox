@@ -8,14 +8,14 @@ set -e  # Exit on any error
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# Project root directory (parent of scripts directory)
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# Project root directory - XRd Sandbox root (fixed path)
+readonly PROJECT_ROOT="/home/developer/XRd-Sandbox"
 
 # Source common utilities
-source "$SCRIPT_DIR/common_utils.sh"
+source "$SCRIPT_DIR/../lib/common.sh"
 
 # Source format detection utilities
-source "$SCRIPT_DIR/xrd-format-utils.sh"
+source "$SCRIPT_DIR/../lib/container-format.sh"
 
 # Initialize environment (load env vars, validate, detect container engine)
 if ! init_sandbox_environment "XRD_CONTAINER_VERSION" "XRD_CONTAINER_ARCHIVE"; then
@@ -89,11 +89,11 @@ if [[ -f "$ARCHIVE_PATH" ]] && [[ ! -d "$EXTRACT_DIR" ]]; then
             ;;
         "nested")
             print_warning "Archive contains nested structure. Extraction required."
-            print_info "Please run './scripts/extract-xrd-container.sh' first, then run this script again."
+            print_info "Please run './scripts/setup/extract-container.sh' first, then run this script again."
             exit 1
             ;;
         *)
-            print_warning "Unknown format. Please extract first using './scripts/extract-xrd-container.sh'"
+            print_warning "Unknown format. Please extract first using './scripts/setup/extract-container.sh'"
             exit 1
             ;;
     esac
@@ -151,7 +151,7 @@ else
     echo ""
     print_info "Please ensure you have either:"
     print_info "1. The original archive file: $XRD_CONTAINER_ARCHIVE"
-    print_info "2. Extracted content in: $EXTRACT_DIR (run './scripts/extract-xrd-container.sh' first)"
+    print_info "2. Extracted content in: $EXTRACT_DIR (run './scripts/setup/extract-container.sh' first)"
     exit 1
 fi
 

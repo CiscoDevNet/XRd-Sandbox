@@ -29,8 +29,8 @@ print_error() {
 
 # Function to get the sandbox root directory
 get_sandbox_root() {
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[1]}")" && pwd)"
-    echo "$(dirname "$script_dir")"
+    # XRd Sandbox root directory (fixed path for consistency)
+    echo "/home/developer/XRd-Sandbox"
 }
 
 # Function to load environment variables from sandbox_env_vars.sh

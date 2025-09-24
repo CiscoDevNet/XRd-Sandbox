@@ -23,7 +23,7 @@ set -e  # Exit on any error
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMON_UTILS="$SCRIPT_DIR/common_utils.sh"
+COMMON_UTILS="$SCRIPT_DIR/../lib/common.sh"
 
 # Source common utilities
 if [[ -f "$COMMON_UTILS" ]]; then
@@ -132,7 +132,8 @@ fi
 
 # Check if required files exist
 print_info "Validating required files..."
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# Project root directory - XRd Sandbox root (fixed path)
+readonly PROJECT_ROOT="/home/developer/XRd-Sandbox"
 ARCHIVE_PATH="$PROJECT_ROOT/$XRD_CONTAINER_ARCHIVE"
 
 if validate_file_exists "$SANDBOX_ROOT/topologies/segment-routing/docker-compose.xr.yml" "Segment Routing template"; then

@@ -17,23 +17,23 @@ export CONTAINER_ENGINE CONTAINER_ENGINE_NAME
 # Only used for sandbox development
 setup-ssh:
 	@echo "=== Setting up SSH keys for Git operations ==="
-	@chmod +x ./scripts/setup_ssh.sh
-	@./scripts/setup_ssh.sh
+	@chmod +x ./scripts/setup/configure-ssh.sh
+	@./scripts/setup/configure-ssh.sh
 
 clone-xrd-tools:
 	@echo "=== Setting up xrd-tools repository and PATH ==="
-	@chmod +x ./scripts/clone-xrd-tools.sh
-	@./scripts/clone-xrd-tools.sh
+	@chmod +x ./scripts/setup/install-xrd-tools.sh
+	@./scripts/setup/install-xrd-tools.sh
 
 validate-environment:
 	@echo "=== Validating Environment ==="
-	@chmod +x ./scripts/validate-environment.sh
-	@./scripts/validate-environment.sh
+	@chmod +x ./scripts/validation/environment.sh
+	@./scripts/validation/environment.sh
 
 deploy-segment-routing:
 	@echo "=== Deploying Segment Routing Sandbox ==="
-	@chmod +x ./scripts/deploy-segment-routing.sh
-	@./scripts/deploy-segment-routing.sh
+	@chmod +x ./scripts/deployment/segment-routing.sh
+	@./scripts/deployment/segment-routing.sh
 
 undeploy-segment-routing:
 	@echo "=== Undeploying Segment Routing Sandbox ==="
@@ -45,13 +45,13 @@ follow-segment-routing-logs:
 
 extract-xrd:
 	@echo "=== Extracting XRd Container Archive ==="
-	@chmod +x ./scripts/extract-xrd-container.sh
-	@./scripts/extract-xrd-container.sh
+	@chmod +x ./scripts/setup/extract-container.sh
+	@./scripts/setup/extract-container.sh
 
 load-xrd:
 	@echo "=== Loading XRd Container into $(CONTAINER_ENGINE_NAME) ==="
-	@chmod +x ./scripts/load-xrd-container.sh
-	@./scripts/load-xrd-container.sh
+	@chmod +x ./scripts/setup/load-container.sh
+	@./scripts/setup/load-container.sh
 
 setup-xrd: extract-xrd load-xrd
 	@echo "=== XRd Container Setup Complete ==="
@@ -60,8 +60,8 @@ setup-xrd: extract-xrd load-xrd
 
 cleanup-environment:
 	@echo "=== Cleaning Up Environment After Setup ==="
-	@chmod +x ./scripts/cleanup-environment.sh
-	@./scripts/cleanup-environment.sh
+	@chmod +x ./scripts/maintenance/cleanup.sh
+	@./scripts/maintenance/cleanup.sh
 
 help:
 	@echo "Available targets:"

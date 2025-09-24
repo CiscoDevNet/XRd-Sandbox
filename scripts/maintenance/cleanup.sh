@@ -10,7 +10,7 @@
 # - XRd container archive files (.tgz files for both x64 and x86 architectures)
 #
 # Usage:
-# - Direct execution: ./scripts/cleanup-environment.sh
+# - Direct execution: ./scripts/maintenance/cleanup.sh
 # - Via Makefile: make cleanup-environment
 # - CI/CD Integration: The script provides detailed status output suitable for automated systems
 #
@@ -29,7 +29,7 @@ set -uo pipefail
 
 # Source common utilities for consistent logging
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$SCRIPT_DIR/common_utils.sh"
+source "$SCRIPT_DIR/../lib/common.sh"
 
 # Initialize cleanup status tracking
 CLEANUP_SUCCESS=true

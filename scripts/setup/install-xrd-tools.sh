@@ -7,8 +7,9 @@ set -e  # Exit on any error
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMON_UTILS="$SCRIPT_DIR/common_utils.sh"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+COMMON_UTILS="$SCRIPT_DIR/../lib/common.sh"
+# Project root directory - XRd Sandbox root (fixed path)
+readonly PROJECT_ROOT="/home/developer/XRd-Sandbox"
 XRD_TOOLS_DIR="$PROJECT_ROOT/xrd-tools"
 
 # Source common utilities
