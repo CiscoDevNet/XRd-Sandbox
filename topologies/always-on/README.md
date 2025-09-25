@@ -62,6 +62,16 @@ A basic configuration is pre-applied to each node, including:
 - Username: `cisco`
 - Password: `C1sco12345`
 
+## 🔌 Available Protocols & Ports
+
+| Protocol | Port  | Transport |
+| -------- | ----- | --------- |
+| SSH      | 22    | TCP/SSH   |
+| NETCONF  | 830   | SSH       |
+| gNMI     | 57777 | gRPC      |
+
+- **gNMI:** No TLS (lab environment)
+
 ## 🚀 Automated Deployment (Recommended)
 
 The easiest way to deploy this topology is using the Makefile targets:
