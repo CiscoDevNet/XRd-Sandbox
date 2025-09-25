@@ -4,17 +4,10 @@
 #     /    \
 #  xrd2 -- xrd3
 
-# Networks
-# --------------
-# host (172.28.0.1/16): xrd1 172.28.0.10, xrd2 172.28.0.20, xrd3 172.28.0.30
-# xrd1-xrd2 (10.0.3.0/24):  10.0.3.1 - 10.0.3.2 (Gi0/0/0/1 - Gi0/0/0/0)
-# xrd1-xrd3 (10.0.4.0/24):  10.0.4.1 - 10.0.4.3 (Gi0/0/0/6 - Gi0/0/0/6)
-# xrd2-xrd3 (10.0.5.0/24):  10.0.5.2 - 10.0.5.3 (Gi0/0/0/1 - Gi0/0/0/1)
-
 services:
   xrd1:
     container_name: xrd1
-    xr_startup_cfg: xrd1_xrconf.cfg
+    xr_startup_cfg: xrd-1-startup.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -26,7 +19,7 @@ services:
         ipv4_address: 10.10.20.101
   xrd2:
     container_name: xrd2
-    xr_startup_cfg: xrd2_xrconf.cfg
+    xr_startup_cfg: xrd-2-startup.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/2
@@ -38,7 +31,7 @@ services:
         ipv4_address: 10.10.20.102
   xrd3:
     container_name: xrd3
-    xr_startup_cfg: xrd3_xrconf.cfg
+    xr_startup_cfg: xrd-3-startup.cfg
     xr_interfaces:
       - Gi0/0/0/1
       - Gi0/0/0/2
