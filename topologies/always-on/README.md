@@ -55,6 +55,33 @@ The IOS XR Always-On Sandbox provides an environment where developers and networ
 - `Gi0/0/0/1`: `10.1.3.3/24` (to xrd-1)
 - `Gi0/0/0/2`: `10.2.3.3/24` (to xrd-2)
 
+## ⚠️ Important: Shared Environment Notice
+
+**📋 Initial State Reference**
+
+The IP addressing, hostnames, and protocol configurations shown above represent the **initial deployment state** and serve as a reference for getting started. However, since this is a **shared sandbox environment**:
+
+- 🔄 **Configuration may drift over time** as other users make changes
+- 🏷️ **IP addresses and hostnames** may be modified by other developers
+- ⚙️ **Protocol settings** (OSPF, BGP) may be reconfigured or disabled
+- 🚀 **Use initial state as a jumpstart** - not guaranteed to always be available
+
+**🔗 What Remains Constant**
+
+The following elements are permanent and will always be available:
+
+**Physical Link Connections:**
+
+- ✅ `xrd-1 Gi0/0/0/0` ↔ `xrd-2 Gi0/0/0/0`
+- ✅ `xrd-1 Gi0/0/0/1` ↔ `xrd-3 Gi0/0/0/1`
+- ✅ `xrd-2 Gi0/0/0/2` ↔ `xrd-3 Gi0/0/0/2`
+
+**Access Credentials:**
+
+- ✅ Username: `cisco` / Password: `C1sco12345`
+
+💡 **Recommendation:** Always verify current configuration when connecting to the sandbox and be prepared to adapt to the existing state.
+
 ## 🔧 Protocol Configuration
 
 A basic configuration is pre-applied to each node, including:
