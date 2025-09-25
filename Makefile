@@ -43,6 +43,19 @@ follow-segment-routing-logs:
 	@echo "=== Following Segment Routing Sandbox logs ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/segment-routing/docker-compose.yml logs --follow
 
+deploy-always-on:
+	@echo "=== Deploying Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on.sh
+	@./scripts/deployment/always-on.sh
+
+undeploy-always-on:
+	@echo "=== Undeploying Always-On Sandbox ==="
+	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/always-on/docker-compose.yml down --volumes --remove-orphans
+
+follow-always-on-logs:
+	@echo "=== Following Always-On Sandbox logs ==="
+	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/always-on/docker-compose.yml logs --follow
+
 extract-xrd:
 	@echo "=== Extracting XRd Container Archive ==="
 	@chmod +x ./scripts/setup/extract-container.sh
@@ -71,10 +84,13 @@ help:
 	@echo "  deploy-segment-routing      - Deploy Segment Routing Sandbox"
 	@echo "  undeploy-segment-routing    - Undeploy Segment Routing Sandbox"
 	@echo "  follow-segment-routing-logs - Follow Segment Routing Sandbox logs"
+	@echo "  deploy-always-on            - Deploy Always-On Sandbox"
+	@echo "  undeploy-always-on          - Undeploy Always-On Sandbox"
+	@echo "  follow-always-on-logs       - Follow Always-On Sandbox logs"
 	@echo "  extract-xrd                 - Extract XRd container archive"
 	@echo "  load-xrd                    - Load XRd container into $(CONTAINER_ENGINE_NAME)"
 	@echo "  setup-xrd                   - Extract and load XRd container (full setup)"
 	@echo "  cleanup-environment         - Clean up environment after successful setup"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs extract-xrd load-xrd setup-xrd cleanup-environment help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment help
