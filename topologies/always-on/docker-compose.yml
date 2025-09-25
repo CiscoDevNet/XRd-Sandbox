@@ -58,7 +58,7 @@ services:
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
       XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-10,xr_name=Gi0/0/0/1
-      XR_MGMT_INTERFACES: linux:xr-30,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
+      XR_MGMT_INTERFACES: linux:eth0,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
     image: ios-xr/xrd-control-plane:25.3.1
     networks:
       mgmt:
@@ -107,7 +107,7 @@ services:
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
       XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-20,xr_name=Gi0/0/0/2
-      XR_MGMT_INTERFACES: linux:xr-30,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
+      XR_MGMT_INTERFACES: linux:eth0,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
     image: ios-xr/xrd-control-plane:25.3.1
     networks:
       mgmt:
@@ -156,7 +156,7 @@ services:
     environment:
       XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
       XR_INTERFACES: linux:xr-10,xr_name=Gi0/0/0/1;linux:xr-20,xr_name=Gi0/0/0/2
-      XR_MGMT_INTERFACES: linux:xr-30,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
+      XR_MGMT_INTERFACES: linux:eth0,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
     image: ios-xr/xrd-control-plane:25.3.1
     networks:
       mgmt:
