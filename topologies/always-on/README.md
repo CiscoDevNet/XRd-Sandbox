@@ -1,6 +1,13 @@
 # 🔄 Always-On Sandbox Topology
 
-This directory contains the configuration files and Docker Compose setup for an always-on XRd sandbox topology. The topology consists of three XRd nodes interconnected in a triangular fashion, allowing for continuous operation and testing.
+## 📖 Overview
+
+The IOS XR Always-On Sandbox provides an environment where developers and network engineers can explore the programmability options available on this routing platform. These include:
+
+- **Model Driven Programmability** with YANG Data Models and NETCONF
+- **Streaming Telemetry**
+- **Service-Layer APIs**
+- **Application Hosting**
 
 ## 🌐 Topology Overview
 
@@ -137,3 +144,38 @@ docker compose --file \
   /home/developer/XRd-Sandbox/topologies/always-on/docker-compose.yml \
   down --volumes --remove-orphans
 ```
+
+## ⚖️ Good Citizen Code of Conduct
+
+This "IOS-XR" Always On Sandbox resource is shared. This means that you can see other developers' and network engineers changes and they can see yours.
+
+**Please follow these guidelines:**
+
+- ❌ **Do not erase or change** configuration you have not created yourself.
+- ❌ **Do not perform performance testing** against this shared instance.
+- ✅ **Use this space to explore, learn & verify** interoperability.
+
+## 📚 Learning Resources
+
+There are various examples and documentation to assist with getting started:
+
+### Programming Guides
+
+- 🔗 [Programmability @ XRdocs.io](https://xrdocs.io/programmability/)
+- 🔗 [Application hosting @ XRdocs.io](https://xrdocs.io/application-hosting/)
+- 🔗 [Model Driven Programmability](https://developer.cisco.com/site/standard-network-devices/)
+- 🔗 [IOS-XR over gRPC](https://developer.cisco.com/network-automation/detail/5d6bbd08-7099-11eb-aa41-aa8fea613d8b/)
+
+### Support
+
+- 🆘 [Sandbox Support](https://communities.cisco.com/community/developer/sandbox)
+
+## 🎯 Use Cases
+
+This sandbox is perfect for:
+
+- 🧪 **Testing NETCONF/YANG configurations**
+- 📊 **Exploring streaming telemetry capabilities**
+- 🔌 **Developing gNMI-based applications**
+- 🏗️ **Prototyping network automation scripts**
+- 📚 **Learning IOS XR programmability features**
