@@ -1,0 +1,184 @@
+networks:
+  mgmt:
+    driver: macvlan
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-3
+      parent: ens192
+    ipam:
+      config:
+      - gateway: 10.10.20.254
+        subnet: 10.10.20.0/24
+  xrd1-gi0-xrd2-gi0:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-0
+      com.docker.network.driver.mtu: 9000
+    internal: true
+    name: xrd1-gi0-xrd2-gi0
+  xrd1-gi1-xrd3-gi1:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-1
+      com.docker.network.driver.mtu: 9000
+    internal: true
+    name: xrd1-gi1-xrd3-gi1
+  xrd2-gi2-xrd3-gi2:
+    driver_opts:
+      com.docker.network.container_iface_prefix: xr-2
+      com.docker.network.driver.mtu: 9000
+    internal: true
+    name: xrd2-gi2-xrd3-gi2
+services:
+  xrd1:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    cap_drop:
+    - all
+    container_name: xrd-1
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-10,xr_name=Gi0/0/0/1
+      XR_MGMT_INTERFACES: linux:xr-30,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
+    image: ios-xr/xrd-control-plane:25.3.1
+    networks:
+      mgmt:
+        ipv4_address: 10.10.20.101
+      xrd1-gi0-xrd2-gi0: null
+      xrd1-gi1-xrd3-gi1: null
+    pids_limit: -1
+    security_opt:
+    - apparmor=unconfined
+    - label=disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./xrd-1-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd1:/xr-storage/
+  xrd2:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    cap_drop:
+    - all
+    container_name: xrd-2
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-00,xr_name=Gi0/0/0/0;linux:xr-20,xr_name=Gi0/0/0/2
+      XR_MGMT_INTERFACES: linux:xr-30,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
+    image: ios-xr/xrd-control-plane:25.3.1
+    networks:
+      mgmt:
+        ipv4_address: 10.10.20.102
+      xrd1-gi0-xrd2-gi0: null
+      xrd2-gi2-xrd3-gi2: null
+    pids_limit: -1
+    security_opt:
+    - apparmor=unconfined
+    - label=disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./xrd-2-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd2:/xr-storage/
+  xrd3:
+    cap_add:
+    - CHOWN
+    - DAC_OVERRIDE
+    - FSETID
+    - FOWNER
+    - MKNOD
+    - NET_RAW
+    - SETGID
+    - SETUID
+    - SETFCAP
+    - SETPCAP
+    - NET_BIND_SERVICE
+    - SYS_CHROOT
+    - KILL
+    - AUDIT_WRITE
+    - SYS_NICE
+    - SYS_ADMIN
+    - SYS_RESOURCE
+    - NET_ADMIN
+    - SYS_PTRACE
+    - IPC_LOCK
+    cap_drop:
+    - all
+    container_name: xrd-3
+    devices:
+    - /dev/fuse
+    - /dev/net/tun
+    environment:
+      XR_EVERY_BOOT_CONFIG: /etc/xrd/startup.cfg
+      XR_INTERFACES: linux:xr-10,xr_name=Gi0/0/0/1;linux:xr-20,xr_name=Gi0/0/0/2
+      XR_MGMT_INTERFACES: linux:xr-30,xr_name=Mg0/RP0/CPU0/0,chksum,snoop_v4,snoop_v4_default_route
+    image: ios-xr/xrd-control-plane:25.3.1
+    networks:
+      mgmt:
+        ipv4_address: 10.10.20.103
+      xrd1-gi1-xrd3-gi1: null
+      xrd2-gi2-xrd3-gi2: null
+    pids_limit: -1
+    security_opt:
+    - apparmor=unconfined
+    - label=disable
+    stdin_open: true
+    tty: true
+    volumes:
+    - source: ./xrd-3-startup.cfg
+      target: /etc/xrd/startup.cfg
+      type: bind
+    - xrd3:/xr-storage/
+version: '2.4'
+volumes:
+  xrd1:
+    name: xrd1
+  xrd2:
+    name: xrd2
+  xrd3:
+    name: xrd3
