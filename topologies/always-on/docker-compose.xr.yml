@@ -1,0 +1,62 @@
+# Topology
+# --------------
+#      xrd1
+#     /    \
+#  xrd2 -- xrd3
+
+services:
+  xrd1:
+    container_name: xrd-1
+    xr_startup_cfg: xrd-1-startup.cfg
+    xr_interfaces:
+      - Gi0/0/0/0
+      - Gi0/0/0/1
+      - Mg0/RP0/CPU0/0:
+          snoop_v4: True
+          snoop_v4_default_route: True
+    networks:
+      mgmt:
+        ipv4_address: 10.10.20.101
+  xrd2:
+    container_name: xrd-2
+    xr_startup_cfg: xrd-2-startup.cfg
+    xr_interfaces:
+      - Gi0/0/0/0
+      - Gi0/0/0/2
+      - Mg0/RP0/CPU0/0:
+          snoop_v4: True
+          snoop_v4_default_route: True
+    networks:
+      mgmt:
+        ipv4_address: 10.10.20.102
+  xrd3:
+    container_name: xrd-3
+    xr_startup_cfg: xrd-3-startup.cfg
+    xr_interfaces:
+      - Gi0/0/0/1
+      - Gi0/0/0/2
+      - Mg0/RP0/CPU0/0:
+          snoop_v4: True
+          snoop_v4_default_route: True
+    networks:
+      mgmt:
+        ipv4_address: 10.10.20.103
+
+xr_l2networks:
+  - ["xrd1:Gi0/0/0/0", "xrd2:Gi0/0/0/0"]
+  - ["xrd1:Gi0/0/0/1", "xrd3:Gi0/0/0/1"]
+  - ["xrd2:Gi0/0/0/2", "xrd3:Gi0/0/0/2"]
+
+networks:
+  mgmt:
+    xr_interfaces:
+      - xrd1:Mg0/RP0/CPU0/0
+      - xrd2:Mg0/RP0/CPU0/0
+      - xrd3:Mg0/RP0/CPU0/0
+    ipam:
+      config:
+        - subnet: 10.10.20.0/24
+          gateway: 10.10.20.254
+    driver: macvlan
+    driver_opts:
+      parent: ens192

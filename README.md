@@ -14,7 +14,7 @@ Find the XRd Sandbox at [developer.cisco.com/sandbox](https://developer.cisco.co
 On the XRd Sandbox, you find:
 
 - Ubuntu VM with a Docker image of XRd control plane.
-- Sample Sandbox XRd Topology.
+- Copy of this repository.
 - Copy of [xrd-tools GitHub repository.](https://github.com/ios-xr/xrd-tools/tree/main)
 
 At the end of the Sandbox, you learn how to work with XRd in a containerized environment with a working segment routing topology.
@@ -40,6 +40,8 @@ src --- xrd-1  |        |  xrd-2 --- dst
 
 The Lab is a copy of the [segment-routing sample topology](https://github.com/ios-xr/xrd-tools/tree/main/samples/xr_compose_topos/segment-routing) from [xrd-tools](https://github.com/ios-xr/xrd-tools) with additional _modifications_ to work on the Sandbox management network.
 
+On the sandbox instructions you will find the steps to run the Lab. Additionally you can run them directly using `make -C ~/XRd-Sandbox deploy-segment-routing`
+
 ### Docker Driver
 
 [Docker macvlan](https://docs.docker.com/engine/network/drivers/macvlan/) represents one modification that allows the `XRd` containers to be on the same management network as the host.
@@ -56,7 +58,7 @@ networks:
       parent: ens160
 ```
 
-See the [docker-compose.xr.yml file](docker-compose.xr.yml#L186) to see the full configuration.
+See the [docker-compose.xr.yml file](topologies/segment-routing/docker-compose.xr.yml#L186) to see the full configuration.
 
 ### Management Addresses in XRd
 
@@ -86,18 +88,15 @@ To learn more about these and other flags, see [User Interface and Knobs for XRd
 
 When working on your own environment, ensure you run [host-check](https://github.com/ios-xr/xrd-tools/blob/main/scripts/host-check) to verify your host is ready for `XRd`. Make sure you pick the right choices for your image (control plane or vrouter). The host in the Sandbox is already prepared.
 
-> [!NOTE]
-> You won't be able to run the command in the Sandbox since it requires `sudo` privileges. Look at the output to become familiar with it.
-
 ```bash
-sudo /home/developer/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+sudo /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ```
 
 <details>
 <summary>OUTPUT</summary>
 
 ```bash
-developer@ubuntu:~$ sudo ~/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
+developer@ubuntu:~$ sudo /home/developer/XRd-Sandbox/xrd-tools/scripts/host-check --platform xrd-control-plane --extra-checks docker --extra-checks xr-compose
 ==============================
 Platform checks - xrd-control-plane
 ==============================
@@ -152,6 +151,64 @@ developer@ubuntu:~$
 ### Start the Lab
 
 To practice, go to [developer.cisco.com/sandbox](https://developer.cisco.com/site/sandbox/) click on _"Launch Sandbox"_ look for the XRd Sandbox and create a reservation.
+
+## 🚀 Sandbox Deployment Workflow
+
+### For Sandbox Team
+
+1. **Clone the repository**
+
+Clone the repository with the specific XRd version specified on the [sandbox_env_vars.sh](sandbox_env_vars.sh#l1) file as a tag. You can also find all the tags created on the GitHub tags page.
+
+```bash
+git clone --branch v<version> https://github.com/CiscoDevNet/XRd-Sandbox.git
+cd XRd-Sandbox
+```
+
+2. **Download XRd container image**
+
+Download the corresponding XRd container image archive (`.tgz` file) from software.cisco.com and **place it in the project root**. The filename should match one of these patterns:
+
+Replace <version> with the actual XRd version you are updating to, e.g., `25.3.1`
+
+- `xrd-control-plane-container-x64.<version>.tgz`
+- `xrd-control-plane-container-x86.<version>.tgz`
+
+> [!NOTE]
+> Search for _XRd Control Plane_ on software.cisco.com to find the correct image.
+
+3. **Set the Sandbox Environment**
+
+Clone the xrd-tools repository:
+
+```bash
+sudo make -C /home/developer/XRd-Sandbox clone-xrd-tools
+```
+
+Setup the XRd container image:
+
+```bash
+sudo make -C /home/developer/XRd-Sandbox setup-xrd
+```
+
+4. **Validate the environment is ready**
+
+```bash
+sudo make -C /home/developer/XRd-Sandbox validate-environment
+```
+
+5. **Clean up temporary files after deployment**
+
+After successful deployment, clean up temporary files to free up disk space:
+
+```bash
+sudo make -C /home/developer/XRd-Sandbox cleanup-environment
+```
+
+This command will:
+
+- Remove the extracted `xrd-container` directory
+- Remove the original `.tgz` archive files
 
 ## Learn more
 

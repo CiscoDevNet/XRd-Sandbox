@@ -1,0 +1,4 @@
+*.bak
+xrd-*.tgz
+xrd-container/
+xrd-tools/
