@@ -45,13 +45,13 @@ follow-segment-routing-logs:
 
 deploy-always-on:
 	@echo "=== Deploying Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/always-on.sh
-	@./scripts/deployment/always-on.sh
+	@chmod +x ./scripts/deployment/always-on/always-on.sh
+	@./scripts/deployment/always-on/always-on.sh
 
 inject-tacacs-always-on:
 	@echo "=== Injecting TACACS Configuration into Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/inject-tacacs-config.sh
-	@./scripts/deployment/inject-tacacs-config.sh
+	@chmod +x ./scripts/deployment/always-on/inject-tacacs-config.sh
+	@./scripts/deployment/always-on/inject-tacacs-config.sh
 
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="

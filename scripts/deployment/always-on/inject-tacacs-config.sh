@@ -4,10 +4,10 @@ set -e  # Exit on any error
 
 # Get the script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMON_UTILS="$SCRIPT_DIR/../lib/common.sh"
+COMMON_UTILS="$SCRIPT_DIR/../../lib/common.sh"
 
 # Determine SANDBOX_ROOT - use repository root if SANDBOX_ROOT is not valid
-REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 if [[ ! -d "$SANDBOX_ROOT/topologies/always-on" ]]; then
     if [[ -d "$REPO_ROOT/topologies/always-on" ]]; then
         SANDBOX_ROOT="$REPO_ROOT"
