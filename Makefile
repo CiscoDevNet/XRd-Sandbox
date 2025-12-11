@@ -43,7 +43,7 @@ follow-segment-routing-logs:
 	@echo "=== Following Segment Routing Sandbox logs ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/segment-routing/docker-compose.yml logs --follow
 
-deploy-always-on: inject-local-user-always-on
+deploy-always-on: inject-local-user-always-on inject-tacacs-aaa-always-on
 	@echo "=== Deploying Always-On Sandbox ==="
 	@chmod +x ./scripts/deployment/always-on/always-on.sh
 	@./scripts/deployment/always-on/always-on.sh
@@ -52,6 +52,11 @@ inject-local-user-always-on:
 	@echo "=== Injecting Local User Configuration into Always-On Sandbox ==="
 	@chmod +x ./scripts/deployment/always-on/inject-local-user.sh
 	@./scripts/deployment/always-on/inject-local-user.sh
+
+inject-tacacs-aaa-always-on:
+	@echo "=== Injecting TACACS AAA Configuration into Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/inject-tacacs-aaa.sh
+	@./scripts/deployment/always-on/inject-tacacs-aaa.sh
 
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="
@@ -91,6 +96,7 @@ help:
 	@echo "  follow-segment-routing-logs - Follow Segment Routing Sandbox logs"
 	@echo "  deploy-always-on            - Deploy Always-On Sandbox"
 	@echo "  inject-local-user-always-on - Inject local user configuration into Always-On startup files"
+	@echo "  inject-tacacs-aaa-always-on - Inject TACACS AAA configuration into Always-On startup files"
 	@echo "  undeploy-always-on          - Undeploy Always-On Sandbox"
 	@echo "  follow-always-on-logs       - Follow Always-On Sandbox logs"
 	@echo "  extract-xrd                 - Extract XRd container archive"
