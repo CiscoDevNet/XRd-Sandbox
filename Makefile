@@ -43,7 +43,7 @@ follow-segment-routing-logs:
 	@echo "=== Following Segment Routing Sandbox logs ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/segment-routing/docker-compose.yml logs --follow
 
-deploy-always-on:
+deploy-always-on: inject-local-user-always-on
 	@echo "=== Deploying Always-On Sandbox ==="
 	@chmod +x ./scripts/deployment/always-on/always-on.sh
 	@./scripts/deployment/always-on/always-on.sh
