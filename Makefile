@@ -48,10 +48,10 @@ deploy-always-on:
 	@chmod +x ./scripts/deployment/always-on/always-on.sh
 	@./scripts/deployment/always-on/always-on.sh
 
-inject-tacacs-always-on:
-	@echo "=== Injecting TACACS Configuration into Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/always-on/inject-tacacs-config.sh
-	@./scripts/deployment/always-on/inject-tacacs-config.sh
+inject-local-user-always-on:
+	@echo "=== Injecting Local User Configuration into Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/inject-local-user.sh
+	@./scripts/deployment/always-on/inject-local-user.sh
 
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="
@@ -90,7 +90,7 @@ help:
 	@echo "  undeploy-segment-routing    - Undeploy Segment Routing Sandbox"
 	@echo "  follow-segment-routing-logs - Follow Segment Routing Sandbox logs"
 	@echo "  deploy-always-on            - Deploy Always-On Sandbox"
-	@echo "  inject-tacacs-always-on     - Inject TACACS configuration into Always-On startup files"
+	@echo "  inject-local-user-always-on - Inject local user configuration into Always-On startup files"
 	@echo "  undeploy-always-on          - Undeploy Always-On Sandbox"
 	@echo "  follow-always-on-logs       - Follow Always-On Sandbox logs"
 	@echo "  extract-xrd                 - Extract XRd container archive"
@@ -99,4 +99,4 @@ help:
 	@echo "  cleanup-environment         - Clean up environment after successful setup"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on inject-tacacs-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on inject-local-user-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment help

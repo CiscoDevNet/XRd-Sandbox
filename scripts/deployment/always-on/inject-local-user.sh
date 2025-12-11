@@ -24,7 +24,7 @@ else
     print_success() { echo "[SUCCESS] $*"; }
 fi
 
-print_info "Starting TACACS configuration injection for Always-On sandbox..."
+print_info "Starting local user configuration injection for Always-On sandbox..."
 
 # Define paths
 FALLBACK_CONFIG_FILE="$SCRIPT_DIR/fallback_local_user.cfg"
@@ -42,31 +42,31 @@ if [[ ! -d "$TOPOLOGY_DIR" ]]; then
     exit 1
 fi
 
-# Function to generate TACACS configuration
-generate_tacacs_config() {
+# Function to generate local user configuration
+generate_local_user_config() {
     local config=""
     
     # Check if environment variables are set
-    if [[ -n "$TACACS_USERNAME" && -n "$TACACS_PASSWORD" ]]; then
-        print_info "Using TACACS credentials from environment variables" >&2
+    if [[ -n "$FALLBACK_LOCAL_USERNAME" && -n "$FALLBACK_LOCAL_PASSWORD" ]]; then
+        print_info "Using fallback local user credentials from environment variables" >&2
         
         # Generate password hash using Python's crypt module for SHA-512
         # This creates a type 10 secret compatible with IOS-XR
         local password_hash
-        password_hash=$(python3 -c "import crypt; print(crypt.crypt('$TACACS_PASSWORD', crypt.mksalt(crypt.METHOD_SHA512)))")
+        password_hash=$(python3 -c "import crypt; print(crypt.crypt('$FALLBACK_LOCAL_PASSWORD', crypt.mksalt(crypt.METHOD_SHA512)))")
         
         if [[ -z "$password_hash" ]]; then
             print_error "Failed to generate password hash" >&2
             exit 1
         fi
         
-        config="username $TACACS_USERNAME
+        config="username $FALLBACK_LOCAL_USERNAME
  group root-lr
  group cisco-support
  secret 10 $password_hash
 !"
     else
-        print_info "TACACS environment variables not set, using fallback local user configuration" >&2
+        print_info "Fallback local user environment variables not set, using default configuration" >&2
         config=$(cat "$FALLBACK_CONFIG_FILE")
     fi
     
@@ -102,8 +102,8 @@ inject_config_to_file() {
     print_success "Configuration injected into $(basename "$startup_file")"
 }
 
-# Generate the TACACS configuration
-TACACS_CONFIG=$(generate_tacacs_config)
+# Generate the local user configuration
+LOCAL_USER_CONFIG=$(generate_local_user_config)
 
 # Find all startup.cfg files in the topology directory
 print_info "Searching for startup configuration files in $TOPOLOGY_DIR..."
@@ -119,15 +119,15 @@ fi
 for startup_file in "${startup_files[@]}"; do
     if [[ -f "$startup_file" ]]; then
         print_info "Processing $(basename "$startup_file")..."
-        inject_config_to_file "$startup_file" "$TACACS_CONFIG"
+        inject_config_to_file "$startup_file" "$LOCAL_USER_CONFIG"
     fi
 done
 
-print_success "TACACS configuration injection completed successfully!"
+print_success "Local user configuration injection completed successfully!"
 print_info "Note: Configuration has been injected at the beginning of each startup file"
 
-if [[ -n "$TACACS_USERNAME" && -n "$TACACS_PASSWORD" ]]; then
-    print_info "Used credentials: Username=$TACACS_USERNAME"
+if [[ -n "$FALLBACK_LOCAL_USERNAME" && -n "$FALLBACK_LOCAL_PASSWORD" ]]; then
+    print_info "Used credentials: Username=$FALLBACK_LOCAL_USERNAME"
 else
-    print_info "Used fallback local user configuration from $FALLBACK_CONFIG_FILE"
+    print_info "Used default local user configuration from $FALLBACK_CONFIG_FILE"
 fi
