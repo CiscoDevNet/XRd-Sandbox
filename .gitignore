@@ -2,3 +2,4 @@
 xrd-*.tgz
 xrd-container/
 xrd-tools/
+.env
