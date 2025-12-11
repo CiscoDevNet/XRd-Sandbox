@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+
+set -e  # Exit on any error
+
+# Get the script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMON_UTILS="$SCRIPT_DIR/../../lib/common.sh"
+
+# Determine SANDBOX_ROOT - use repository root if SANDBOX_ROOT is not valid
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+if [[ ! -d "$SANDBOX_ROOT/topologies/always-on" ]]; then
+    if [[ -d "$REPO_ROOT/topologies/always-on" ]]; then
+        SANDBOX_ROOT="$REPO_ROOT"
+    fi
+fi
+
+# Source common utilities if available (for print functions)
+if [[ -f "$COMMON_UTILS" ]]; then
+    source "$COMMON_UTILS"
+else
+    # Define basic print functions if common utils not available
+    print_info() { echo "[INFO] $*"; }
+    print_error() { echo "[ERROR] $*" >&2; }
+    print_success() { echo "[SUCCESS] $*"; }
+    print_warning() { echo "[WARNING] $*"; }
+fi
+
+print_info "Starting TACACS configuration injection for Always-On sandbox..."
+
+# Check if TACACS environment variables are set
+missing_vars=()
+[[ -z "$TACACS_SERVER_IP" ]] && missing_vars+=("TACACS_SERVER_IP")
+[[ -z "$TACACS_SECRET_KEY" ]] && missing_vars+=("TACACS_SECRET_KEY")
+
+if [[ ${#missing_vars[@]} -eq 2 ]]; then
+    print_info "TACACS environment variables not set: ${missing_vars[*]}"
+    print_info "Skipping TACACS configuration injection - no changes will be made"
+    exit 0
+elif [[ ${#missing_vars[@]} -eq 1 ]]; then
+    print_error "Missing required TACACS environment variable: ${missing_vars[*]}"
+    print_error "Both TACACS_SERVER_IP and TACACS_SECRET_KEY are required for TACACS configuration"
+    exit 1
+fi
+
+print_info "TACACS environment variables detected:"
+print_info "  TACACS_SERVER_IP: $TACACS_SERVER_IP"
+print_info "  TACACS_SECRET_KEY: [REDACTED]"
+
+# Define paths
+TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
+
+# Validate topology directory exists
+if [[ ! -d "$TOPOLOGY_DIR" ]]; then
+    print_error "Topology directory not found: $TOPOLOGY_DIR"
+    exit 1
+fi
+
+# Generate TACACS configuration
+generate_tacacs_config() {
+    cat <<EOF
+!
+tacacs source-interface MgmtEth0/RP0/CPU0/0 vrf default
+tacacs-server host $TACACS_SERVER_IP port 49
+ key 0 $TACACS_SECRET_KEY
+!
+EOF
+}
+
+# Function to inject configuration into startup file
+inject_config_to_file() {
+    local startup_file="$1"
+    local tacacs_config="$2"
+    local temp_file="${startup_file}.tmp"
+    
+    if [[ ! -f "$startup_file" ]]; then
+        print_error "Startup file not found: $startup_file"
+        return 1
+    fi
+    
+    # Check if TACACS configuration already exists in the file
+    if grep -q "tacacs source-interface" "$startup_file"; then
+        print_warning "TACACS configuration already exists in $(basename "$startup_file") - skipping"
+        return 0
+    fi
+    
+    # Create temporary file with injected config at the beginning
+    {
+        echo "$tacacs_config"
+        cat "$startup_file"
+    } > "$temp_file"
+    
+    # Replace original file
+    mv "$temp_file" "$startup_file"
+    
+    print_success "TACACS configuration injected into $(basename "$startup_file")"
+}
+
+# Generate the TACACS configuration
+TACACS_CONFIG=$(generate_tacacs_config)
+
+# Find all startup.cfg files in the topology directory
+print_info "Searching for startup configuration files in $TOPOLOGY_DIR..."
+
+startup_files=("$TOPOLOGY_DIR"/xrd-*-startup.cfg)
+
+if [[ ${#startup_files[@]} -eq 0 ]] || [[ ! -f "${startup_files[0]}" ]]; then
+    print_error "No startup configuration files found in $TOPOLOGY_DIR"
+    exit 1
+fi
+
+print_info "Found ${#startup_files[@]} startup configuration file(s)"
+
+# Inject configuration into each startup file
+for startup_file in "${startup_files[@]}"; do
+    inject_config_to_file "$startup_file" "$TACACS_CONFIG"
+done
+
+print_success "TACACS configuration injection completed successfully"
