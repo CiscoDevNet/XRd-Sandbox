@@ -45,6 +45,7 @@ services:
     - AUDIT_WRITE
     - SYS_NICE
     - SYS_ADMIN
+    - SYSLOG
     - SYS_RESOURCE
     - NET_ADMIN
     - SYS_PTRACE
@@ -72,7 +73,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./xrd-1-startup.cfg
+    - source: ./xrd-1-startup.deploy.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd1:/xr-storage/
@@ -94,6 +95,7 @@ services:
     - AUDIT_WRITE
     - SYS_NICE
     - SYS_ADMIN
+    - SYSLOG
     - SYS_RESOURCE
     - NET_ADMIN
     - SYS_PTRACE
@@ -121,7 +123,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./xrd-2-startup.cfg
+    - source: ./xrd-2-startup.deploy.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd2:/xr-storage/
@@ -143,6 +145,7 @@ services:
     - AUDIT_WRITE
     - SYS_NICE
     - SYS_ADMIN
+    - SYSLOG
     - SYS_RESOURCE
     - NET_ADMIN
     - SYS_PTRACE
@@ -170,7 +173,7 @@ services:
     stdin_open: true
     tty: true
     volumes:
-    - source: ./xrd-3-startup.cfg
+    - source: ./xrd-3-startup.deploy.cfg
       target: /etc/xrd/startup.cfg
       type: bind
     - xrd3:/xr-storage/
