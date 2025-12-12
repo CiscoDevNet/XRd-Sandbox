@@ -94,29 +94,29 @@ compare_files() {
     local expected="$2"
     local test_name="$3"
     
-    ((TESTS_RUN++))
+    (( TESTS_RUN += 1 ))
     
     if [[ ! -f "$actual" ]]; then
         print_fail "$test_name - Output file not found: $actual"
-        ((TESTS_FAILED++))
+        (( TESTS_FAILED += 1 ))
         return 1
     fi
     
     if [[ ! -f "$expected" ]]; then
         print_fail "$test_name - Expected file not found: $expected"
-        ((TESTS_FAILED++))
+        (( TESTS_FAILED += 1 ))
         return 1
     fi
     
     if diff -q "$actual" "$expected" > /dev/null 2>&1; then
         print_pass "$test_name"
-        ((TESTS_PASSED++))
+        (( TESTS_PASSED += 1 ))
         return 0
     else
         print_fail "$test_name"
         echo "Differences found:"
         diff -u "$expected" "$actual" | head -20
-        ((TESTS_FAILED++))
+        (( TESTS_FAILED += 1 ))
         return 1
     fi
 }
@@ -327,15 +327,15 @@ test_multiple_routers() {
     
     # Check that all three files have the local user config
     for router in xrd-1 xrd-2 xrd-3; do
-        ((TESTS_RUN++))
+        (( TESTS_RUN += 1 ))
         if grep -q "username cisco" "$OUTPUT_DIR/${router}-startup.deploy.cfg" && \
            grep -q "group root-lr" "$OUTPUT_DIR/${router}-startup.deploy.cfg" && \
            grep -q "group cisco-support" "$OUTPUT_DIR/${router}-startup.deploy.cfg"; then
             print_pass "Local user injected into ${router}-startup.deploy.cfg"
-            ((TESTS_PASSED++))
+            (( TESTS_PASSED += 1 ))
         else
             print_fail "Local user NOT found in ${router}-startup.deploy.cfg"
-            ((TESTS_FAILED++))
+            (( TESTS_FAILED += 1 ))
         fi
     done
     
