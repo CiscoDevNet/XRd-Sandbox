@@ -1,7 +1,5 @@
 # 🔄 IOS XR Always-On Sandbox
 
-## 📖 Overview
-
 The IOS XR Always-On Sandbox provides an environment where developers and network engineers can explore the programmability options available on this routing platform. These include:
 
 - 🧪 **Testing NETCONF/gRPC YANG configurations**
@@ -20,19 +18,15 @@ The IOS XR Always-On Sandbox provides an environment where developers and networ
 
 ## 🔑 Access
 
-**Credentials:**
-
 Use the credentials provided in your sandbox reservation to connect to the XRd devices. You can find them on the email sent after reservation or in the IO tab on the sandbox environment page.
 
 ## 🔌 Available Protocols & Ports
 
-| Protocol | Port  |
-| -------- | ----- |
-| SSH      | 22    |
-| NETCONF  | 830   |
-| gNMI     | 57777 |
-
-- **gNMI:** No TLS (lab environment)
+| Protocol      | Port  |
+| ------------- | ----- |
+| SSH           | 22    |
+| NETCONF       | 830   |
+| gNMI (no TLS) | 57777 |
 
 ## 📊 Node Information
 
@@ -44,7 +38,7 @@ Use the credentials provided in your sandbox reservation to connect to the XRd d
 | xrd-2 | `10.10.20.102` |
 | xrd-3 | `10.10.20.103` |
 
-**Note:** Do not modify the management IP addresses. You will lose access to the devices.
+**Note:** Do not modify the management IP addresses. You will lose access to the instances.
 
 ### 🔌 Point-to-Point Links
 
@@ -54,7 +48,7 @@ Use the credentials provided in your sandbox reservation to connect to the XRd d
 | xrd-1  | `Gi0/0/0/1` | ←→  | `Gi0/0/0/1` | xrd-3  |
 | xrd-2  | `Gi0/0/0/2` | ←→  | `Gi0/0/0/2` | xrd-3  |
 
-IP addresses might change over time as this is a shared environment. Please refer to the "Important: Shared Environment Notice" section below for more details.
+IP addresses might change over time as this is a shared environment.
 
 ## ⚖️ Good Citizen Code of Conduct
 
@@ -105,6 +99,15 @@ A basic configuration is pre-applied to each node, including:
 
 If you want to see the original configuration files used during deployment, please refer to the [XRd-Sandbox Repository Always On Topology](https://github.com/CiscoDevNet/XRd-Sandbox/tree/main/topologies/always-on).
 
+## Limitations
+
+The following features are not supported in this sandbox environment using XRd:
+
+- Multipoint L2VPN
+- Vlan rewrites
+
+The sandbox uses the control plane version of XRd, which is not intended for high throughput.
+
 ## 📚 Learning Resources
 
 There are various examples and documentation to assist with getting started:
@@ -120,6 +123,6 @@ There are various examples and documentation to assist with getting started:
 
 - 🔗 [XRd-Sandbox Repository](https://github.com/CiscoDevNet/XRd-Sandbox) - Explore the configuration files, deployment scripts, and learn how this topology is built
 
-### Support
+## Support
 
 - 🆘 [Sandbox Support](https://communities.cisco.com/community/developer/sandbox)
