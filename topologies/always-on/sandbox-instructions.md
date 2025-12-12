@@ -1,3 +1,18 @@
+# Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [🔄 IOS XR Always-On Sandbox](#-ios-xr-always-on-sandbox)
+  - [🎯 What You Can Do](#-what-you-can-do)
+  - [🌐 Topology](#-topology)
+  - [🔑 Getting Access](#-getting-access)
+  - [📊 Connection Information](#-connection-information)
+  - [⚖️ Shared Environment Guidelines](#️-shared-environment-guidelines)
+  - [⚠️ Configuration State Notice](#️-configuration-state-notice)
+  - [⚠️ Known Limitations](#️-known-limitations)
+  - [📚 Learning Resources](#-learning-resources)
+  - [❓ Frequently Asked Questions](#-frequently-asked-questions)
+  - [🆘 Support](#-support)
+
 # 🔄 IOS XR Always-On Sandbox
 
 Welcome to the IOS XR Always-On Sandbox! This shared environment allows developers and network engineers to explore the programmability features of the IOS XR routing platform.
