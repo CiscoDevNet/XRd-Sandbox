@@ -18,9 +18,30 @@ The IOS XR Always-On Sandbox provides an environment where developers and networ
 
 ## 🔑 Access
 
-Use the credentials provided in your sandbox reservation to connect to the XRd devices. You can find them on the email sent after reservation or in the IO tab on the sandbox environment page.
+We no longer provide static usernames and passwords for general use.
 
-## 🔌 Available Protocols & Ports
+To gain access, launch the sandbox topology in the portal. This will generate unique credentials for each user.
+
+Creating a reservation:
+
+- Hit the Launch button on the IOS XR Programmability AlwaysOn tile
+- Select a duration. Your credentials will last this length.
+- Hit launch again. The sandbox will bein spinning up.
+- New credentials will be created and tested for SSH
+- Once Active (1-2 mins), the credetails are displayed in the Quick Access Tab
+- A unique password is generated each time a new reservation is made.
+
+## 📊 Node Information
+
+| hosts                       |
+| --------------------------- |
+| `sandbox-iosxr-1.cisco.com` |
+| `sandbox-iosxr-2.cisco.com` |
+| `sandbox-iosxr-3.cisco.com` |
+
+**Note:** Do not modify the management IP address. You will lose access to the instances.
+
+🔌 Protocols & Ports
 
 | Protocol      | Port  |
 | ------------- | ----- |
@@ -28,27 +49,13 @@ Use the credentials provided in your sandbox reservation to connect to the XRd d
 | NETCONF       | 830   |
 | gNMI (no TLS) | 57777 |
 
-## 📊 Node Information
-
-### Management Network
-
-| Node  | Management IP  |
-| ----- | -------------- |
-| xrd-1 | `10.10.20.101` |
-| xrd-2 | `10.10.20.102` |
-| xrd-3 | `10.10.20.103` |
-
-**Note:** Do not modify the management IP addresses. You will lose access to the instances.
-
-### 🔌 Point-to-Point Links
+🔌 Point-to-Point Links
 
 | Node A | Interface   | ←→  | Interface   | Node B |
 | ------ | ----------- | --- | ----------- | ------ |
 | xrd-1  | `Gi0/0/0/0` | ←→  | `Gi0/0/0/0` | xrd-2  |
 | xrd-1  | `Gi0/0/0/1` | ←→  | `Gi0/0/0/1` | xrd-3  |
 | xrd-2  | `Gi0/0/0/2` | ←→  | `Gi0/0/0/2` | xrd-3  |
-
-IP addresses might change over time as this is a shared environment.
 
 ## ⚖️ Good Citizen Code of Conduct
 
