@@ -33,13 +33,13 @@ Creating a reservation:
 
 ## 📊 Node Information
 
-To connect to each node, use the following URLs:
-
 | Node  | URL used to access          |
 | ----- | --------------------------- |
 | xrd-1 | `sandbox-iosxr-1.cisco.com` |
 | xrd-2 | `sandbox-iosxr-2.cisco.com` |
 | xrd-3 | `sandbox-iosxr-3.cisco.com` |
+
+To connect to each node, use the URLs, for example: `ssh devvie@sandbox-iosxr-1.cisco.com`
 
 **Note:** Do not modify the management IP address. You will lose access to the instances.
 
