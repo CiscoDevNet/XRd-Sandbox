@@ -26,9 +26,15 @@ fi
 
 print_info "Starting local user configuration injection for Always-On sandbox..."
 
-# Define paths
-TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
-FALLBACK_CONFIG_FILE="$TOPOLOGY_DIR/fallback_local_user.cfg"
+# Define paths - support TEST_MODE for testing
+if [[ -n "$TEST_MODE" ]]; then
+    TOPOLOGY_DIR="$TEST_MODE/output"
+    FALLBACK_CONFIG_FILE="$TEST_MODE/input/fallback_local_user.cfg"
+    print_info "TEST_MODE enabled: Using test directories"
+else
+    TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
+    FALLBACK_CONFIG_FILE="$TOPOLOGY_DIR/fallback_local_user.cfg"
+fi
 
 # Validate fallback config exists
 if [[ ! -f "$FALLBACK_CONFIG_FILE" ]]; then

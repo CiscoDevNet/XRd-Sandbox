@@ -91,6 +91,11 @@ cleanup-environment:
 	@chmod +x ./scripts/maintenance/cleanup.sh
 	@./scripts/maintenance/cleanup.sh
 
+test-always-on:
+	@echo "=== Running Always-On Scripts Tests ==="
+	@chmod +x ./tests/always-on/test-runner.sh
+	@./tests/always-on/test-runner.sh
+
 help:
 	@echo "Available targets:"
 	@echo "  setup-ssh                   - Set up SSH keys for Git operations"
@@ -109,6 +114,7 @@ help:
 	@echo "  load-xrd                    - Load XRd container into $(CONTAINER_ENGINE_NAME)"
 	@echo "  setup-xrd                   - Extract and load XRd container (full setup)"
 	@echo "  cleanup-environment         - Clean up environment after successful setup"
+	@echo "  test-always-on              - Run tests for always-on injection scripts"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on inject-local-user-always-on inject-tacacs-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on inject-local-user-always-on inject-tacacs-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment test-always-on help

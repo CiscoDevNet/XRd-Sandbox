@@ -46,8 +46,13 @@ print_info "TACACS environment variables detected:"
 print_info "  TACACS_SERVER_IP: $TACACS_SERVER_IP"
 print_info "  TACACS_SECRET_KEY: [REDACTED]"
 
-# Define paths
-TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
+# Define paths - support TEST_MODE for testing
+if [[ -n "$TEST_MODE" ]]; then
+    TOPOLOGY_DIR="$TEST_MODE/output"
+    print_info "TEST_MODE enabled: Using test directories"
+else
+    TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
+fi
 
 # Validate topology directory exists
 if [[ ! -d "$TOPOLOGY_DIR" ]]; then
