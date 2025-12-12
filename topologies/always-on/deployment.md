@@ -92,6 +92,10 @@ export FALLBACK_LOCAL_PASSWORD="cisco123"
 # if you do not run this script, no local user will be created and XRd will prompt for user creation on first boot.
 ./scripts/deployment/always-on/inject-local-user.sh
 
+# Create deployment config files from base configs
+# The idea is to keep the base configs unchanged for version control
+for i in 1 2 3; do cp topologies/always-on/xrd-$i-startup.cfg topologies/always-on/xrd-$i-startup.deploy.cfg; done
+
 # Generate and deploy
 # Update the XRd version accordingly. 25.3.1, the version used in this example, may be outdated.
 # The automated deployment (make deploy-always-on) always uses the version set in the .sandbox_env_vars file.
