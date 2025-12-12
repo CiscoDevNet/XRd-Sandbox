@@ -77,7 +77,8 @@ If environment variables are not set, default credentials are used:
 - Username: `cisco`
 - Password: `cisco123`
 
-> **Security Warning:** Default credentials are for demo purposes only. Always use custom credentials in production environments.
+> [!WARNING]
+> Default credentials are for demo purposes only. Always use custom credentials in production environments.
 
 ### Authentication Priority
 
@@ -92,7 +93,8 @@ If TACACS+ environment variables are not set, XRd will use its default authentic
 
 If you prefer manual deployment or need to troubleshoot:
 
-> **Important:** When deploying manually, you must configure authentication yourself. The XRd routers will prompt you to create a user on first boot if no authentication is configured in the startup files.
+> [!IMPORTANT]
+> When deploying manually, you must configure authentication yourself. The XRd routers will prompt you to create a user on first boot if no authentication is configured in the startup files.
 
 ### Option A: Manual Deployment with TACACS+ Authentication
 
@@ -250,7 +252,7 @@ The fallback local user is configured with:
 Example configuration:
 
 ```text
-username admin
+username cisco
  group root-lr
  group cisco-support
  secret 10 <SHA512_HASH>
