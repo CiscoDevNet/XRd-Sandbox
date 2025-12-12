@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

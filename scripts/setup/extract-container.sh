@@ -4,7 +4,7 @@
 # This script extracts the XRd control plane container archive to a version-independent directory
 # Supports both direct container format and nested archive format
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

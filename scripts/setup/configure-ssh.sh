@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Source environment variables
 source sandbox_env_vars.sh
