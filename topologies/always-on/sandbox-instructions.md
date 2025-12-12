@@ -76,14 +76,14 @@ This IOS-XR Always On Sandbox resource is shared. This means that you can see ot
 
 The IP addressing, hostnames, and protocol configurations shown below represent the **initial deployment state** and serve as a reference for getting started. However, since this is a **shared sandbox environment**:
 
-- 🔄 **Configuration may drift over time** as other users make changes
-- 🏷️ **IP addresses and hostnames** may be modified by other developers
-- ⚙️ **Protocol settings** (OSPF, BGP) may be reconfigured or disabled
-- 🚀 **Use initial state as a jumpstart** - not guaranteed to always be available
+- 🔄 **Configuration may drift over time** as other users make changes.
+- 🏷️ **IP addresses and hostnames** may be modified by other developers.
+- ⚙️ **Protocol settings** (OSPF, BGP) may be reconfigured or disabled.
+- 🚀 **Use initial state as a jumpstart** - not guaranteed to always be available.
 
 ### 🗃️ Original IP Addressing
 
-Since this is a shared environment, the IP addresses may change over time. Below is the original IP addressing applied at deployment for reference.
+Below is the original IP addressing applied as the inital state for reference. IP addresses may change over time.
 
 | Node  | Router ID | loopback0 IP |
 | ----- | --------- | ------------ |
@@ -103,8 +103,8 @@ Since this is a shared environment, the IP addresses may change over time. Below
 
 A basic configuration is pre-applied to each node, including:
 
-- **OSPF**: Enabled on all interfaces
-- **BGP**: Peering established with iBGP
+- **OSPF**: Enabled on all interfaces.
+- **BGP**: Peering established with iBGP.
 
 If you want to see the original configuration files used during deployment, please refer to the [XRd-Sandbox Repository Always On Topology](https://github.com/CiscoDevNet/XRd-Sandbox/tree/main/topologies/always-on).
 
