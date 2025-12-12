@@ -45,8 +45,8 @@ follow-segment-routing-logs:
 
 deploy-always-on: inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on
 	@echo "=== Deploying Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/always-on/always-on.sh
-	@./scripts/deployment/always-on/always-on.sh
+	@chmod +x ./scripts/deployment/always-on/deploy.sh
+	@./scripts/deployment/always-on/deploy.sh
 
 inject-local-user-always-on:
 	@echo "=== Injecting Local User Configuration into Always-On Sandbox ==="
@@ -55,13 +55,13 @@ inject-local-user-always-on:
 
 inject-aaa-always-on:
 	@echo "=== Injecting TACACS AAA Configuration into Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/always-on/inject-tacacs-aaa.sh
-	@./scripts/deployment/always-on/inject-tacacs-aaa.sh
+	@chmod +x ./scripts/deployment/always-on/inject-aaa.sh
+	@./scripts/deployment/always-on/inject-aaa.sh
 
 inject-tacacs-always-on:
 	@echo "=== Injecting TACACS Configuration into Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/always-on/inject-tacacs-config.sh
-	@./scripts/deployment/always-on/inject-tacacs-config.sh
+	@chmod +x ./scripts/deployment/always-on/inject-tacacs.sh
+	@./scripts/deployment/always-on/inject-tacacs.sh
 
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="
