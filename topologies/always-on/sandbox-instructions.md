@@ -101,7 +101,7 @@ If you want to see the original configuration files used during deployment, plea
 
 ## Limitations
 
-The following features are not supported in this sandbox environment using XRd:
+The following features are not supported by XRd:
 
 - Multipoint L2VPN
 - Vlan rewrites
@@ -121,8 +121,8 @@ There are various examples and documentation to assist with getting started:
 
 ### Repository
 
-- 🔗 [XRd-Sandbox Repository](https://github.com/CiscoDevNet/XRd-Sandbox) - Explore the configuration files, deployment scripts, and learn how this topology is built
+🔗 Explore the configuration files, deployment scripts, and learn how this topology is built in the [XRd-Sandbox Repository.](https://github.com/CiscoDevNet/XRd-Sandbox)
 
 ## Support
 
-- 🆘 [Sandbox Support](https://communities.cisco.com/community/developer/sandbox)
+🆘 Go to the [Sandbox community](https://communities.cisco.com/community/developer/sandbox) for support.
