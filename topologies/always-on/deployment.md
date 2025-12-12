@@ -1,5 +1,8 @@
 # Sandbox Always-On Topology Deployment Guide
 
+> [!IMPORTANT]
+> All scripts and commands in this guide are intended to be run from root directory of the XRd-Sandbox repository.
+
 ## 🚀 Quick Start - Automated Deployment (Recommended)
 
 **With TACACS+ authentication:**
@@ -52,9 +55,9 @@ flowchart TD
     SkipTACACS --> CheckLocalUser
 
     CheckLocalUser -->|Yes| CustomUser[Create custom local user]
-    CheckLocalUser -->|No| DefaultUser[Create default user<br/>cisco/cisco123]
+    CheckLocalUser -->|No| DefaultUser[Use default user<br/>cisco/cisco123]
 
-    CustomUser --> Deploy[Build and deploy XRd containers]
+    CustomUser --> Deploy[Build and Deploy XRd containers]
     DefaultUser --> Deploy
 
     Deploy --> AuthFlow{Login attempt}
@@ -81,12 +84,13 @@ flowchart TD
 export FALLBACK_LOCAL_USERNAME="cisco"
 export FALLBACK_LOCAL_PASSWORD="cisco123"
 
-# Inject local user
 # If you do not set the above variables, defaults (cisco/cisco123) will be used.
-# if you don't run this script, no local user will be created and XRd will prompt for user creation on first boot.
+# if you do not run this script, no local user will be created and XRd will prompt for user creation on first boot.
 ./scripts/deployment/always-on/inject-local-user.sh
 
 # Generate and deploy
+# Update the XRd version accordingly. 25.3.1, the version used in this example, may be outdated.
+# The automated deployment (make deploy-always-on) always uses the version set in the .sandbox_env_vars file.
 xr-compose \
   --input-file /home/developer/XRd-Sandbox/topologies/always-on/docker-compose.xr.yml \
   --output-file /home/developer/XRd-Sandbox/topologies/always-on/docker-compose.yml \
@@ -124,4 +128,4 @@ For the local user config, [see the fallback_local_user.cfg file.](../../scripts
 
 ## 📚 Additional Resources
 
-- You can find the script to deploy this sandbox on the [deployment/always-on directoyr](../../scripts/deployment/always-on/)
+- You can find the script to deploy this sandbox on the [deployment/always-on directory.](../../scripts/deployment/always-on/)
