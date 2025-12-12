@@ -342,11 +342,107 @@ test_multiple_routers() {
     unset TEST_MODE
 }
 
+# Test 8: FALLBACK_LOCAL_USERNAME and FALLBACK_LOCAL_PASSWORD both set
+test_custom_fallback_user() {
+    print_header "Test 8: Custom Fallback User (Both Env Vars Set)"
+    
+    cleanup_output_dir
+    prepare_test_files
+    
+    export TEST_MODE="$TEST_DIR"
+    export FALLBACK_LOCAL_USERNAME="testuser"
+    export FALLBACK_LOCAL_PASSWORD="testpass123"
+    
+    print_test "Running inject-local-user.sh with custom username/password..."
+    if "$SCRIPTS_DIR/inject-local-user.sh" > /dev/null 2>&1; then
+        print_info "Script executed successfully"
+    else
+        print_fail "Script execution failed"
+        return 1
+    fi
+    
+    # Verify the structure (username, groups, secret type 10)
+    # Note: We can't verify the exact hash since it's random salt
+    (( TESTS_RUN += 1 ))
+    if grep -q "^username testuser$" "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" && \
+       grep -q "^ group root-lr$" "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" && \
+       grep -q "^ group cisco-support$" "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" && \
+       grep -q "^ secret 10 " "$OUTPUT_DIR/xrd-1-startup.deploy.cfg"; then
+        print_pass "Custom user 'testuser' injected with correct structure"
+        (( TESTS_PASSED += 1 ))
+    else
+        print_fail "Custom user 'testuser' NOT found or has incorrect structure"
+        (( TESTS_FAILED += 1 ))
+    fi
+    
+    unset TEST_MODE FALLBACK_LOCAL_USERNAME FALLBACK_LOCAL_PASSWORD
+}
+
+# Test 9: Only FALLBACK_LOCAL_USERNAME set (should use default)
+test_partial_fallback_user_username_only() {
+    print_header "Test 9: Partial Fallback User (Only Username Set)"
+    
+    cleanup_output_dir
+    prepare_test_files
+    
+    export TEST_MODE="$TEST_DIR"
+    export FALLBACK_LOCAL_USERNAME="testuser"
+    # FALLBACK_LOCAL_PASSWORD is intentionally NOT set
+    
+    print_test "Running inject-local-user.sh with only username (should use default)..."
+    if "$SCRIPTS_DIR/inject-local-user.sh" > /dev/null 2>&1; then
+        print_info "Script executed successfully"
+    else
+        print_fail "Script execution failed"
+        return 1
+    fi
+    
+    # Should use default 'cisco' user since only one env var is set
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
+                  "$EXPECTED_DIR/xrd-1-startup-with-local-user.cfg" \
+                  "Should use default 'cisco' user when only username env var set"
+    
+    unset TEST_MODE FALLBACK_LOCAL_USERNAME
+}
+
+# Test 10: Only FALLBACK_LOCAL_PASSWORD set (should use default)
+test_partial_fallback_user_password_only() {
+    print_header "Test 10: Partial Fallback User (Only Password Set)"
+    
+    cleanup_output_dir
+    prepare_test_files
+    
+    export TEST_MODE="$TEST_DIR"
+    export FALLBACK_LOCAL_PASSWORD="testpass123"
+    # FALLBACK_LOCAL_USERNAME is intentionally NOT set
+    
+    print_test "Running inject-local-user.sh with only password (should use default)..."
+    if "$SCRIPTS_DIR/inject-local-user.sh" > /dev/null 2>&1; then
+        print_info "Script executed successfully"
+    else
+        print_fail "Script execution failed"
+        return 1
+    fi
+    
+    # Should use default 'cisco' user since only one env var is set
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
+                  "$EXPECTED_DIR/xrd-1-startup-with-local-user.cfg" \
+                  "Should use default 'cisco' user when only password env var set"
+    
+    unset TEST_MODE FALLBACK_LOCAL_PASSWORD
+}
+
 # Main test execution
 main() {
     print_header "Always-On Scripts Test Suite"
     echo "Test directory: $TEST_DIR"
     echo "Scripts directory: $SCRIPTS_DIR"
+    echo ""
+    
+    # Unset any existing environment variables to ensure clean test state
+    # Tests will use hardcoded values only
+    unset TACACS_SERVER_IP TACACS_SECRET_KEY FALLBACK_LOCAL_USERNAME FALLBACK_LOCAL_PASSWORD
+    print_info "Cleared any existing environment variables for clean test state"
     echo ""
     
     # Validate test structure
@@ -389,6 +485,15 @@ main() {
     echo ""
     
     test_multiple_routers
+    echo ""
+    
+    test_custom_fallback_user
+    echo ""
+    
+    test_partial_fallback_user_username_only
+    echo ""
+    
+    test_partial_fallback_user_password_only
     echo ""
     
     # Print summary
