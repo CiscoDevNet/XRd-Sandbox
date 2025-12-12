@@ -1,6 +1,3 @@
-# Table of Contents
-
-- [Table of Contents](#table-of-contents)
 - [🔄 IOS XR Always-On Sandbox](#-ios-xr-always-on-sandbox)
   - [🎯 What You Can Do](#-what-you-can-do)
   - [🌐 Topology](#-topology)
