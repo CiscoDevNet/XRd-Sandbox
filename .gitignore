@@ -3,3 +3,5 @@ xrd-*.tgz
 xrd-container/
 xrd-tools/
 .env
+tests/always-on/output/*.cfg
+tests/always-on/input/*.cfg

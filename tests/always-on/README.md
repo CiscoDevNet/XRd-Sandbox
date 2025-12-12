@@ -6,12 +6,12 @@ This directory contains comprehensive tests for the always-on injection scripts 
 
 ```
 tests/always-on/
-├── input/              # Baseline configuration files (read-only during tests)
-│   ├── xrd-1-startup.cfg
-│   ├── xrd-2-startup.cfg
-│   ├── xrd-3-startup.cfg
-│   ├── aaa-config.cfg
-│   └── fallback_local_user.cfg
+├── input/              # Auto-synced from topologies/always-on/ before each test run
+│   ├── xrd-1-startup.cfg        (synced from real topology)
+│   ├── xrd-2-startup.cfg        (synced from real topology)
+│   ├── xrd-3-startup.cfg        (synced from real topology)
+│   ├── aaa-config.cfg           (synced from real topology)
+│   └── fallback_local_user.cfg  (synced from real topology)
 ├── output/             # Working directory for test runs (modified during tests)
 │   └── (files copied from input and modified by scripts)
 ├── expected/           # Expected output files for validation
@@ -22,12 +22,28 @@ tests/always-on/
 └── test-runner.sh      # Main test execution script
 ```
 
+**Important:** Input files are automatically synced from `topologies/always-on/` before each test run. This ensures tests always validate scripts against the **actual production configuration files**.
+
 ## Running Tests
 
 ### Using Make (Recommended)
 
 ```bash
 make test-always-on
+```
+
+This will:
+
+1. Sync latest configuration files from `topologies/always-on/`
+2. Run all test scenarios
+3. Report results
+
+### Freezing Input Files (Optional)
+
+To run tests with existing input files without syncing (useful for debugging):
+
+```bash
+FREEZE_INPUTS=1 make test-always-on
 ```
 
 ### Direct Execution

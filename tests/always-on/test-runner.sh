@@ -47,6 +47,27 @@ print_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
 }
 
+# Sync input files from real topology directory
+sync_input_files() {
+    print_info "Syncing input files from topology directory..."
+    local TOPOLOGY_DIR="$REPO_ROOT/topologies/always-on"
+    
+    cp "$TOPOLOGY_DIR"/xrd-*-startup.cfg "$INPUT_DIR/" 2>/dev/null || {
+        print_fail "Failed to copy startup config files from $TOPOLOGY_DIR"
+        return 1
+    }
+    cp "$TOPOLOGY_DIR/aaa-config.cfg" "$INPUT_DIR/" 2>/dev/null || {
+        print_fail "Failed to copy aaa-config.cfg from $TOPOLOGY_DIR"
+        return 1
+    }
+    cp "$TOPOLOGY_DIR/fallback_local_user.cfg" "$INPUT_DIR/" 2>/dev/null || {
+        print_fail "Failed to copy fallback_local_user.cfg from $TOPOLOGY_DIR"
+        return 1
+    }
+    
+    print_info "Successfully synced input files from real topology"
+}
+
 # Cleanup function
 cleanup_output_dir() {
     print_info "Cleaning output directory..."
@@ -325,6 +346,19 @@ main() {
         echo "ERROR: Test directory structure is incomplete"
         echo "Expected directories: input/, output/, expected/"
         exit 1
+    fi
+    
+    # Sync input files from real topology (unless FREEZE_INPUTS is set)
+    if [[ -z "${FREEZE_INPUTS:-}" ]]; then
+        print_info "Syncing test inputs from real topology files..."
+        if ! sync_input_files; then
+            echo "ERROR: Failed to sync input files"
+            exit 1
+        fi
+        echo ""
+    else
+        print_info "FREEZE_INPUTS set - using existing input files"
+        echo ""
     fi
     
     # Run all tests
