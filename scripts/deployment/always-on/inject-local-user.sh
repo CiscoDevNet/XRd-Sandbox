@@ -73,19 +73,12 @@ generate_local_user_config() {
     echo "$config"
 }
 
-# Function to inject configuration into startup file
-# Returns: prints "SKIPPED" if config exists, "INJECTED" if config was added, or exits on error
-inject_config_to_file() {
+# Function to check if fallback local user configuration already exists in a file
+# Returns: 0 if config exists, 1 if not found
+check_fallback_user_exists() {
     local startup_file="$1"
-    local tacacs_config="$2"
-    local temp_file="${startup_file}.tmp"
     
-    if [[ ! -f "$startup_file" ]]; then
-        print_error "Startup file not found: $startup_file"
-        return 1
-    fi
-    
-    # Check if file already contains the fallback local user configuration structure
+    # Check if file contains the fallback local user configuration structure
     # We need to verify the presence of a username with both required groups (root-lr and cisco-support)
     # The configuration structure is:
     # username <user>
@@ -94,22 +87,14 @@ inject_config_to_file() {
     #  secret <type> <hash>
     # !
     
-    # Read file and check for the pattern
-    local file_content
-    file_content=$(cat "$startup_file")
-    
-    # Check if there's a username block that contains both required groups
-    # Using awk to find username blocks and check if they have both groups
-    if echo "$file_content" | awk '
+    cat "$startup_file" | awk '
         /^username / {
             in_username_block = 1
             has_root_lr = 0
             has_cisco_support = 0
-            username_block = ""
             next
         }
         in_username_block {
-            username_block = username_block "\n" $0
             if (/^ group root-lr$/) has_root_lr = 1
             if (/^ group cisco-support$/) has_cisco_support = 1
             if (/^!$/ || /^[^ ]/) {
@@ -127,7 +112,23 @@ inject_config_to_file() {
             }
             exit 1  # Not found
         }
-    '; then
+    '
+}
+
+# Function to inject configuration into startup file
+# Returns: prints "SKIPPED" if config exists, "INJECTED" if config was added, or exits on error
+inject_config_to_file() {
+    local startup_file="$1"
+    local tacacs_config="$2"
+    local temp_file="${startup_file}.tmp"
+    
+    if [[ ! -f "$startup_file" ]]; then
+        print_error "Startup file not found: $startup_file"
+        return 1
+    fi
+    
+    # Check if fallback user configuration already exists
+    if check_fallback_user_exists "$startup_file"; then
         print_info "$(basename "$startup_file") already contains fallback local user configuration, skipping..." >&2
         echo "SKIPPED"
         return 0
