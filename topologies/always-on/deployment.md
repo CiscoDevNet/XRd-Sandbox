@@ -12,6 +12,7 @@
 **With TACACS+ authentication:**
 
 ```bash
+# The environment variables below are optional.
 export TACACS_SERVER_IP="192.168.1.100"
 export TACACS_SECRET_KEY="your-secret"
 export FALLBACK_LOCAL_USERNAME="admin"

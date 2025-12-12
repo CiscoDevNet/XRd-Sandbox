@@ -14,6 +14,19 @@ For sandbox platform instructions, see [sandbox-instructions.md](./sandbox-instr
  xrd-2 -- xrd-3
 ```
 
+## 🔌 Enabled Services
+
+| Protocol | Port  | Transport |
+| -------- | ----- | --------- |
+| SSH      | 22    | TCP/SSH   |
+| NETCONF  | 830   | SSH       |
+| gNMI     | 57777 | gRPC      |
+
+## 🔑 Default Credentials
+
+- Username: `cisco`
+- Password: `C1sco12345`
+
 ## 📊 Node Information
 
 ### Management Network
@@ -24,33 +37,19 @@ For sandbox platform instructions, see [sandbox-instructions.md](./sandbox-instr
 | xrd-2 | `10.10.20.102` | `2.2.2.2` |
 | xrd-3 | `10.10.20.103` | `3.3.3.3` |
 
-### 🔌 Interface Connections
+### 🔌 Network Interfaces
 
-| Node 1 Interface  | Node 2 Interface  | Subnet        |
-| ----------------- | ----------------- | ------------- |
-| xrd-1 `Gi0/0/0/0` | xrd-2 `Gi0/0/0/0` | `10.1.2.0/24` |
-| xrd-2 `Gi0/0/0/2` | xrd-3 `Gi0/0/0/2` | `10.2.3.0/24` |
-| xrd-1 `Gi0/0/0/1` | xrd-3 `Gi0/0/0/1` | `10.1.3.0/24` |
-
-### 🏷️ Interface IP Addresses
-
-**xrd-1:**
-
-- `Lo0`: `1.1.1.1/32`
-- `Gi0/0/0/0`: `10.1.2.1/24` (to xrd-2)
-- `Gi0/0/0/1`: `10.1.3.1/24` (to xrd-3)
-
-**xrd-2:**
-
-- `Lo0`: `2.2.2.2/32`
-- `Gi0/0/0/0`: `10.1.2.2/24` (to xrd-1)
-- `Gi0/0/0/2`: `10.2.3.2/24` (to xrd-3)
-
-**xrd-3:**
-
-- `Lo0`: `3.3.3.3/32`
-- `Gi0/0/0/1`: `10.1.3.3/24` (to xrd-1)
-- `Gi0/0/0/2`: `10.2.3.3/24` (to xrd-2)
+| Node  | Interface   | IP Address    | To    | Remote Interface | Remote IP     | Subnet        |
+| ----- | ----------- | ------------- | ----- | ---------------- | ------------- | ------------- |
+| xrd-1 | `Lo0`       | `1.1.1.1/32`  | -     | -                | -             | -             |
+| xrd-1 | `Gi0/0/0/0` | `10.1.2.1/24` | xrd-2 | `Gi0/0/0/0`      | `10.1.2.2/24` | `10.1.2.0/24` |
+| xrd-1 | `Gi0/0/0/1` | `10.1.3.1/24` | xrd-3 | `Gi0/0/0/1`      | `10.1.3.3/24` | `10.1.3.0/24` |
+| xrd-2 | `Lo0`       | `2.2.2.2/32`  | -     | -                | -             | -             |
+| xrd-2 | `Gi0/0/0/0` | `10.1.2.2/24` | xrd-1 | `Gi0/0/0/0`      | `10.1.2.1/24` | `10.1.2.0/24` |
+| xrd-2 | `Gi0/0/0/2` | `10.2.3.2/24` | xrd-3 | `Gi0/0/0/2`      | `10.2.3.3/24` | `10.2.3.0/24` |
+| xrd-3 | `Lo0`       | `3.3.3.3/32`  | -     | -                | -             | -             |
+| xrd-3 | `Gi0/0/0/1` | `10.1.3.3/24` | xrd-1 | `Gi0/0/0/1`      | `10.1.3.1/24` | `10.1.3.0/24` |
+| xrd-3 | `Gi0/0/0/2` | `10.2.3.3/24` | xrd-2 | `Gi0/0/0/2`      | `10.2.3.2/24` | `10.2.3.0/24` |
 
 ## 🔧 Initial Configuration
 
@@ -58,19 +57,6 @@ Basic configuration applied to each node:
 
 - **OSPF**: Enabled on all interfaces
 - **BGP**: iBGP peering between all nodes
-
-## 🔑 Default Credentials
-
-- Username: `cisco`
-- Password: `C1sco12345`
-
-## 🔌 Enabled Services
-
-| Protocol | Port  | Transport |
-| -------- | ----- | --------- |
-| SSH      | 22    | TCP/SSH   |
-| NETCONF  | 830   | SSH       |
-| gNMI     | 57777 | gRPC      |
 
 ## 📚 Learning Resources
 
