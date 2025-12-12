@@ -67,6 +67,7 @@ EOF
 }
 
 # Function to inject configuration into startup file
+# Returns: prints "SKIPPED" if config exists, "INJECTED" if config was added, or exits on error
 inject_config_to_file() {
     local startup_file="$1"
     local tacacs_config="$2"
@@ -78,8 +79,10 @@ inject_config_to_file() {
     fi
     
     # Check if TACACS configuration already exists in the file
-    if grep -q "tacacs source-interface" "$startup_file"; then
-        print_warning "TACACS configuration already exists in $(basename "$startup_file") - skipping"
+    if grep -q "tacacs source-interface" "$startup_file" || \
+       grep -q "tacacs-server host" "$startup_file"; then
+        print_info "$(basename "$startup_file") already contains TACACS configuration, skipping..." >&2
+        echo "SKIPPED"
         return 0
     fi
     
@@ -92,7 +95,9 @@ inject_config_to_file() {
     # Replace original file
     mv "$temp_file" "$startup_file"
     
-    print_success "TACACS configuration injected into $(basename "$startup_file")"
+    print_success "TACACS configuration injected into $(basename "$startup_file")" >&2
+    echo "INJECTED"
+    return 0
 }
 
 # Generate the TACACS configuration
@@ -111,8 +116,25 @@ fi
 print_info "Found ${#startup_files[@]} startup configuration file(s)"
 
 # Inject configuration into each startup file
+files_injected=0
+files_skipped=0
+
 for startup_file in "${startup_files[@]}"; do
-    inject_config_to_file "$startup_file" "$TACACS_CONFIG"
+    result=$(inject_config_to_file "$startup_file" "$TACACS_CONFIG")
+    if [[ "$result" == "INJECTED" ]]; then
+        (( files_injected++ )) || true
+    elif [[ "$result" == "SKIPPED" ]]; then
+        (( files_skipped++ )) || true
+    fi
 done
 
-print_success "TACACS configuration injection completed successfully"
+# Summary and exit
+if [[ $files_injected -eq 0 && $files_skipped -gt 0 ]]; then
+    print_info "All startup files already contain TACACS configuration - no changes made"
+    exit 0
+fi
+
+if [[ $files_injected -gt 0 ]]; then
+    print_success "TACACS configuration injection completed successfully"
+    print_info "Files updated: $files_injected, Files skipped: $files_skipped"
+fi

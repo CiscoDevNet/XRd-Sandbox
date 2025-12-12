@@ -63,6 +63,7 @@ if [[ ! -d "$TOPOLOGY_DIR" ]]; then
 fi
 
 # Function to inject configuration into startup file
+# Returns: prints "SKIPPED" if config exists, "INJECTED" if config was added, or exits on error
 inject_config_to_file() {
     local startup_file="$1"
     local aaa_config="$2"
@@ -71,6 +72,16 @@ inject_config_to_file() {
     if [[ ! -f "$startup_file" ]]; then
         print_error "Startup file not found: $startup_file"
         return 1
+    fi
+    
+    # Check if AAA configuration already exists in the file
+    # Look for key AAA configuration markers
+    if grep -q "^aaa accounting exec" "$startup_file" || \
+       grep -q "^aaa authorization exec" "$startup_file" || \
+       grep -q "^aaa authentication login" "$startup_file"; then
+        print_info "$(basename "$startup_file") already contains AAA configuration, skipping..." >&2
+        echo "SKIPPED"
+        return 0
     fi
     
     # Create temporary file with injected config at the beginning
@@ -82,7 +93,9 @@ inject_config_to_file() {
     # Replace original file
     mv "$temp_file" "$startup_file"
     
-    print_success "AAA configuration injected into $(basename "$startup_file")"
+    print_success "AAA configuration injected into $(basename "$startup_file")" >&2
+    echo "INJECTED"
+    return 0
 }
 
 # Read the AAA configuration content
@@ -99,13 +112,29 @@ if [[ ${#startup_files[@]} -eq 0 ]]; then
 fi
 
 # Inject configuration into each startup file
+files_injected=0
+files_skipped=0
+
 for startup_file in "${startup_files[@]}"; do
     if [[ -f "$startup_file" ]]; then
         print_info "Processing $(basename "$startup_file")..."
-        inject_config_to_file "$startup_file" "$AAA_CONFIG"
+        result=$(inject_config_to_file "$startup_file" "$AAA_CONFIG")
+        if [[ "$result" == "INJECTED" ]]; then
+            (( files_injected++ )) || true
+        elif [[ "$result" == "SKIPPED" ]]; then
+            (( files_skipped++ )) || true
+        fi
     fi
 done
 
-print_success "TACACS AAA configuration injection completed successfully!"
-print_info "Note: AAA configuration has been injected at the beginning of each startup file"
-print_info "The AAA configuration will work in conjunction with TACACS server at $TACACS_SERVER_IP"
+# Summary and exit
+if [[ $files_injected -eq 0 && $files_skipped -gt 0 ]]; then
+    print_info "All startup files already contain AAA configuration - no changes made"
+    exit 0
+fi
+
+if [[ $files_injected -gt 0 ]]; then
+    print_success "TACACS AAA configuration injection completed successfully!"
+    print_info "Files updated: $files_injected, Files skipped: $files_skipped"
+    print_info "The AAA configuration will work in conjunction with TACACS server at $TACACS_SERVER_IP"
+fi

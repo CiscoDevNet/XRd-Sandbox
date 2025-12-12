@@ -74,6 +74,7 @@ generate_local_user_config() {
 }
 
 # Function to inject configuration into startup file
+# Returns: prints "SKIPPED" if config exists, "INJECTED" if config was added, or exits on error
 inject_config_to_file() {
     local startup_file="$1"
     local tacacs_config="$2"
@@ -84,9 +85,51 @@ inject_config_to_file() {
         return 1
     fi
     
-    # Check if file already contains username configuration
-    if grep -q "^username " "$startup_file"; then
-        print_info "$(basename "$startup_file") already contains username configuration, skipping..."
+    # Check if file already contains the fallback local user configuration structure
+    # We need to verify the presence of a username with both required groups (root-lr and cisco-support)
+    # The configuration structure is:
+    # username <user>
+    #  group root-lr
+    #  group cisco-support
+    #  secret <type> <hash>
+    # !
+    
+    # Read file and check for the pattern
+    local file_content
+    file_content=$(cat "$startup_file")
+    
+    # Check if there's a username block that contains both required groups
+    # Using awk to find username blocks and check if they have both groups
+    if echo "$file_content" | awk '
+        /^username / {
+            in_username_block = 1
+            has_root_lr = 0
+            has_cisco_support = 0
+            username_block = ""
+            next
+        }
+        in_username_block {
+            username_block = username_block "\n" $0
+            if (/^ group root-lr$/) has_root_lr = 1
+            if (/^ group cisco-support$/) has_cisco_support = 1
+            if (/^!$/ || /^[^ ]/) {
+                if (has_root_lr && has_cisco_support) {
+                    exit 0  # Found complete fallback user config
+                }
+                in_username_block = 0
+                has_root_lr = 0
+                has_cisco_support = 0
+            }
+        }
+        END {
+            if (in_username_block && has_root_lr && has_cisco_support) {
+                exit 0  # Found at end of file
+            }
+            exit 1  # Not found
+        }
+    '; then
+        print_info "$(basename "$startup_file") already contains fallback local user configuration, skipping..." >&2
+        echo "SKIPPED"
         return 0
     fi
     
@@ -99,7 +142,9 @@ inject_config_to_file() {
     # Replace original file
     mv "$temp_file" "$startup_file"
     
-    print_success "Configuration injected into $(basename "$startup_file")"
+    print_success "Configuration injected into $(basename "$startup_file")" >&2
+    echo "INJECTED"
+    return 0
 }
 
 # Generate the local user configuration
@@ -116,18 +161,34 @@ if [[ ${#startup_files[@]} -eq 0 ]]; then
 fi
 
 # Inject configuration into each startup file
+files_injected=0
+files_skipped=0
+
 for startup_file in "${startup_files[@]}"; do
     if [[ -f "$startup_file" ]]; then
         print_info "Processing $(basename "$startup_file")..."
-        inject_config_to_file "$startup_file" "$LOCAL_USER_CONFIG"
+        result=$(inject_config_to_file "$startup_file" "$LOCAL_USER_CONFIG")
+        if [[ "$result" == "INJECTED" ]]; then
+            (( files_injected++ )) || true
+        elif [[ "$result" == "SKIPPED" ]]; then
+            (( files_skipped++ )) || true
+        fi
     fi
 done
 
-print_success "Local user configuration injection completed successfully!"
-print_info "Note: Configuration has been injected at the beginning of each startup file"
+# Summary and exit
+if [[ $files_injected -eq 0 && $files_skipped -gt 0 ]]; then
+    print_info "All startup files already contain local user configuration - no changes made"
+    exit 0
+fi
 
-if [[ -n "$FALLBACK_LOCAL_USERNAME" && -n "$FALLBACK_LOCAL_PASSWORD" ]]; then
-    print_info "Used credentials: Username=$FALLBACK_LOCAL_USERNAME"
-else
-    print_info "Used default local user configuration from $FALLBACK_CONFIG_FILE"
+if [[ $files_injected -gt 0 ]]; then
+    print_success "Local user configuration injection completed successfully!"
+    print_info "Files updated: $files_injected, Files skipped: $files_skipped"
+    
+    if [[ -n "$FALLBACK_LOCAL_USERNAME" && -n "$FALLBACK_LOCAL_PASSWORD" ]]; then
+        print_info "Used credentials: Username=$FALLBACK_LOCAL_USERNAME"
+    else
+        print_info "Used default local user configuration from $FALLBACK_CONFIG_FILE"
+    fi
 fi
