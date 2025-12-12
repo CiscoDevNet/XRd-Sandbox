@@ -77,7 +77,15 @@ cleanup_output_dir() {
 # Copy input files to output directory for testing
 prepare_test_files() {
     print_info "Preparing test files..."
-    cp "$INPUT_DIR"/xrd-*-startup.cfg "$OUTPUT_DIR/"
+    # Copy base configs and create .deploy.cfg versions (simulating deploy.sh behavior)
+    for cfg in "$INPUT_DIR"/xrd-*-startup.cfg; do
+        if [[ -f "$cfg" ]]; then
+            basename_cfg=$(basename "$cfg")
+            # Copy to output as .deploy.cfg (what the injection scripts now expect)
+            deploy_cfg="${basename_cfg%.cfg}.deploy.cfg"
+            cp "$cfg" "$OUTPUT_DIR/$deploy_cfg"
+        fi
+    done
 }
 
 # Compare two files
@@ -134,9 +142,9 @@ test_tacacs_injection() {
     fi
     
     # Compare output for xrd-1
-    compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
                   "$EXPECTED_DIR/xrd-1-startup-with-tacacs.cfg" \
-                  "TACACS injection in xrd-1-startup.cfg"
+                  "TACACS injection in xrd-1-startup.deploy.cfg"
     
     unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
 }
@@ -162,9 +170,9 @@ test_aaa_injection() {
     fi
     
     # Compare output for xrd-1
-    compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
                   "$EXPECTED_DIR/xrd-1-startup-with-aaa.cfg" \
-                  "AAA injection in xrd-1-startup.cfg"
+                  "AAA injection in xrd-1-startup.deploy.cfg"
     
     unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
 }
@@ -188,9 +196,9 @@ test_local_user_injection() {
     fi
     
     # Compare output for xrd-1
-    compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
                   "$EXPECTED_DIR/xrd-1-startup-with-local-user.cfg" \
-                  "Local user injection in xrd-1-startup.cfg"
+                  "Local user injection in xrd-1-startup.deploy.cfg"
     
     unset TEST_MODE
 }
@@ -225,9 +233,9 @@ test_combined_injection() {
     fi
     
     # Compare output for xrd-1
-    compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
                   "$EXPECTED_DIR/xrd-1-startup-with-all.cfg" \
-                  "Combined injection in xrd-1-startup.cfg"
+                  "Combined injection in xrd-1-startup.deploy.cfg"
     
     unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
 }
@@ -249,7 +257,7 @@ test_idempotency() {
     "$SCRIPTS_DIR/inject-aaa.sh" > /dev/null 2>&1
     
     # Create backup of first run
-    cp "$OUTPUT_DIR/xrd-1-startup.cfg" "$OUTPUT_DIR/xrd-1-startup.cfg.backup"
+    cp "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" "$OUTPUT_DIR/xrd-1-startup.deploy.cfg.backup"
     
     print_test "Running scripts second time..."
     "$SCRIPTS_DIR/inject-local-user.sh" > /dev/null 2>&1
@@ -257,8 +265,8 @@ test_idempotency() {
     "$SCRIPTS_DIR/inject-aaa.sh" > /dev/null 2>&1
     
     # Compare first and second run
-    compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
-                  "$OUTPUT_DIR/xrd-1-startup.cfg.backup" \
+    compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
+                  "$OUTPUT_DIR/xrd-1-startup.deploy.cfg.backup" \
                   "Idempotency check - files should be identical"
     
     unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
@@ -277,8 +285,8 @@ test_missing_env_vars() {
     if "$SCRIPTS_DIR/inject-tacacs.sh" > /dev/null 2>&1; then
         print_info "Script exited successfully (expected)"
         
-        # Files should remain unchanged
-        compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
+        # Files should remain unchanged (base .cfg was copied to .deploy.cfg)
+        compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
                       "$INPUT_DIR/xrd-1-startup.cfg" \
                       "File should be unchanged when TACACS vars missing"
     else
@@ -289,8 +297,8 @@ test_missing_env_vars() {
     if "$SCRIPTS_DIR/inject-aaa.sh" > /dev/null 2>&1; then
         print_info "Script exited successfully (expected)"
         
-        # Files should remain unchanged
-        compare_files "$OUTPUT_DIR/xrd-1-startup.cfg" \
+        # Files should remain unchanged (base .cfg was copied to .deploy.cfg)
+        compare_files "$OUTPUT_DIR/xrd-1-startup.deploy.cfg" \
                       "$INPUT_DIR/xrd-1-startup.cfg" \
                       "File should be unchanged when AAA vars missing"
     else
@@ -320,13 +328,13 @@ test_multiple_routers() {
     # Check that all three files have the local user config
     for router in xrd-1 xrd-2 xrd-3; do
         ((TESTS_RUN++))
-        if grep -q "username cisco" "$OUTPUT_DIR/${router}-startup.cfg" && \
-           grep -q "group root-lr" "$OUTPUT_DIR/${router}-startup.cfg" && \
-           grep -q "group cisco-support" "$OUTPUT_DIR/${router}-startup.cfg"; then
-            print_pass "Local user injected into ${router}-startup.cfg"
+        if grep -q "username cisco" "$OUTPUT_DIR/${router}-startup.deploy.cfg" && \
+           grep -q "group root-lr" "$OUTPUT_DIR/${router}-startup.deploy.cfg" && \
+           grep -q "group cisco-support" "$OUTPUT_DIR/${router}-startup.deploy.cfg"; then
+            print_pass "Local user injected into ${router}-startup.deploy.cfg"
             ((TESTS_PASSED++))
         else
-            print_fail "Local user NOT found in ${router}-startup.cfg"
+            print_fail "Local user NOT found in ${router}-startup.deploy.cfg"
             ((TESTS_FAILED++))
         fi
     done

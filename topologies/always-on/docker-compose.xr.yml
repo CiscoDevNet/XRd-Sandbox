@@ -7,7 +7,7 @@
 services:
   xrd1:
     container_name: xrd-1
-    xr_startup_cfg: xrd-1-startup.cfg
+    xr_startup_cfg: xrd-1-startup.deploy.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/1
@@ -19,7 +19,7 @@ services:
         ipv4_address: 10.10.20.101
   xrd2:
     container_name: xrd-2
-    xr_startup_cfg: xrd-2-startup.cfg
+    xr_startup_cfg: xrd-2-startup.deploy.cfg
     xr_interfaces:
       - Gi0/0/0/0
       - Gi0/0/0/2
@@ -31,7 +31,7 @@ services:
         ipv4_address: 10.10.20.102
   xrd3:
     container_name: xrd-3
-    xr_startup_cfg: xrd-3-startup.cfg
+    xr_startup_cfg: xrd-3-startup.deploy.cfg
     xr_interfaces:
       - Gi0/0/0/1
       - Gi0/0/0/2

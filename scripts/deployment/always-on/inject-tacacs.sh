@@ -108,17 +108,19 @@ inject_config_to_file() {
 # Generate the TACACS configuration
 TACACS_CONFIG=$(generate_tacacs_config)
 
-# Find all startup.cfg files in the topology directory
-print_info "Searching for startup configuration files in $TOPOLOGY_DIR..."
+# Find all deployment startup.cfg files in the topology directory
+print_info "Searching for deployment configuration files in $TOPOLOGY_DIR..."
 
-startup_files=("$TOPOLOGY_DIR"/xrd-*-startup.cfg)
+startup_files=("$TOPOLOGY_DIR"/xrd-*-startup.deploy.cfg)
 
 if [[ ${#startup_files[@]} -eq 0 ]] || [[ ! -f "${startup_files[0]}" ]]; then
-    print_error "No startup configuration files found in $TOPOLOGY_DIR"
+    print_error "No deployment configuration files found in $TOPOLOGY_DIR"
+    print_error "Expected files: xrd-*-startup.deploy.cfg"
+    print_error "These files should be created by the deploy.sh script before running injection scripts"
     exit 1
 fi
 
-print_info "Found ${#startup_files[@]} startup configuration file(s)"
+print_info "Found ${#startup_files[@]} deployment configuration file(s)"
 
 # Inject configuration into each startup file
 files_injected=0

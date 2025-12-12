@@ -5,6 +5,10 @@
 
 ## 🚀 Quick Start - Automated Deployment (Recommended)
 
+> [!NOTE]
+> The automated deployment creates temporary deployment configuration files (`*.deploy.cfg`) from the base startup configs.
+> These deployment files are modified with TACACS/AAA/local user settings and are **not tracked by Git**.
+
 **With TACACS+ authentication:**
 
 ```bash

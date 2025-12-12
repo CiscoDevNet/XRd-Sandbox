@@ -157,13 +157,15 @@ inject_config_to_file() {
 # Generate the local user configuration
 LOCAL_USER_CONFIG=$(generate_local_user_config)
 
-# Find all startup.cfg files in the topology directory
-print_info "Searching for startup configuration files in $TOPOLOGY_DIR..."
+# Find all deployment startup.cfg files in the topology directory
+print_info "Searching for deployment configuration files in $TOPOLOGY_DIR..."
 
-startup_files=("$TOPOLOGY_DIR"/xrd-*-startup.cfg)
+startup_files=("$TOPOLOGY_DIR"/xrd-*-startup.deploy.cfg)
 
-if [[ ${#startup_files[@]} -eq 0 ]]; then
-    print_error "No startup configuration files found in $TOPOLOGY_DIR"
+if [[ ${#startup_files[@]} -eq 0 ]] || [[ ! -f "${startup_files[0]}" ]]; then
+    print_error "No deployment configuration files found in $TOPOLOGY_DIR"
+    print_error "Expected files: xrd-*-startup.deploy.cfg"
+    print_error "These files should be created by the deploy.sh script before running injection scripts"
     exit 1
 fi
 

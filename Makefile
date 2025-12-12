@@ -66,6 +66,9 @@ inject-tacacs-always-on:
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/always-on/docker-compose.yml down --volumes --remove-orphans
+	@echo "=== Cleaning up deployment configuration files ==="
+	@rm -f $(SANDBOX_ROOT)/topologies/always-on/*.deploy.cfg
+	@echo "Deployment configuration files removed"
 
 follow-always-on-logs:
 	@echo "=== Following Always-On Sandbox logs ==="
