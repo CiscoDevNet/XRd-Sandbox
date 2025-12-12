@@ -27,8 +27,8 @@ fi
 print_info "Starting local user configuration injection for Always-On sandbox..."
 
 # Define paths
-FALLBACK_CONFIG_FILE="$SCRIPT_DIR/fallback_local_user.cfg"
 TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
+FALLBACK_CONFIG_FILE="$TOPOLOGY_DIR/fallback_local_user.cfg"
 
 # Validate fallback config exists
 if [[ ! -f "$FALLBACK_CONFIG_FILE" ]]; then

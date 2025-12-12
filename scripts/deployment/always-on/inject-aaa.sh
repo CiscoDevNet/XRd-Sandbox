@@ -47,8 +47,8 @@ print_info "  TACACS_SERVER_IP: $TACACS_SERVER_IP"
 print_info "  TACACS_SECRET_KEY: [REDACTED]"
 
 # Define paths
-AAA_CONFIG_FILE="$SCRIPT_DIR/aaa-config.cfg"
 TOPOLOGY_DIR="$SANDBOX_ROOT/topologies/always-on"
+AAA_CONFIG_FILE="$TOPOLOGY_DIR/aaa-config.cfg"
 
 # Validate AAA config exists
 if [[ ! -f "$AAA_CONFIG_FILE" ]]; then
