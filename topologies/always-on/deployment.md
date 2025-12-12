@@ -86,9 +86,9 @@ flowchart TD
 ```bash
 # Set environment variables (optional)
 export FALLBACK_LOCAL_USERNAME="cisco"
-export FALLBACK_LOCAL_PASSWORD="cisco123"
+export FALLBACK_LOCAL_PASSWORD="C1sco12345"
 
-# If you do not set the above variables, defaults (cisco/cisco123) will be used.
+# If you do not set the above variables, defaults (cisco/C1sco12345) will be used.
 # if you do not run this script, no local user will be created and XRd will prompt for user creation on first boot.
 ./scripts/deployment/always-on/inject-local-user.sh
 
