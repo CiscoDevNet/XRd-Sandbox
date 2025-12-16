@@ -143,6 +143,39 @@ For the local user config, [see the fallback_local_user.cfg file.](../../scripts
 | Password hash fails | Ensure Python 3 is installed: `python3 --version`                             |
 | No user configured  | Check startup files: `grep "username" topologies/always-on/xrd-1-startup.cfg` |
 
+### Console Access
+
+> [!NOTE]
+> Console access via `docker attach` is **only available when deploying the topology on your own VM/environment**. The always-on sandbox that is already deployed does not provide console access to end users.
+
+**Accessing the XRd Console (recommended method):**
+
+This command should be executed on the VM hosting the containers:
+
+```bash
+docker attach <xrd-container>
+# Press Enter to get the prompt
+```
+
+**To exit the attached session:**
+
+- Use `Ctrl-P`, `Ctrl-Q` to detach without stopping the container
+- ⚠️ This escape sequence **only works with standard terminal clients**
+- VSCode's integrated terminal does **not support** this escape sequence
+
+**Alternative method (bypasses security checks):**
+
+You can still access the XRd CLI using:
+
+```bash
+docker exec -it <XRD_CONTAINER_NAME> bash
+# Then run:
+/pkg/bin/xr_cli.sh
+```
+
+> [!WARNING]
+> Using `docker exec` bypasses some security checks. Use `docker attach` when possible.
+
 ## 📚 Additional Resources
 
 - You can find the script to deploy this sandbox on the [deployment/always-on directory.](../../scripts/deployment/always-on/)
