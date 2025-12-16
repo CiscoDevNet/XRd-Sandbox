@@ -91,6 +91,38 @@ ssh <your-username>@sandbox-iosxr-1.cisco.com
 - ❌ **DO NOT** perform performance or load testing
 - ❌ **DO NOT** make changes to base system configurations (tacacs, aaa, mgmt IPs)
 
+## 🔧 Programmatic Access Examples
+
+Once you have your credentials from the **I/O** tab, you can use them to test programmatic interfaces like gNMI using tools such as [gnmic.](https://gnmic.openconfig.net/)
+
+### gNMI Examples with gnmic
+
+**Get interface configuration using JSON encoding:**
+
+```bash
+gnmic \
+  --address sandbox-iosxr-1.cisco.com:57777 \
+  --username <your-username> \
+  --password <your-password> \
+  --insecure \
+  --encoding json \
+  get --path "openconfig-interfaces:interfaces"
+```
+
+**Get operational data using ASCII encoding:**
+
+```bash
+gnmic \
+  --address sandbox-iosxr-1.cisco.com:57777 \
+  --username <your-username> \
+  --password <your-password> \
+  --insecure \
+  --encoding ascii \
+  get --path "show version"
+```
+
+> **Note:** Replace `<your-username>` and `<your-password>` with the credentials provided in the **I/O** tab of your active reservation.
+
 ## ⚠️ Configuration State Notice
 
 ### Initial State Reference
