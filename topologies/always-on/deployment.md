@@ -11,12 +11,19 @@
 
 **With TACACS+ authentication:**
 
+> [!IMPORTANT]
+> Environment variables must be defined in a `.env` file in the root directory of the XRd-Sandbox repository.
+
 ```bash
-# The environment variables below are optional.
-export TACACS_SERVER_HOST="192.168.1.100"
-export TACACS_SERVER_SECRET="your-secret"
-export FALLBACK_LOCAL_USERNAME="admin"
-export FALLBACK_LOCAL_PASSWORD="secure-password"
+# Create a .env file with your configuration (all variables are optional)
+cat > .env << 'EOF'
+TACACS_SERVER_HOST=192.168.1.100
+TACACS_SERVER_SECRET=your-secret
+TACACS_SERVER_PORT=49
+FALLBACK_LOCAL_USERNAME=admin
+FALLBACK_LOCAL_PASSWORD=secure-password
+EOF
+
 make deploy-always-on
 ```
 
@@ -85,9 +92,11 @@ flowchart TD
 ### Local User Only, No TACACS+
 
 ```bash
-# Set environment variables (optional)
-export FALLBACK_LOCAL_USERNAME="cisco"
-export FALLBACK_LOCAL_PASSWORD="C1sco12345"
+# Create a .env file with your configuration (optional)
+cat > .env << 'EOF'
+FALLBACK_LOCAL_USERNAME=cisco
+FALLBACK_LOCAL_PASSWORD=C1sco12345
+EOF
 
 # If you do not set the above variables, defaults (cisco/C1sco12345) will be used.
 # if you do not run this script, no local user will be created and XRd will prompt for user creation on first boot.
