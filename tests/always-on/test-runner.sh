@@ -131,8 +131,8 @@ test_tacacs_injection() {
     print_test "Running inject-tacacs.sh script..."
     
     export TEST_MODE="$TEST_DIR"
-    export TACACS_SERVER_IP="10.0.0.100"
-    export TACACS_SECRET_KEY="testing123"
+    export TACACS_SERVER_HOST="10.0.0.100"
+    export TACACS_SERVER_SECRET="testing123"
     
     if "$SCRIPTS_DIR/inject-tacacs.sh" > /dev/null 2>&1; then
         print_info "Script executed successfully"
@@ -146,7 +146,7 @@ test_tacacs_injection() {
                   "$EXPECTED_DIR/xrd-1-startup-with-tacacs.cfg" \
                   "TACACS injection in xrd-1-startup.deploy.cfg"
     
-    unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
+    unset TEST_MODE TACACS_SERVER_HOST TACACS_SERVER_SECRET
 }
 
 # Test 2: AAA configuration injection
@@ -159,8 +159,8 @@ test_aaa_injection() {
     print_test "Running inject-aaa.sh script..."
     
     export TEST_MODE="$TEST_DIR"
-    export TACACS_SERVER_IP="10.0.0.100"
-    export TACACS_SECRET_KEY="testing123"
+    export TACACS_SERVER_HOST="10.0.0.100"
+    export TACACS_SERVER_SECRET="testing123"
     
     if "$SCRIPTS_DIR/inject-aaa.sh" > /dev/null 2>&1; then
         print_info "Script executed successfully"
@@ -174,7 +174,7 @@ test_aaa_injection() {
                   "$EXPECTED_DIR/xrd-1-startup-with-aaa.cfg" \
                   "AAA injection in xrd-1-startup.deploy.cfg"
     
-    unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
+    unset TEST_MODE TACACS_SERVER_HOST TACACS_SERVER_SECRET
 }
 
 # Test 3: Local user configuration injection
@@ -211,8 +211,8 @@ test_combined_injection() {
     prepare_test_files
     
     export TEST_MODE="$TEST_DIR"
-    export TACACS_SERVER_IP="10.0.0.100"
-    export TACACS_SECRET_KEY="testing123"
+    export TACACS_SERVER_HOST="10.0.0.100"
+    export TACACS_SERVER_SECRET="testing123"
     
     print_test "Running inject-local-user.sh script..."
     if ! "$SCRIPTS_DIR/inject-local-user.sh" > /dev/null 2>&1; then
@@ -237,7 +237,7 @@ test_combined_injection() {
                   "$EXPECTED_DIR/xrd-1-startup-with-all.cfg" \
                   "Combined injection in xrd-1-startup.deploy.cfg"
     
-    unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
+    unset TEST_MODE TACACS_SERVER_HOST TACACS_SERVER_SECRET
 }
 
 # Test 5: Idempotency - Running scripts twice should not modify files
@@ -248,8 +248,8 @@ test_idempotency() {
     prepare_test_files
     
     export TEST_MODE="$TEST_DIR"
-    export TACACS_SERVER_IP="10.0.0.100"
-    export TACACS_SECRET_KEY="testing123"
+    export TACACS_SERVER_HOST="10.0.0.100"
+    export TACACS_SERVER_SECRET="testing123"
     
     print_test "Running scripts first time..."
     "$SCRIPTS_DIR/inject-local-user.sh" > /dev/null 2>&1
@@ -269,7 +269,7 @@ test_idempotency() {
                   "$OUTPUT_DIR/xrd-1-startup.deploy.cfg.backup" \
                   "Idempotency check - files should be identical"
     
-    unset TEST_MODE TACACS_SERVER_IP TACACS_SECRET_KEY
+    unset TEST_MODE TACACS_SERVER_HOST TACACS_SERVER_SECRET
 }
 
 # Test 6: Missing environment variables behavior
@@ -441,7 +441,7 @@ main() {
     
     # Unset any existing environment variables to ensure clean test state
     # Tests will use hardcoded values only
-    unset TACACS_SERVER_IP TACACS_SECRET_KEY FALLBACK_LOCAL_USERNAME FALLBACK_LOCAL_PASSWORD
+    unset TACACS_SERVER_HOST TACACS_SERVER_SECRET FALLBACK_LOCAL_USERNAME FALLBACK_LOCAL_PASSWORD
     print_info "Cleared any existing environment variables for clean test state"
     echo ""
     

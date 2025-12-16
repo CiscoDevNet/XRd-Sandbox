@@ -60,7 +60,6 @@ if [[ ${#RUNNING_CONTAINERS[@]} -eq 3 ]]; then
     print_info "  xrd-2: 10.10.20.102"
     print_info "  xrd-3: 10.10.20.103"
     print_info ""
-    print_info "Credentials: cisco/C1sco12345"
     print_info ""
     print_info "Useful commands:"
     print_info "  Check status: $CONTAINER_ENGINE_NAME compose --file $OUTPUT_FILE ps"

@@ -13,8 +13,8 @@
 
 ```bash
 # The environment variables below are optional.
-export TACACS_SERVER_IP="192.168.1.100"
-export TACACS_SECRET_KEY="your-secret"
+export TACACS_SERVER_HOST="192.168.1.100"
+export TACACS_SERVER_SECRET="your-secret"
 export FALLBACK_LOCAL_USERNAME="admin"
 export FALLBACK_LOCAL_PASSWORD="secure-password"
 make deploy-always-on
@@ -36,13 +36,13 @@ make undeploy-always-on
 
 | Variable                  | Required | Default    | Description               |
 | ------------------------- | -------- | ---------- | ------------------------- |
-| `TACACS_SERVER_IP`        | No       | -          | TACACS+ server IP address |
-| `TACACS_SECRET_KEY`       | No       | -          | TACACS+ shared secret key |
+| `TACACS_SERVER_HOST`      | No       | -          | TACACS+ server IP address |
+| `TACACS_SERVER_SECRET`    | No       | -          | TACACS+ shared secret key |
 | `FALLBACK_LOCAL_USERNAME` | No       | `cisco`    | Local fallback username   |
 | `FALLBACK_LOCAL_PASSWORD` | No       | `cisco123` | Local fallback password   |
 
 > [!NOTE]
-> Both `TACACS_SERVER_IP` and `TACACS_SECRET_KEY` must be set together. If only one is provided, deployment will fail.
+> Both `TACACS_SERVER_HOST` and `TACACS_SERVER_SECRET` must be set together. If only one is provided, deployment will fail.
 
 ## 🔐 Authentication Configuration Flow
 
@@ -119,8 +119,8 @@ TACACS+ Server Config
 
 ```text
 tacacs source-interface MgmtEth0/RP0/CPU0/0 vrf default
-tacacs-server host <TACACS_SERVER_IP> port 49
- key 0 <TACACS_SECRET_KEY>
+tacacs-server host <TACACS_SERVER_HOST> port 49
+ key 0 <TACACS_SERVER_SECRET>
 ```
 
 For aaa config, see [aaa-config.cfg file.](../../scripts/deployment/always-on/aaa-config.cfg)
@@ -131,7 +131,7 @@ For the local user config, [see the fallback_local_user.cfg file.](../../scripts
 
 | Issue               | Solution                                                                      |
 | ------------------- | ----------------------------------------------------------------------------- |
-| TACACS+ not applied | Verify both `TACACS_SERVER_IP` and `TACACS_SECRET_KEY` are set                |
+| TACACS+ not applied | Verify both `TACACS_SERVER_HOST` and `TACACS_SERVER_SECRET` are set           |
 | Password hash fails | Ensure Python 3 is installed: `python3 --version`                             |
 | No user configured  | Check startup files: `grep "username" topologies/always-on/xrd-1-startup.cfg` |
 

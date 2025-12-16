@@ -29,8 +29,8 @@ print_info "Starting TACACS configuration injection for Always-On sandbox..."
 
 # Check if TACACS environment variables are set
 missing_vars=()
-[[ -z "$TACACS_SERVER_IP" ]] && missing_vars+=("TACACS_SERVER_IP")
-[[ -z "$TACACS_SECRET_KEY" ]] && missing_vars+=("TACACS_SECRET_KEY")
+[[ -z "$TACACS_SERVER_HOST" ]] && missing_vars+=("TACACS_SERVER_HOST")
+[[ -z "$TACACS_SERVER_SECRET" ]] && missing_vars+=("TACACS_SERVER_SECRET")
 
 if [[ ${#missing_vars[@]} -eq 2 ]]; then
     print_info "TACACS environment variables not set: ${missing_vars[*]}"
@@ -38,13 +38,13 @@ if [[ ${#missing_vars[@]} -eq 2 ]]; then
     exit 0
 elif [[ ${#missing_vars[@]} -eq 1 ]]; then
     print_error "Missing required TACACS environment variable: ${missing_vars[*]}"
-    print_error "Both TACACS_SERVER_IP and TACACS_SECRET_KEY are required for TACACS configuration"
+    print_error "Both TACACS_SERVER_HOST and TACACS_SERVER_SECRET are required for TACACS configuration"
     exit 1
 fi
 
 print_info "TACACS environment variables detected:"
-print_info "  TACACS_SERVER_IP: $TACACS_SERVER_IP"
-print_info "  TACACS_SECRET_KEY: [REDACTED]"
+print_info "  TACACS_SERVER_HOST: $TACACS_SERVER_HOST"
+print_info "  TACACS_SERVER_SECRET: [REDACTED]"
 
 # Define paths - support TEST_MODE for testing
 if [[ -n "$TEST_MODE" ]]; then
@@ -65,8 +65,8 @@ generate_tacacs_config() {
     cat <<EOF
 !
 tacacs source-interface MgmtEth0/RP0/CPU0/0 vrf default
-tacacs-server host $TACACS_SERVER_IP port 49
- key 0 $TACACS_SECRET_KEY
+tacacs-server host $TACACS_SERVER_HOST port 49
+ key 0 $TACACS_SERVER_SECRET
 !
 EOF
 }
