@@ -26,6 +26,9 @@ EOF
 make deploy-always-on
 ```
 
+> [!NOTE]
+> For the Always On sandbox deployment use sudo `sudo make -C /home/developer/XRd-Sandbox deploy-always-on`
+
 **Monitor logs:**
 
 ```bash
