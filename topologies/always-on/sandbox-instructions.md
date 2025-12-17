@@ -22,6 +22,8 @@ Welcome to the IOS XR Always-On Sandbox! This shared environment allows develope
 - 🏗️ Prototype network automation scripts
 - 📚 Learn IOS XR programmability features
 
+[See these instructions on Github](https://github.com/CiscoDevNet/XRd-Sandbox/tree/main/topologies/always-on/sandbox-instructions.md)
+
 ## 🌐 Topology
 
 ```plaintext
@@ -90,6 +92,8 @@ ssh <your-username>@sandbox-iosxr-1.cisco.com
 - ❌ **DO NOT** modify or delete others' configurations
 - ❌ **DO NOT** perform performance or load testing
 - ❌ **DO NOT** make changes to base system configurations (tacacs, aaa, mgmt IPs)
+
+> 💡 **Need a dedicated environment?** If you require an isolated sandbox for extended testing or development, use the dedicated **XRd Sandbox** at [devnetsandbox.cisco.com](https://devnetsandbox.cisco.com/)
 
 ## 🔧 Programmatic Access Examples
 
