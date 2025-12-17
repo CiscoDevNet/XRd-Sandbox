@@ -170,7 +170,13 @@ You can still access the XRd CLI using:
 ```bash
 docker exec -it <XRD_CONTAINER_NAME> bash
 # Then run:
-/pkg/bin/xr_cli.sh
+/pkg/bin/xr_cli
+```
+
+Useful when you want to run a show command directly from docker, for example:
+
+```bash
+docker exec xrd-1 /pkg/bin/xr_cli "show netconf-yang clients"
 ```
 
 > [!WARNING]
