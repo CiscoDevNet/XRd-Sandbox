@@ -97,19 +97,41 @@ ssh <your-username>@sandbox-iosxr-1.cisco.com
 
 ## 🔧 Programmatic Access Examples
 
-Once you have your credentials from the **I/O** tab, you can use them to test programmatic interfaces like gNMI using tools such as [gnmic.](https://gnmic.openconfig.net/)
+Once you have your credentials from the **I/O** tab, you can use them to test programmatic interfaces like `NETCONF` and `gNMI`.
+
+### NETCONF Example with ncclient
+
+Requires `uv` [see the docs.](https://docs.astral.sh/uv/)
+
+```python
+uv run --with ncclient python -c "
+from ncclient import manager
+with manager.connect(
+    host='sandbox-iosxr-1.cisco.com',
+    port=830,
+    username='<your-username>',
+    password='<your-password>',
+    hostkey_verify=False,
+    device_params={'name': 'iosxr'}
+) as session:
+    config = session.get_config(source='running')
+    print(config)
+"
+```
 
 ### gNMI Examples with gnmic
 
 **Get interface configuration using JSON encoding:**
+
+Requires `gnmic` [see the docs.](https://gnmic.openconfig.net/)
 
 ```bash
 gnmic \
   --address sandbox-iosxr-1.cisco.com:57777 \
   --username <your-username> \
   --password <your-password> \
+  --encoding JSON_IETF \
   --insecure \
-  --encoding json \
   get --path "openconfig-interfaces:interfaces"
 ```
 
