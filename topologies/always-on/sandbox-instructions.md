@@ -142,8 +142,8 @@ gnmic \
   --address sandbox-iosxr-1.cisco.com:57777 \
   --username <your-username> \
   --password <your-password> \
-  --insecure \
   --encoding ascii \
+  --insecure \
   get --path "show version"
 ```
 
