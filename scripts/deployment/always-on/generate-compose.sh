@@ -4,7 +4,7 @@ set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-COMMON_UTILS="$SCRIPT_DIR/../lib/common.sh"
+COMMON_UTILS="$SCRIPT_DIR/../../lib/common.sh"
 
 # Source common utilities
 if [[ -f "$COMMON_UTILS" ]]; then
@@ -14,7 +14,7 @@ else
     exit 1
 fi
 
-print_info "Starting Segment Routing sandbox deployment..."
+print_info "Generating docker-compose.yml for Always-On topology..."
 
 # Initialize sandbox environment
 if ! init_sandbox_environment SANDBOX_IP; then
@@ -31,15 +31,15 @@ if ! check_image_exists "$IMAGE_NAME"; then
 fi
 
 # Define file paths
-INPUT_FILE="$SANDBOX_ROOT/topologies/segment-routing/docker-compose.xr.yml"
-OUTPUT_FILE="$SANDBOX_ROOT/topologies/segment-routing/docker-compose.yml"
+INPUT_FILE="$SANDBOX_ROOT/topologies/always-on/docker-compose.xr.yml"
+OUTPUT_FILE="$SANDBOX_ROOT/topologies/always-on/docker-compose.yml"
 
 # Validate input file exists
 if ! validate_file_exists "$INPUT_FILE" "Input file"; then
     exit 1
 fi
 
-# Step 1: Generate docker-compose.yml using xr-compose
+# Generate docker-compose.yml using xr-compose
 if ! run_command "Generating docker-compose.yml using xr-compose..." \
     xr-compose \
     --input-file "$INPUT_FILE" \
@@ -49,14 +49,14 @@ if ! run_command "Generating docker-compose.yml using xr-compose..." \
 fi
 print_success "Successfully generated $OUTPUT_FILE"
 
-# Step 2: Modify the generated file to replace interface names
+# Modify the generated file to replace interface names
 if ! run_command "Updating interface names in docker-compose.yml..." \
-    sed -i.bak 's/linux:xr-120/linux:eth0/g' "$OUTPUT_FILE"; then
+    sed -i.bak 's/linux:xr-30/linux:eth0/g' "$OUTPUT_FILE"; then
     exit 1
 fi
 print_success "Interface names updated successfully"
 
-# Step 3: Detect and update macvlan parent interface
+# Detect and update macvlan parent interface
 DETECTED_INTERFACE=$(detect_network_interface "$SANDBOX_IP")
 if [[ $? -eq 0 ]] && [[ -n "$DETECTED_INTERFACE" ]]; then
     if ! run_command "Updating macvlan parent interface to $DETECTED_INTERFACE..." \
@@ -67,11 +67,4 @@ else
     print_warning "Could not detect network interface for $SANDBOX_IP, using existing configuration"
 fi
 
-# Step 4: Deploy the topology
-if ! run_command "Deploying the Segment Routing topology..." \
-    $CONTAINER_ENGINE compose --file "$OUTPUT_FILE" up --detach; then
-    exit 1
-fi
-
-# Step 5: Verify deployment
-verify_compose_deployment "$OUTPUT_FILE"
+print_success "docker-compose.yml is ready for deployment"

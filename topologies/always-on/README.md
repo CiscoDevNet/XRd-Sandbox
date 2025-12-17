@@ -1,15 +1,12 @@
-# 🔄 Always-On Sandbox Topology
+# 🔄 Always-On Topology
 
 ## 📖 Overview
 
-The IOS XR Always-On Sandbox provides an environment where developers and network engineers can explore the programmability options available on this routing platform. These include:
+This topology demonstrates a simple 3-node XRd network suitable for exploring IOS XR programmability features. Use this as a reference for deploying your own environment.
 
-- **Model Driven Programmability** with YANG Data Models and NETCONF
-- **Streaming Telemetry**
-- **Service-Layer APIs**
-- **Application Hosting**
+For sandbox platform instructions, see [sandbox-instructions.md](./sandbox-instructions.md).
 
-## 🌐 Topology Overview
+## 🌐 Topology
 
 ```plaintext
      xrd-1
@@ -17,86 +14,7 @@ The IOS XR Always-On Sandbox provides an environment where developers and networ
  xrd-2 -- xrd-3
 ```
 
-## 📊 Node Information
-
-### Management Network
-
-| Node  | Management IP  | Router ID |
-| ----- | -------------- | --------- |
-| xrd-1 | `10.10.20.101` | `1.1.1.1` |
-| xrd-2 | `10.10.20.102` | `2.2.2.2` |
-| xrd-3 | `10.10.20.103` | `3.3.3.3` |
-
-### 🔌 Interface Connections
-
-| Node 1 Interface  | Node 2 Interface  | Subnet        |
-| ----------------- | ----------------- | ------------- |
-| xrd-1 `Gi0/0/0/0` | xrd-2 `Gi0/0/0/0` | `10.1.2.0/24` |
-| xrd-2 `Gi0/0/0/2` | xrd-3 `Gi0/0/0/2` | `10.2.3.0/24` |
-| xrd-1 `Gi0/0/0/1` | xrd-3 `Gi0/0/0/1` | `10.1.3.0/24` |
-
-### 🏷️ Interface IP Addresses
-
-**xrd-1:**
-
-- `Lo0`: `1.1.1.1/32`
-- `Gi0/0/0/0`: `10.1.2.1/24` (to xrd-2)
-- `Gi0/0/0/1`: `10.1.3.1/24` (to xrd-3)
-
-**xrd-2:**
-
-- `Lo0`: `2.2.2.2/32`
-- `Gi0/0/0/0`: `10.1.2.2/24` (to xrd-1)
-- `Gi0/0/0/2`: `10.2.3.2/24` (to xrd-3)
-
-**xrd-3:**
-
-- `Lo0`: `3.3.3.3/32`
-- `Gi0/0/0/1`: `10.1.3.3/24` (to xrd-1)
-- `Gi0/0/0/2`: `10.2.3.3/24` (to xrd-2)
-
-## ⚠️ Important: Shared Environment Notice
-
-**📋 Initial State Reference**
-
-The IP addressing, hostnames, and protocol configurations shown above represent the **initial deployment state** and serve as a reference for getting started. However, since this is a **shared sandbox environment**:
-
-- 🔄 **Configuration may drift over time** as other users make changes
-- 🏷️ **IP addresses and hostnames** may be modified by other developers
-- ⚙️ **Protocol settings** (OSPF, BGP) may be reconfigured or disabled
-- 🚀 **Use initial state as a jumpstart** - not guaranteed to always be available
-
-**🔗 What Remains Constant**
-
-The following elements are permanent and will always be available:
-
-**Physical Link Connections:**
-
-- ✅ `xrd-1 Gi0/0/0/0` ↔ `xrd-2 Gi0/0/0/0`
-- ✅ `xrd-1 Gi0/0/0/1` ↔ `xrd-3 Gi0/0/0/1`
-- ✅ `xrd-2 Gi0/0/0/2` ↔ `xrd-3 Gi0/0/0/2`
-
-**Access Credentials:**
-
-- ✅ Username: `cisco` / Password: `C1sco12345`
-
-💡 **Recommendation:** Always verify current configuration when connecting to the sandbox and be prepared to adapt to the existing state.
-
-## 🔧 Protocol Configuration
-
-A basic configuration is pre-applied to each node, including:
-
-- **OSPF**: Enabled on all interfaces
-- **BGP**: Peering established with iBGP
-
-## 🔑 Access Information
-
-**Credentials:**
-
-- Username: `cisco`
-- Password: `C1sco12345`
-
-## 🔌 Available Protocols & Ports
+## 🔌 Enabled Services
 
 | Protocol | Port  | Transport |
 | -------- | ----- | --------- |
@@ -104,21 +22,37 @@ A basic configuration is pre-applied to each node, including:
 | NETCONF  | 830   | SSH       |
 | gNMI     | 57777 | gRPC      |
 
-- **gNMI:** No TLS (lab environment)
+## 🔑 Default Credentials
 
-## ⚖️ Good Citizen Code of Conduct
+- Username: `cisco`
+- Password: `C1sco12345`
 
-This "IOS-XR" Always On Sandbox resource is shared. This means that you can see other developers' and network engineers changes and they can see yours.
+## 📊 Node Information
 
-**Please follow these guidelines:**
+### Management Network
 
-- ❌ **Do not erase or change** configuration you have not created yourself.
-- ❌ **Do not perform performance testing** against this shared instance.
-- ✅ **Use this space to explore, learn & verify** interoperability.
+| Node  | Management IP  | Router ID | loopback0 IP |
+| ----- | -------------- | --------- | ------------ |
+| xrd-1 | `10.10.20.101` | `1.1.1.1` | `1.1.1.1/32` |
+| xrd-2 | `10.10.20.102` | `2.2.2.2` | `2.2.2.2/32` |
+| xrd-3 | `10.10.20.103` | `3.3.3.3` | `3.3.3.3/32` |
+
+### 🔌 Point-to-Point Links
+
+| Node A | Interface   | IP Address | ←→  | IP Address | Interface   | Node B | Subnet        |
+| ------ | ----------- | ---------- | --- | ---------- | ----------- | ------ | ------------- |
+| xrd-1  | `Gi0/0/0/0` | `10.1.2.1` | ←→  | `10.1.2.2` | `Gi0/0/0/0` | xrd-2  | `10.1.2.0/24` |
+| xrd-1  | `Gi0/0/0/1` | `10.1.3.1` | ←→  | `10.1.3.3` | `Gi0/0/0/1` | xrd-3  | `10.1.3.0/24` |
+| xrd-2  | `Gi0/0/0/2` | `10.2.3.2` | ←→  | `10.2.3.3` | `Gi0/0/0/2` | xrd-3  | `10.2.3.0/24` |
+
+## 🔧 Initial Configuration
+
+Basic configuration applied to each node:
+
+- **OSPF**: Enabled on all interfaces
+- **BGP**: iBGP peering between all nodes
 
 ## 📚 Learning Resources
-
-There are various examples and documentation to assist with getting started:
 
 ### Programming Guides
 
@@ -127,16 +61,6 @@ There are various examples and documentation to assist with getting started:
 - 🔗 [Model Driven Programmability](https://developer.cisco.com/site/standard-network-devices/)
 - 🔗 [IOS-XR over gRPC](https://developer.cisco.com/network-automation/detail/5d6bbd08-7099-11eb-aa41-aa8fea613d8b/)
 
-### Support
+## 🚀 Deployment
 
-- 🆘 [Sandbox Support](https://communities.cisco.com/community/developer/sandbox)
-
-## 🎯 Use Cases
-
-This sandbox is perfect for:
-
-- 🧪 **Testing NETCONF/YANG configurations**
-- 📊 **Exploring streaming telemetry capabilities**
-- 🔌 **Developing gNMI-based applications**
-- 🏗️ **Prototyping network automation scripts**
-- 📚 **Learning IOS XR programmability features**
+See the [deployment scripts](../../scripts/deployment/always-on/) and configuration files in this directory to deploy the topology in your environment.

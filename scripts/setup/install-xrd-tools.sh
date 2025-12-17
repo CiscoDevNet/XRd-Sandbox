@@ -3,7 +3,7 @@
 # Script to clone xrd-tools repository and add its scripts to PATH
 # This script clones the xrd-tools repo and sets up the PATH for the current session
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

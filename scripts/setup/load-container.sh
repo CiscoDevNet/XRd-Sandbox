@@ -4,7 +4,7 @@
 # This script handles both direct container format and nested archive format
 # It can work with either the original archive or extracted content
 
-set -e  # Exit on any error
+set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

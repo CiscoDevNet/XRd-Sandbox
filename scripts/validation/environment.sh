@@ -19,7 +19,7 @@
 # during CI/CD builds, but need to validate the environment for 'developer' user
 # who will actually use the XRd Sandbox.
 
-set -e  # Exit on any error
+set -eo pipefail  # Exit on error, catch pipeline failures
 
 # Get the script directory to find common utilities
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

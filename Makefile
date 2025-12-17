@@ -43,14 +43,50 @@ follow-segment-routing-logs:
 	@echo "=== Following Segment Routing Sandbox logs ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/segment-routing/docker-compose.yml logs --follow
 
-deploy-always-on:
-	@echo "=== Deploying Always-On Sandbox ==="
-	@chmod +x ./scripts/deployment/always-on.sh
-	@./scripts/deployment/always-on.sh
+deploy-always-on: create-always-on-configs inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on generate-compose-always-on start-always-on verify-always-on
+	@echo "=== Always-On Sandbox Deployment Complete ==="
+
+create-always-on-configs:
+	@echo "=== Creating Always-On Deployment Configuration Files ==="
+	@chmod +x ./scripts/deployment/always-on/create-configs.sh
+	@./scripts/deployment/always-on/create-configs.sh
+
+inject-local-user-always-on:
+	@echo "=== Injecting Local User Configuration into Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/inject-local-user.sh
+	@./scripts/deployment/always-on/inject-local-user.sh
+
+inject-aaa-always-on:
+	@echo "=== Injecting TACACS AAA Configuration into Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/inject-aaa.sh
+	@./scripts/deployment/always-on/inject-aaa.sh
+
+inject-tacacs-always-on:
+	@echo "=== Injecting TACACS Configuration into Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/inject-tacacs.sh
+	@./scripts/deployment/always-on/inject-tacacs.sh
+
+generate-compose-always-on:
+	@echo "=== Generating docker-compose.yml for Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/generate-compose.sh
+	@./scripts/deployment/always-on/generate-compose.sh
+
+start-always-on:
+	@echo "=== Starting Always-On Sandbox Containers ==="
+	@chmod +x ./scripts/deployment/always-on/start-containers.sh
+	@./scripts/deployment/always-on/start-containers.sh
+
+verify-always-on:
+	@echo "=== Verifying Always-On Sandbox Deployment ==="
+	@chmod +x ./scripts/deployment/always-on/verify-deployment.sh
+	@./scripts/deployment/always-on/verify-deployment.sh
 
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/always-on/docker-compose.yml down --volumes --remove-orphans
+	@echo "=== Cleaning up deployment configuration files ==="
+	@rm -f $(SANDBOX_ROOT)/topologies/always-on/*.deploy.cfg
+	@echo "Deployment configuration files removed"
 
 follow-always-on-logs:
 	@echo "=== Following Always-On Sandbox logs ==="
@@ -76,6 +112,11 @@ cleanup-environment:
 	@chmod +x ./scripts/maintenance/cleanup.sh
 	@./scripts/maintenance/cleanup.sh
 
+test-always-on:
+	@echo "=== Running Always-On Scripts Tests ==="
+	@chmod +x ./tests/always-on/test-runner.sh
+	@./tests/always-on/test-runner.sh
+
 help:
 	@echo "Available targets:"
 	@echo "  setup-ssh                   - Set up SSH keys for Git operations"
@@ -84,13 +125,21 @@ help:
 	@echo "  deploy-segment-routing      - Deploy Segment Routing Sandbox"
 	@echo "  undeploy-segment-routing    - Undeploy Segment Routing Sandbox"
 	@echo "  follow-segment-routing-logs - Follow Segment Routing Sandbox logs"
-	@echo "  deploy-always-on            - Deploy Always-On Sandbox"
+	@echo "  deploy-always-on            - Deploy Always-On Sandbox (runs all steps below)"
+	@echo "  create-always-on-configs    - Create deployment configuration files for Always-On"
+	@echo "  inject-local-user-always-on - Inject local user configuration into Always-On startup files"
+	@echo "  inject-aaa-always-on        - Inject TACACS AAA configuration into Always-On startup files"
+	@echo "  inject-tacacs-always-on     - Inject TACACS configuration into Always-On startup files"
+	@echo "  generate-compose-always-on  - Generate docker-compose.yml for Always-On"
+	@echo "  start-always-on             - Start Always-On containers"
+	@echo "  verify-always-on            - Verify Always-On deployment status"
 	@echo "  undeploy-always-on          - Undeploy Always-On Sandbox"
 	@echo "  follow-always-on-logs       - Follow Always-On Sandbox logs"
 	@echo "  extract-xrd                 - Extract XRd container archive"
 	@echo "  load-xrd                    - Load XRd container into $(CONTAINER_ENGINE_NAME)"
 	@echo "  setup-xrd                   - Extract and load XRd container (full setup)"
 	@echo "  cleanup-environment         - Clean up environment after successful setup"
+	@echo "  test-always-on              - Run tests for always-on injection scripts"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on create-always-on-configs inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on generate-compose-always-on start-always-on verify-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment test-always-on help

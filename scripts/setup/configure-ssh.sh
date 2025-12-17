@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail  # Exit on error, unset vars, and pipeline failures
 
 # Source environment variables
 source sandbox_env_vars.sh
@@ -19,6 +19,7 @@ echo "Establishing control connection and removing any existing sandbox key from
 ssh -o ControlMaster=auto -o ControlPersist=10s -o ControlPath="$CONTROL_PATH" \
     "$SANDBOX_USER@$SANDBOX_IP" \
     "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys && sed -i '/sandbox@built.com/d' ~/.ssh/authorized_keys"
+echo "✓ Control connection established and old keys removed"
 
 # Trap to ensure control master is closed on exit
 trap 'ssh -O exit -o ControlPath="$CONTROL_PATH" "$SANDBOX_USER@$SANDBOX_IP" 2>/dev/null || true' EXIT
@@ -26,12 +27,22 @@ trap 'ssh -O exit -o ControlPath="$CONTROL_PATH" "$SANDBOX_USER@$SANDBOX_IP" 2>/
 echo "Generating new SSH key pair, overwriting if exists..."
 # Ensure local directory exists
 mkdir -p "$(dirname "$SSH_KEY_PATH")"
-# Generate new key, overwrite without prompt
-yes y | ssh-keygen -t rsa -b 4096 -C "sandbox@built.com" -f "$SSH_KEY_PATH" -N ""
+echo "✓ Local SSH directory ready: $(dirname "$SSH_KEY_PATH")"
+
+# Remove existing key files to avoid overwrite prompt
+if [ -f "$SSH_KEY_PATH" ]; then
+    echo "Removing existing SSH key: $SSH_KEY_PATH"
+    rm -f "$SSH_KEY_PATH" "$SSH_KEY_PATH.pub"
+fi
+
+# Generate new key without prompt
+ssh-keygen -t rsa -b 4096 -C "sandbox@built.com" -f "$SSH_KEY_PATH" -N ""
+echo "✓ SSH key pair generated successfully"
 
 echo "Copying new public key to remote host (reusing control connection)..."
 # Copy the new key, reusing the ControlMaster connection
 ssh-copy-id -o ControlPath="$CONTROL_PATH" -f -i "$SSH_KEY_PATH.pub" "$SANDBOX_USER@$SANDBOX_IP"
+echo "✓ Public key copied to remote host"
 
 # Explicitly close the control master connection (optional due to ControlPersist and trap)
 # ssh -O exit -o ControlPath="$CONTROL_PATH" "$SANDBOX_USER@$SANDBOX_IP" 2>/dev/null || true
