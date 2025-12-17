@@ -21,8 +21,8 @@ All scripts support flexible authentication through:
 
 ```bash
 # Export for current session
-export XRD_USERNAME="myuser"
-export XRD_PASSWORD="mypassword"
+export XRD_USERNAME=myuser
+export XRD_PASSWORD=mypassword
 
 # Now run any health check script
 ./netconf-healthcheck.sh
@@ -116,8 +116,8 @@ Verifies gNMI connectivity by checking server capabilities.
 ./gnmi-healthcheck.sh
 
 # Use environment variables
-export XRD_USERNAME="admin"
-export XRD_PASSWORD="secret"
+export XRD_USERNAME=admin
+export XRD_PASSWORD=secret
 ./gnmi-healthcheck.sh
 
 # Specify custom host and port (use env vars for credentials)
@@ -174,8 +174,8 @@ Performs comprehensive health checks on all three XRd routers in the always-on t
 ./check-all-nodes.sh
 
 # Use environment variables
-export XRD_USERNAME="admin"
-export XRD_PASSWORD="secret"
+export XRD_USERNAME=admin
+export XRD_PASSWORD=secret
 ./check-all-nodes.sh
 
 # Specify custom credentials (override env vars)
@@ -210,12 +210,6 @@ Failed: 2
 
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-Or using pip:
-
-```bash
-pip install uv
 ```
 
 #### Install gnmic (for gNMI health check)

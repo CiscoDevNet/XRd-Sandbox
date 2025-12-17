@@ -25,12 +25,15 @@ NC='\033[0m' # No Color
 USERNAME="${1:-${XRD_USERNAME:-cisco}}"
 PASSWORD="${2:-${XRD_PASSWORD:-C1sco12345}}"
 
-# Node configuration
-declare -A NODES=(
-    ["xrd-1"]="10.10.20.101"
-    ["xrd-2"]="10.10.20.102"
-    ["xrd-3"]="10.10.20.103"
-)
+# Function to get IP for a node (Bash 3.2 compatible)
+get_node_ip() {
+    case "$1" in
+        xrd-1) echo "10.10.20.101" ;;
+        xrd-2) echo "10.10.20.102" ;;
+        xrd-3) echo "10.10.20.103" ;;
+        *) echo "" ;;
+    esac
+}
 
 # Ports
 NETCONF_PORT=830
@@ -88,7 +91,7 @@ run_check() {
 
 # Check all nodes
 for node in xrd-1 xrd-2 xrd-3; do
-    ip="${NODES[$node]}"
+    ip="$(get_node_ip "$node")"
     echo ""
     echo -e "${YELLOW}━━━ Checking $node ($ip) ━━━${NC}"
     
