@@ -135,6 +135,20 @@ For aaa config, see [aaa-config.cfg file.](../../scripts/deployment/always-on/aa
 
 For the local user config, [see the fallback_local_user.cfg file.](../../scripts/deployment/always-on/fallback_local_user.cfg)
 
+## ⚠️ TACACS+ Requirements for NETCONF/GNMI
+
+> [!IMPORTANT]
+> For NETCONF and GNMI connections to work with TACACS+ authentication, the TACACS+ server **must** send the following attribute-value (AV) pair:
+
+**Mandatory Attribute:**
+
+- **Attribute:** `task`
+- **Value:** `rwx:,#root-lr`
+
+This task attribute grants the necessary permissions for NETCONF/GNMI operations. Without this AV pair, NETCONF and GNMI connections will fail.
+
+**Reference:** [Configure ASR9K TACACS+ with Cisco Identity Services Engine](https://www.cisco.com/c/en/us/support/docs/security/identity-services-engine-24/214018-configure-asr9k-tacacs-with-cisco-identi.html)
+
 ## 🔍 Troubleshooting
 
 | Issue               | Solution                                                                      |
