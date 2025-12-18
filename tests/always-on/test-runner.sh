@@ -114,8 +114,20 @@ compare_files() {
         return 0
     else
         print_fail "$test_name"
-        echo "Differences found:"
-        diff -u "$expected" "$actual" | head -20
+        echo ""
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${YELLOW}Differences found between expected and actual:${NC}"
+        echo -e "${BLUE}Expected file:${NC} $expected"
+        echo -e "${BLUE}Actual file:${NC} $actual"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
+        # Show unified diff with more context and line numbers
+        diff -u --label="EXPECTED" --label="ACTUAL" "$expected" "$actual" | head -50 || true
+        echo ""
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo -e "${RED}TIP: Review the lines marked with '-' (expected) and '+' (actual)${NC}"
+        echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+        echo ""
         (( TESTS_FAILED += 1 ))
         return 1
     fi
@@ -438,6 +450,10 @@ main() {
     echo "Test directory: $TEST_DIR"
     echo "Scripts directory: $SCRIPTS_DIR"
     echo ""
+    
+    # Export SANDBOX_ROOT to ensure scripts can create logs in correct location
+    export SANDBOX_ROOT="$REPO_ROOT"
+    print_info "Using SANDBOX_ROOT: $SANDBOX_ROOT"
     
     # Unset any existing environment variables to ensure clean test state
     # Tests will use hardcoded values only

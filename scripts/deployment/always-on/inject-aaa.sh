@@ -25,7 +25,11 @@ else
     print_warning() { echo "[WARNING] $*"; }
 fi
 
+# Initialize logging
+init_logging "inject-aaa"
+
 print_info "Starting TACACS AAA configuration injection for Always-On sandbox..."
+log_message "Starting TACACS AAA configuration injection for Always-On sandbox..."
 
 # Check if TACACS environment variables are set
 missing_vars=()
@@ -35,10 +39,14 @@ missing_vars=()
 if [[ ${#missing_vars[@]} -eq 2 ]]; then
     print_info "TACACS environment variables not set: ${missing_vars[*]}"
     print_info "Skipping TACACS AAA configuration injection - no changes will be made"
+    log_message "[INFO] TACACS environment variables not set - skipping"
+    finalize_logging
     exit 0
 elif [[ ${#missing_vars[@]} -eq 1 ]]; then
     print_error "Missing required TACACS environment variable: ${missing_vars[*]}"
     print_error "Both TACACS_SERVER_HOST and TACACS_SERVER_SECRET are required for TACACS configuration"
+    log_message "[ERROR] Missing required TACACS environment variable: ${missing_vars[*]}"
+    finalize_logging
     exit 1
 fi
 
@@ -59,12 +67,16 @@ fi
 # Validate AAA config exists
 if [[ ! -f "$AAA_CONFIG_FILE" ]]; then
     print_error "AAA config file not found: $AAA_CONFIG_FILE"
+    log_message "[ERROR] AAA config file not found: $AAA_CONFIG_FILE"
+    finalize_logging
     exit 1
 fi
 
 # Validate topology directory exists
 if [[ ! -d "$TOPOLOGY_DIR" ]]; then
     print_error "Topology directory not found: $TOPOLOGY_DIR"
+    log_message "[ERROR] Topology directory not found: $TOPOLOGY_DIR"
+    finalize_logging
     exit 1
 fi
 
@@ -116,6 +128,8 @@ if [[ ${#startup_files[@]} -eq 0 ]] || [[ ! -f "${startup_files[0]}" ]]; then
     print_error "No deployment configuration files found in $TOPOLOGY_DIR"
     print_error "Expected files: xrd-*-startup.deploy.cfg"
     print_error "These files should be created by the deploy.sh script before running injection scripts"
+    log_message "[ERROR] No deployment configuration files found"
+    finalize_logging
     exit 1
 fi
 
@@ -138,6 +152,8 @@ done
 # Summary and exit
 if [[ $files_injected -eq 0 && $files_skipped -gt 0 ]]; then
     print_info "All startup files already contain AAA configuration - no changes made"
+    log_message "[INFO] All startup files already contain AAA configuration - no changes made"
+    finalize_logging
     exit 0
 fi
 
@@ -145,4 +161,7 @@ if [[ $files_injected -gt 0 ]]; then
     print_success "TACACS AAA configuration injection completed successfully!"
     print_info "Files updated: $files_injected, Files skipped: $files_skipped"
     print_info "The AAA configuration will work in conjunction with TACACS server at $TACACS_SERVER_HOST"
+    log_message "[SUCCESS] TACACS AAA configuration injection completed - Files updated: $files_injected, Files skipped: $files_skipped"
 fi
+
+finalize_logging

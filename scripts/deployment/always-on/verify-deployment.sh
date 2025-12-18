@@ -14,10 +14,15 @@ else
     exit 1
 fi
 
+# Initialize logging
+init_logging "verify-deployment"
+
 print_info "Verifying Always-On topology deployment..."
+log_message "Verifying Always-On topology deployment..."
 
 # Initialize sandbox environment
 if ! init_sandbox_environment SANDBOX_IP; then
+    finalize_logging
     exit 1
 fi
 
@@ -51,8 +56,10 @@ done
 # Report results
 if [[ ${#RUNNING_CONTAINERS[@]} -eq 3 ]]; then
     print_success "Always-On topology deployment successful! All 3 containers are running:"
+    log_message "[SUCCESS] Always-On topology deployment successful - All 3 containers running"
     for container in "${RUNNING_CONTAINERS[@]}"; do
         print_info "  ✓ $container"
+        log_message "[INFO] Container $container is running"
     done
     print_info ""
     print_info "Management IP addresses:"
@@ -65,11 +72,15 @@ if [[ ${#RUNNING_CONTAINERS[@]} -eq 3 ]]; then
     print_info "  Check status: $CONTAINER_ENGINE_NAME compose --file $OUTPUT_FILE ps"
     print_info "  View logs:    $CONTAINER_ENGINE_NAME compose --file $OUTPUT_FILE logs --follow"
     print_info "  Connect:      $CONTAINER_ENGINE_NAME exec -it <container-name> xr"
+    finalize_logging
 else
     print_error "Deployment verification failed! Running: ${#RUNNING_CONTAINERS[@]}/3 containers"
+    log_message "[ERROR] Deployment verification failed - Running: ${#RUNNING_CONTAINERS[@]}/3 containers"
     if [[ ${#FAILED_CONTAINERS[@]} -gt 0 ]]; then
         print_error "Failed containers: ${FAILED_CONTAINERS[*]}"
         print_info "Check logs with: $CONTAINER_ENGINE_NAME compose --file $OUTPUT_FILE logs"
+        log_message "[ERROR] Failed containers: ${FAILED_CONTAINERS[*]}"
     fi
+    finalize_logging
     exit 1
 fi

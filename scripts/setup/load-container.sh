@@ -14,11 +14,15 @@ readonly PROJECT_ROOT="/home/developer/XRd-Sandbox"
 # Source common utilities
 source "$SCRIPT_DIR/../lib/common.sh"
 
+# Initialize logging
+init_logging "load-container"
+
 # Source format detection utilities
 source "$SCRIPT_DIR/../lib/container-format.sh"
 
 # Initialize environment (load env vars, validate, detect container engine)
 if ! init_sandbox_environment "XRD_CONTAINER_VERSION" "XRD_CONTAINER_ARCHIVE"; then
+    finalize_logging
     exit 1
 fi
 
@@ -152,10 +156,15 @@ else
     print_info "Please ensure you have either:"
     print_info "1. The original archive file: $XRD_CONTAINER_ARCHIVE"
     print_info "2. Extracted content in: $EXTRACT_DIR (run './scripts/setup/extract-container.sh' first)"
+    log_message "[ERROR] Neither archive file nor extracted content found"
+    finalize_logging
     exit 1
 fi
 
 echo ""
 print_success "$CONTAINER_ENGINE_NAME load process completed!"
+log_message "[SUCCESS] Container load process completed"
 echo ""
 print_info "You can now use the XRd container with $CONTAINER_ENGINE_NAME Compose or $CONTAINER_ENGINE_NAME run commands."
+
+finalize_logging

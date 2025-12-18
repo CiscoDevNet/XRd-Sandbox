@@ -3,12 +3,42 @@
 # Common utilities for XRd Sandbox scripts
 # This script should be sourced by other scripts to provide common functionality
 
-# Colors for output
-readonly RED='\033[0;31m'
-readonly GREEN='\033[0;32m'
-readonly YELLOW='\033[1;33m'
-readonly BLUE='\033[0;34m'
-readonly NC='\033[0m' # No Color
+# Ensure xrd-tools scripts are in PATH
+# Source the system-wide profile if it exists
+if [ -f /etc/profile.d/xrd-tools.sh ]; then
+    source /etc/profile.d/xrd-tools.sh
+fi
+
+# Detect if we should use colors
+# Colors are enabled if:
+# 1. ENABLE_COLOR=1 is explicitly set, OR
+# 2. We're running in a TTY (interactive terminal)
+# Colors are disabled in CI/CD pipelines and when piping to files
+should_use_colors() {
+    if [[ "${ENABLE_COLOR:-0}" == "1" ]]; then
+        return 0
+    elif [[ -t 1 ]]; then
+        # stdout is a TTY
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Initialize color variables based on environment
+if should_use_colors; then
+    readonly RED='\033[0;31m'
+    readonly GREEN='\033[0;32m'
+    readonly YELLOW='\033[1;33m'
+    readonly BLUE='\033[0;34m'
+    readonly NC='\033[0m' # No Color
+else
+    readonly RED=''
+    readonly GREEN=''
+    readonly YELLOW=''
+    readonly BLUE=''
+    readonly NC=''
+fi
 
 # Function to print colored messages
 print_info() {
@@ -25,6 +55,105 @@ print_warning() {
 
 print_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+}
+
+# Logging functions
+# Function to initialize logging for a script
+# Creates log directory and sets up log file path
+init_logging() {
+    local script_name="$1"
+    
+    if [[ -z "$script_name" ]]; then
+        print_error "Script name is required for logging initialization"
+        return 1
+    fi
+    
+    # Ensure RUN_ID is set
+    if [[ -z "$RUN_ID" ]]; then
+        export RUN_ID=$(date +%Y-%m-%d_%H-%M-%S)
+        print_warning "RUN_ID not set, generated new one: $RUN_ID"
+    fi
+    
+    # Ensure LOG_DIR is set
+    if [[ -z "$LOG_DIR" ]]; then
+        export LOG_DIR="${SANDBOX_ROOT:-/home/developer/XRd-Sandbox}/logs"
+    fi
+    
+    # Create session-specific log directory
+    local session_log_dir="$LOG_DIR/$RUN_ID"
+    if ! mkdir -p "$session_log_dir"; then
+        print_error "Failed to create log directory: $session_log_dir"
+        return 1
+    fi
+    
+    # Set log file path for this script
+    export CURRENT_LOG_FILE="$session_log_dir/${script_name}.log"
+    
+    # Log initialization
+    echo "=== Log started at $(date) ===" > "$CURRENT_LOG_FILE"
+    echo "Script: $script_name" >> "$CURRENT_LOG_FILE"
+    echo "RUN_ID: $RUN_ID" >> "$CURRENT_LOG_FILE"
+    echo "========================================" >> "$CURRENT_LOG_FILE"
+    echo "" >> "$CURRENT_LOG_FILE"
+    
+    return 0
+}
+
+# Function to log a message to file (without colors)
+log_message() {
+    if [[ -n "$CURRENT_LOG_FILE" ]]; then
+        # Strip ANSI color codes when writing to log file
+        echo "$@" | sed 's/\x1b\[[0-9;]*m//g' >> "$CURRENT_LOG_FILE"
+    fi
+}
+
+# Function to execute a command with automatic logging
+# Usage: log_exec "Description" command [args...]
+log_exec() {
+    local description="$1"
+    shift
+    local command=("$@")
+    
+    print_info "$description"
+    log_message "[INFO] $description"
+    log_message "Command: ${command[*]}"
+    
+    # Execute command and capture both stdout and stderr
+    if [[ -n "$CURRENT_LOG_FILE" ]]; then
+        # Use script command to capture output while preserving real-time display
+        # The output goes to both terminal and log file (with colors stripped in log)
+        {
+            "${command[@]}" 2>&1 | while IFS= read -r line; do
+                echo "$line"  # Display to terminal (with colors if enabled)
+                echo "$line" | sed 's/\x1b\[[0-9;]*m//g' >> "$CURRENT_LOG_FILE"  # Log without colors
+            done
+            return "${PIPESTATUS[0]}"
+        }
+        local exit_code=$?
+    else
+        "${command[@]}"
+        local exit_code=$?
+    fi
+    
+    if [[ $exit_code -ne 0 ]]; then
+        print_error "Failed: $description (exit code: $exit_code)"
+        log_message "[ERROR] Failed: $description (exit code: $exit_code)"
+        return $exit_code
+    else
+        log_message "[SUCCESS] Completed: $description"
+    fi
+    
+    return 0
+}
+
+# Function to finalize logging
+finalize_logging() {
+    if [[ -n "$CURRENT_LOG_FILE" ]]; then
+        echo "" >> "$CURRENT_LOG_FILE"
+        echo "========================================" >> "$CURRENT_LOG_FILE"
+        echo "=== Log ended at $(date) ===" >> "$CURRENT_LOG_FILE"
+        print_info "Log saved to: $CURRENT_LOG_FILE"
+    fi
 }
 
 # Function to get the sandbox root directory
@@ -373,6 +502,7 @@ validate_user_exists() {
 
 # Export all functions for use in other scripts
 export -f print_info print_success print_warning print_error
+export -f should_use_colors init_logging log_message log_exec finalize_logging
 export -f get_sandbox_root load_sandbox_env validate_env_vars
 export -f detect_container_engine check_image_exists validate_file_exists
 export -f construct_xrd_image_name verify_compose_deployment run_command

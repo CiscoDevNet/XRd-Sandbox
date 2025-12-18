@@ -4,6 +4,14 @@ export HOME
 include sandbox_env_vars.sh
 -include .env
 
+# Generate a unique RUN_ID for this execution session
+# This ensures all nested make targets share the same log directory
+RUN_ID := $(shell date +%Y-%m-%d_%H-%M-%S)
+export RUN_ID
+
+# Create logs directory on first use
+$(shell mkdir -p $(SANDBOX_ROOT)/logs/$(RUN_ID))
+
 export
 
 # Detect if docker or podman is available and use the one that is available
@@ -81,6 +89,11 @@ verify-always-on:
 	@chmod +x ./scripts/deployment/always-on/verify-deployment.sh
 	@./scripts/deployment/always-on/verify-deployment.sh
 
+health-check-always-on:
+	@echo "=== Running Health Checks on Always-On Sandbox ==="
+	@chmod +x ./scripts/deployment/always-on/health-checks/check-all-nodes.sh
+	@./scripts/deployment/always-on/health-checks/check-all-nodes.sh
+
 undeploy-always-on:
 	@echo "=== Undeploying Always-On Sandbox ==="
 	@$(CONTAINER_ENGINE) compose --file $(SANDBOX_ROOT)/topologies/always-on/docker-compose.yml down --volumes --remove-orphans
@@ -133,6 +146,7 @@ help:
 	@echo "  generate-compose-always-on  - Generate docker-compose.yml for Always-On"
 	@echo "  start-always-on             - Start Always-On containers"
 	@echo "  verify-always-on            - Verify Always-On deployment status"
+	@echo "  health-check-always-on      - Run health checks on Always-On Sandbox nodes"
 	@echo "  undeploy-always-on          - Undeploy Always-On Sandbox"
 	@echo "  follow-always-on-logs       - Follow Always-On Sandbox logs"
 	@echo "  extract-xrd                 - Extract XRd container archive"
@@ -142,4 +156,4 @@ help:
 	@echo "  test-always-on              - Run tests for always-on injection scripts"
 	@echo "  help                        - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on create-always-on-configs inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on generate-compose-always-on start-always-on verify-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment test-always-on help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on create-always-on-configs inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on generate-compose-always-on start-always-on verify-always-on health-check-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment test-always-on help

@@ -11,7 +11,7 @@
 #   XRD_USERNAME - Username for authentication (default: cisco)
 #   XRD_PASSWORD - Password for authentication (default: C1sco12345)
 
-set -euo pipefail
+set -uo pipefail
 
 # Color codes for output
 GREEN='\033[0;32m'
@@ -34,14 +34,33 @@ echo "User: $USERNAME"
 echo "======================================" 
 echo ""
 
-# Check if uv is available
-if ! command -v uv &> /dev/null; then
-    echo -e "${RED}✗ FAILED${NC}: 'uv' command not found. Please install uv first."
+# Dependency Check
+echo "Checking dependencies..."
+dependency_missing=0
+
+if command -v uv &> /dev/null; then
+    echo -e "${GREEN}✓${NC} uv: Available ($(which uv))"
+else
+    echo -e "${RED}✗${NC} uv: Not found - required for running Python with ncclient"
+    dependency_missing=1
+fi
+
+if command -v python3 &> /dev/null; then
+    echo -e "${GREEN}✓${NC} python3: Available (version $(python3 --version 2>&1 | cut -d' ' -f2))"
+else
+    echo -e "${YELLOW}⚠${NC} python3: Not found (not required if uv is available)"
+fi
+
+echo ""
+
+if [ $dependency_missing -eq 1 ]; then
+    echo -e "${RED}✗ FAILED${NC}: Missing required dependencies. Cannot proceed with health check."
+    echo "Please install uv: https://docs.astral.sh/uv/getting-started/installation/"
     exit 1
 fi
 
 # Perform NETCONF health check using ncclient
-echo "Connecting to NETCONF server..."
+echo "Connecting to NETCONF server (30s timeout)..."
 
 if uv run --with ncclient python -c "
 from ncclient import manager
@@ -54,7 +73,8 @@ try:
         username='$USERNAME',
         password='$PASSWORD',
         hostkey_verify=False,
-        device_params={'name': 'iosxr'}
+        device_params={'name': 'iosxr'},
+        timeout=30
     ) as session:
         # Just getting the hello message is enough for health check
         print('Session ID:', session.session_id)

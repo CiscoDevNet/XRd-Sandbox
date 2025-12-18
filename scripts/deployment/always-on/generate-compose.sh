@@ -14,10 +14,15 @@ else
     exit 1
 fi
 
+# Initialize logging
+init_logging "generate-compose"
+
 print_info "Generating docker-compose.yml for Always-On topology..."
+log_message "Generating docker-compose.yml for Always-On topology..."
 
 # Initialize sandbox environment
 if ! init_sandbox_environment SANDBOX_IP; then
+    finalize_logging
     exit 1
 fi
 
@@ -27,6 +32,7 @@ print_info "Using Docker image: $IMAGE_NAME"
 
 # Check if the Docker image exists
 if ! check_image_exists "$IMAGE_NAME"; then
+    finalize_logging
     exit 1
 fi
 
@@ -36,22 +42,25 @@ OUTPUT_FILE="$SANDBOX_ROOT/topologies/always-on/docker-compose.yml"
 
 # Validate input file exists
 if ! validate_file_exists "$INPUT_FILE" "Input file"; then
+    finalize_logging
     exit 1
 fi
 
 # Generate docker-compose.yml using xr-compose
-if ! run_command "Generating docker-compose.yml using xr-compose..." \
+if ! log_exec "Generating docker-compose.yml using xr-compose..." \
     xr-compose \
     --input-file "$INPUT_FILE" \
     --output-file "$OUTPUT_FILE" \
     --image "$IMAGE_NAME"; then
+    finalize_logging
     exit 1
 fi
 print_success "Successfully generated $OUTPUT_FILE"
 
 # Modify the generated file to replace interface names
-if ! run_command "Updating interface names in docker-compose.yml..." \
+if ! log_exec "Updating interface names in docker-compose.yml..." \
     sed -i.bak 's/linux:xr-30/linux:eth0/g' "$OUTPUT_FILE"; then
+    finalize_logging
     exit 1
 fi
 print_success "Interface names updated successfully"
@@ -62,9 +71,14 @@ if [[ $? -eq 0 ]] && [[ -n "$DETECTED_INTERFACE" ]]; then
     if ! run_command "Updating macvlan parent interface to $DETECTED_INTERFACE..." \
         update_macvlan_parent_interface "$OUTPUT_FILE" "$DETECTED_INTERFACE" "no-backup"; then
         print_warning "Failed to update macvlan parent interface, continuing with existing configuration"
+        log_message "[WARNING] Failed to update macvlan parent interface"
     fi
 else
     print_warning "Could not detect network interface for $SANDBOX_IP, using existing configuration"
+    log_message "[WARNING] Could not detect network interface for $SANDBOX_IP"
 fi
 
 print_success "docker-compose.yml is ready for deployment"
+log_message "[SUCCESS] docker-compose.yml is ready for deployment"
+
+finalize_logging

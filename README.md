@@ -161,8 +161,7 @@ To practice, go to [developer.cisco.com/sandbox](https://developer.cisco.com/sit
 Clone the repository with the specific XRd version specified on the [sandbox_env_vars.sh](sandbox_env_vars.sh#l1) file as a tag. You can also find all the tags created on the GitHub tags page.
 
 ```bash
-git clone --branch v<version> https://github.com/CiscoDevNet/XRd-Sandbox.git
-cd XRd-Sandbox
+git clone --branch <version> https://github.com/CiscoDevNet/XRd-Sandbox.git
 ```
 
 2. **Download XRd container image**

@@ -14,11 +14,15 @@ readonly PROJECT_ROOT="/home/developer/XRd-Sandbox"
 # Source common utilities
 source "$SCRIPT_DIR/../lib/common.sh"
 
+# Initialize logging
+init_logging "extract-container"
+
 # Source format detection utilities
 source "$SCRIPT_DIR/../lib/container-format.sh"
 
 # Initialize environment (load env vars, validate, detect container engine)
 if ! init_sandbox_environment "XRD_CONTAINER_VERSION" "XRD_CONTAINER_ARCHIVE"; then
+    finalize_logging
     exit 1
 fi
 
@@ -35,14 +39,18 @@ echo ""
 
 # Validate archive file exists
 if ! validate_file_exists "$ARCHIVE_PATH" "XRd Container Archive"; then
+    finalize_logging
     exit 1
 fi
 
 # Detect archive format
 print_info "Detecting archive format..."
+log_message "Detecting archive format..."
 ARCHIVE_FORMAT=$(detect_xrd_format "$ARCHIVE_PATH")
 if [[ $? -ne 0 ]]; then
     print_error "Failed to detect archive format"
+    log_message "[ERROR] Failed to detect archive format"
+    finalize_logging
     exit 1
 fi
 
@@ -110,11 +118,15 @@ esac
 
 echo ""
 print_success "Contents extracted to: $EXTRACT_DIR"
+log_message "[SUCCESS] Extraction completed - Contents extracted to: $EXTRACT_DIR"
 print_info "Directory contents:"
 ls -la "$EXTRACT_DIR"
 
 echo ""
 print_success "Extraction process finished."
+log_message "[SUCCESS] Extraction process finished"
+
+finalize_logging
 echo ""
 print_info "Next steps:"
 print_info "- Use './scripts/setup/load-container.sh' to load the container into $CONTAINER_ENGINE_NAME"

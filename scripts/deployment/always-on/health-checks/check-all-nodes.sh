@@ -11,7 +11,7 @@
 #   XRD_USERNAME - Username for authentication (default: cisco)
 #   XRD_PASSWORD - Password for authentication (default: C1sco12345)
 
-set -euo pipefail
+set -uo pipefail
 
 # Color codes for output
 GREEN='\033[0;32m'
@@ -52,9 +52,39 @@ echo -e "${CYAN}═════════════════════�
 echo -e "${CYAN}   XRd Always-On Topology - Health Check Report${NC}"
 echo -e "${CYAN}════════════════════════════════════════════════════${NC}"
 echo ""
+
+# Dependency Check
+echo "Checking dependencies..."
+dependency_issues=0
+
+if command -v uv &> /dev/null; then
+    echo -e "${GREEN}✓${NC} uv: Available (for NETCONF checks)"
+else
+    echo -e "${RED}✗${NC} uv: Not found - NETCONF checks will fail"
+    dependency_issues=1
+fi
+
+if command -v gnmic &> /dev/null; then
+    echo -e "${GREEN}✓${NC} gnmic: Available (for gNMI checks)"
+else
+    echo -e "${RED}✗${NC} gnmic: Not found - gNMI checks will fail"
+    dependency_issues=1
+fi
+
+if [ $dependency_issues -eq 1 ]; then
+    echo ""
+    echo -e "${YELLOW}⚠ WARNING${NC}: Some dependencies are missing. Relevant checks will fail."
+    echo "  Install uv: https://docs.astral.sh/uv/getting-started/installation/"
+    echo "  Install gnmic: https://gnmic.openconfig.net/install/"
+fi
+
+echo ""
 echo "Checking 3 nodes × 2 protocols = 6 total checks"
 echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
 echo ""
+
+# Array to store results (Bash 3.2 compatible using string concatenation)
+results=""
 
 # Function to run a health check
 run_check() {
@@ -66,26 +96,26 @@ run_check() {
     
     echo -e "${BLUE}[$node_name - $protocol]${NC} Testing ${ip}..."
     
+    local check_passed=0
+    
     if [ "$protocol" = "NETCONF" ]; then
         if "$SCRIPT_DIR/netconf-healthcheck.sh" "$ip" "$NETCONF_PORT" "$USERNAME" "$PASSWORD" > /dev/null 2>&1; then
-            echo -e "${GREEN}  ✓ $node_name $protocol: PASS${NC}"
-            passed_checks=$((passed_checks + 1))
-            return 0
-        else
-            echo -e "${RED}  ✗ $node_name $protocol: FAIL${NC}"
-            failed_checks=$((failed_checks + 1))
-            return 1
+            check_passed=1
         fi
     elif [ "$protocol" = "gNMI" ]; then
         if "$SCRIPT_DIR/gnmi-healthcheck.sh" "$ip" "$GNMI_PORT" "$USERNAME" "$PASSWORD" > /dev/null 2>&1; then
-            echo -e "${GREEN}  ✓ $node_name $protocol: PASS${NC}"
-            passed_checks=$((passed_checks + 1))
-            return 0
-        else
-            echo -e "${RED}  ✗ $node_name $protocol: FAIL${NC}"
-            failed_checks=$((failed_checks + 1))
-            return 1
+            check_passed=1
         fi
+    fi
+    
+    if [ $check_passed -eq 1 ]; then
+        echo -e "${GREEN}  ✓ $node_name $protocol: PASS${NC}"
+        passed_checks=$((passed_checks + 1))
+        results="${results}PASS|$node_name|$protocol|$ip\n"
+    else
+        echo -e "${RED}  ✗ $node_name $protocol: FAIL${NC}"
+        failed_checks=$((failed_checks + 1))
+        results="${results}FAIL|$node_name|$protocol|$ip\n"
     fi
 }
 
@@ -112,6 +142,25 @@ echo "Total Checks:  $total_checks"
 echo -e "${GREEN}Passed:        $passed_checks${NC}"
 echo -e "${RED}Failed:        $failed_checks${NC}"
 echo ""
+
+# Display detailed results table
+if [ $failed_checks -gt 0 ]; then
+    echo -e "${YELLOW}Failed Checks Details:${NC}"
+    echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "$(echo -e "$results" | grep '^FAIL' | while IFS='|' read -r status node protocol ip; do
+        echo -e "  ${RED}✗${NC} $node - $protocol ($ip)"
+    done)"
+    echo ""
+fi
+
+if [ $passed_checks -gt 0 ]; then
+    echo -e "${GREEN}Passed Checks Details:${NC}"
+    echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "$(echo -e "$results" | grep '^PASS' | while IFS='|' read -r status node protocol ip; do
+        echo -e "  ${GREEN}✓${NC} $node - $protocol ($ip)"
+    done)"
+    echo ""
+fi
 
 # Overall status
 if [ $failed_checks -eq 0 ]; then

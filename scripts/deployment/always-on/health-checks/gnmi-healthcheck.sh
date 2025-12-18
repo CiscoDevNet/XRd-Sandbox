@@ -11,7 +11,7 @@
 #   XRD_USERNAME - Username for authentication (default: cisco)
 #   XRD_PASSWORD - Password for authentication (default: C1sco12345)
 
-set -euo pipefail
+set -uo pipefail
 
 # Color codes for output
 GREEN='\033[0;32m'
@@ -33,14 +33,29 @@ echo "User: $USERNAME"
 echo "======================================" 
 echo ""
 
-# Check if gnmic is available
-if ! command -v gnmic &> /dev/null; then
-    echo -e "${RED}✗ FAILED${NC}: 'gnmic' command not found. Please install gnmic first."
+# Dependency Check
+echo "Checking dependencies..."
+dependency_missing=0
+
+if command -v gnmic &> /dev/null; then
+    echo -e "${GREEN}✓${NC} gnmic: Available ($(which gnmic))"
+    gnmic_version=$(gnmic version 2>&1 | head -1 || echo "version unknown")
+    echo "  Version: $gnmic_version"
+else
+    echo -e "${RED}✗${NC} gnmic: Not found - required for gNMI connectivity tests"
+    dependency_missing=1
+fi
+
+echo ""
+
+if [ $dependency_missing -eq 1 ]; then
+    echo -e "${RED}✗ FAILED${NC}: Missing required dependencies. Cannot proceed with health check."
+    echo "Please install gnmic: https://gnmic.openconfig.net/install/"
     exit 1
 fi
 
 # Perform gNMI health check
-echo "Connecting to gNMI server..."
+echo "Connecting to gNMI server (30s timeout)..."
 
 # Run gnmic and capture output
 output=$(gnmic \
@@ -49,6 +64,7 @@ output=$(gnmic \
   --password "$PASSWORD" \
   --insecure \
   --encoding JSON_IETF \
+  --timeout 30s \
   capabilities 2>&1)
 
 exit_code=$?

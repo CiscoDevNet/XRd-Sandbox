@@ -14,10 +14,15 @@ else
     exit 1
 fi
 
+# Initialize logging
+init_logging "start-containers"
+
 print_info "Starting Always-On topology containers..."
+log_message "Starting Always-On topology containers..."
 
 # Initialize sandbox environment
 if ! init_sandbox_environment SANDBOX_IP; then
+    finalize_logging
     exit 1
 fi
 
@@ -27,14 +32,20 @@ OUTPUT_FILE="$SANDBOX_ROOT/topologies/always-on/docker-compose.yml"
 # Validate docker-compose.yml exists
 if ! validate_file_exists "$OUTPUT_FILE" "docker-compose.yml"; then
     print_error "docker-compose.yml not found. Run 'make generate-compose-always-on' first."
+    log_message "[ERROR] docker-compose.yml not found"
+    finalize_logging
     exit 1
 fi
 
 # Deploy the topology
-if ! run_command "Deploying the Always-On topology..." \
+if ! log_exec "Deploying the Always-On topology..." \
     $CONTAINER_ENGINE compose --file "$OUTPUT_FILE" up --detach; then
+    finalize_logging
     exit 1
 fi
 
 print_success "Always-On topology containers started"
 print_info "Run 'make verify-always-on' to verify deployment"
+log_message "[SUCCESS] Always-On topology containers started"
+
+finalize_logging

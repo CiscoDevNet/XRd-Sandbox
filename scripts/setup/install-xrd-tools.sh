@@ -64,6 +64,12 @@ fi
 # Set directory permissions to allow traversal but prevent modifications
 find "$XRD_TOOLS_DIR" -type d -exec chmod a+rx,a-w {} \; 2>/dev/null || print_warning "Some directory permission updates failed"
 
+# Ensure parent directories are traversable by all users
+# This is critical for other users to access xrd-tools scripts
+print_info "Ensuring parent directories are accessible to all users..."
+chmod o+x "$PROJECT_ROOT" 2>/dev/null || print_warning "Could not modify permissions on $PROJECT_ROOT"
+chmod o+x "$(dirname "$PROJECT_ROOT")" 2>/dev/null || print_warning "Could not modify permissions on parent directory"
+
 print_success "xrd-tools repository secured with read-only permissions"
 
 # Verify the scripts directory exists
@@ -92,42 +98,23 @@ else
     print_info "xrd-tools scripts already in PATH"
 fi
 
-# Define the target user for PATH setup (developer user)
-DEVELOPER_USER="developer"
-DEVELOPER_HOME="/home/$DEVELOPER_USER"
-
-# Verify developer user exists
-if ! id "$DEVELOPER_USER" &>/dev/null; then
-    print_error "Developer user '$DEVELOPER_USER' does not exist"
-    exit 1
-fi
-
-# Create or update shell profile entries for persistent PATH (for developer user)
-SHELL_PROFILES=("$DEVELOPER_HOME/.bashrc" "$DEVELOPER_HOME/.bash_profile" "$DEVELOPER_HOME/.zshrc")
+# Setup system-wide PATH configuration for all users
+# This ensures xrd-tools is available in all shells, including su -c commands
+PROFILE_D_FILE="/etc/profile.d/xrd-tools.sh"
 PATH_EXPORT_LINE="export PATH=\"$XRD_SCRIPTS_DIR:\$PATH\""
-PATH_COMMENT="# Added by XRd-Sandbox for xrd-tools scripts"
+PATH_COMMENT="# Added by XRd-Sandbox for xrd-tools scripts - available to all users"
 
-print_info "Setting up persistent PATH in shell profiles for user '$DEVELOPER_USER'..."
-for profile in "${SHELL_PROFILES[@]}"; do
-    if [ -f "$profile" ]; then
-        # Remove any existing xrd-tools PATH entries to avoid duplicates
-        sed -i '/xrd-tools.*scripts/d' "$profile"
-        # Add the new PATH entry
-        echo "" >> "$profile"
-        echo "$PATH_COMMENT" >> "$profile"
-        echo "$PATH_EXPORT_LINE" >> "$profile"
-        # Ensure proper ownership
-        chown "$DEVELOPER_USER:$DEVELOPER_USER" "$profile"
-        print_success "Updated PATH in $profile"
-    elif [ "$profile" = "$DEVELOPER_HOME/.bashrc" ]; then
-        # Always create .bashrc if it doesn't exist (most important for login shells)
-        print_info "Creating $profile for user '$DEVELOPER_USER'"
-        echo "$PATH_COMMENT" > "$profile"
-        echo "$PATH_EXPORT_LINE" >> "$profile"
-        chown "$DEVELOPER_USER:$DEVELOPER_USER" "$profile"
-        print_success "Created and updated PATH in $profile"
-    fi
-done
+print_info "Setting up system-wide PATH configuration for all users..."
+if [ -d "/etc/profile.d" ]; then
+    # Create the profile.d script
+    echo "$PATH_COMMENT" | tee "$PROFILE_D_FILE" >/dev/null
+    echo "$PATH_EXPORT_LINE" | tee -a "$PROFILE_D_FILE" >/dev/null
+    chmod 644 "$PROFILE_D_FILE"
+    print_success "Created system-wide PATH configuration: $PROFILE_D_FILE"
+    print_info "All users will have access to xrd-tools scripts"
+else
+    print_warning "/etc/profile.d not found, skipping system-wide configuration"
+fi
 
 # Verify the tools are accessible
 print_info "Verifying tool accessibility..."
@@ -144,11 +131,12 @@ fi
 
 echo ""
 print_success "xrd-tools setup completed successfully!"
-print_info "PATH has been configured for user '$DEVELOPER_USER'"
+print_info "PATH has been configured system-wide for all users"
 print_info "Available commands: xr-compose, host-check, launch-xrd, apply-bugfixes"
 print_info ""
-print_info "For the developer user to use these tools, they need to:"
-print_info "  source ~/.bashrc   # or their shell profile"
-print_info "  or start a new terminal session"
+print_info "To use these tools in the current shell, you can either:"
+print_info "  1. Start a new login shell (logout and login, or 'su - <user>')"
+print_info "  2. Source the profile: source /etc/profile.d/xrd-tools.sh"
+print_info "  3. Run in a login shell: bash -lc '<command>'"
 print_info ""
-print_info "The tools will be available at: $XRD_SCRIPTS_DIR"
+print_info "The tools are installed at: $XRD_SCRIPTS_DIR"
