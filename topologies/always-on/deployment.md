@@ -1,44 +1,78 @@
 # Sandbox Always-On Topology Deployment Guide
 
 > [!IMPORTANT]
-> All scripts and commands in this guide are intended to be run from root directory of the XRd-Sandbox repository.
-
-## 🚀 Quick Start - Automated Deployment (Recommended)
+> All scripts and commands in this guide are intended to be run from the root directory of the XRd-Sandbox repository.
 
 > [!NOTE]
 > The automated deployment creates temporary deployment configuration files (`*.deploy.cfg`) from the base startup configs.
 > These deployment files are modified with TACACS/AAA/local user settings and are **not tracked by Git**.
 
-**With TACACS+ authentication:**
+## 🚀 Deployment Scenarios
+
+### For Sandbox Team (DevNet Sandbox Infrastructure)
 
 > [!IMPORTANT]
-> Environment variables must be defined in a `.env` file in the root directory of the XRd-Sandbox repository.
+> Required: Environment variables must be defined in a `.env` file in the root directory of the XRd-Sandbox repository.
+
+This deployment is for the official DevNet Always-On sandbox and requires TACACS+ authentication configuration.
+
+**Setup and Deploy:**
 
 ```bash
-# Create a .env file with your configuration (all variables are optional)
+# 1. Create a .env file with TACACS+ and fallback credentials
 cat > .env << 'EOF'
 TACACS_SERVER_HOST=192.168.1.100
 TACACS_SERVER_SECRET=your-secret
 FALLBACK_LOCAL_USERNAME=admin
 FALLBACK_LOCAL_PASSWORD=secure-password
 EOF
-
-make deploy-always-on
 ```
 
-> [!NOTE]
-> For the Always On sandbox deployment use sudo `sudo make -C /home/developer/XRd-Sandbox deploy-always-on`
-
-**Monitor logs:**
+# 2. Deploy with sudo (required for sandbox infrastructure)
 
 ```bash
-make follow-always-on-logs
+sudo make -C /home/developer/XRd-Sandbox deploy-always-on
 ```
 
 **Undeploy:**
 
 ```bash
-make undeploy-always-on
+sudo make -C /home/developer/XRd-Sandbox undeploy-always-on
+```
+
+---
+
+### For Regular Users (Your Own Environment)
+
+This deployment is for users running the topology on thei XRd reservable sandbox.
+
+```bash
+# Optional: Create a .env file to customize credentials
+cat > .env << 'EOF'
+FALLBACK_LOCAL_USERNAME=myuser
+FALLBACK_LOCAL_PASSWORD=mypassword
+EOF
+```
+
+> [!NOTE]
+> Optional: You can deploy without a `.env` file. Default credentials (cisco/cisco123) will be used.
+
+# Deploy with custom credentials
+
+```bash
+make -C /home/developer/XRd-Sandbox deploy-always-on
+```
+
+**Monitor logs:**
+
+```bash
+make -C /home/developer/XRd-Sandbox follow-always-on-logs
+```
+
+**Undeploy:**
+
+```bash
+make -C /home/developer/XRd-Sandbox undeploy-always-on
 ```
 
 ## 📋 Environment Variables
