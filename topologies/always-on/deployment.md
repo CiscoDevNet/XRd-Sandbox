@@ -28,11 +28,19 @@ FALLBACK_LOCAL_PASSWORD=secure-password
 EOF
 ```
 
-# 2. Deploy with sudo (required for sandbox infrastructure)
+Deploy with sudo (required for sandbox infrastructure)
 
 ```bash
 sudo make -C /home/developer/XRd-Sandbox deploy-always-on
 ```
+
+Verify the containers are running:
+
+```bash
+sudo make -C /home/developer/XRd-Sandbox verify-always-on
+```
+
+The `verify-always-on` step checks that containers are running but does **not** perform protocol-level health checks due to the macvlan network limitation.
 
 **Undeploy:**
 
