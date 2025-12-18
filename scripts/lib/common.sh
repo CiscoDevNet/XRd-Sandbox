@@ -3,6 +3,12 @@
 # Common utilities for XRd Sandbox scripts
 # This script should be sourced by other scripts to provide common functionality
 
+# Ensure xrd-tools scripts are in PATH
+# Source the system-wide profile if it exists
+if [ -f /etc/profile.d/xrd-tools.sh ]; then
+    source /etc/profile.d/xrd-tools.sh
+fi
+
 # Colors for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
