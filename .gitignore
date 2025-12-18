@@ -6,3 +6,6 @@ xrd-tools/
 tests/always-on/output/*.cfg
 tests/always-on/input/*.cfg
 *.deploy.cfg
+
+# Log files
+logs/

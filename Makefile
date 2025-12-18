@@ -4,6 +4,14 @@ export HOME
 include sandbox_env_vars.sh
 -include .env
 
+# Generate a unique RUN_ID for this execution session
+# This ensures all nested make targets share the same log directory
+RUN_ID := $(shell date +%Y-%m-%d_%H-%M-%S)
+export RUN_ID
+
+# Create logs directory on first use
+$(shell mkdir -p $(SANDBOX_ROOT)/logs/$(RUN_ID))
+
 export
 
 # Detect if docker or podman is available and use the one that is available

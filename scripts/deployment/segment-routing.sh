@@ -14,19 +14,26 @@ else
     exit 1
 fi
 
+# Initialize logging for this script
+init_logging "segment-routing-deploy"
+
 print_info "Starting Segment Routing sandbox deployment..."
+log_message "Starting Segment Routing sandbox deployment..."
 
 # Initialize sandbox environment
 if ! init_sandbox_environment SANDBOX_IP; then
+    finalize_logging
     exit 1
 fi
 
 # Construct XRd image name using standard format
 IMAGE_NAME=$(construct_xrd_image_name "$XRD_CONTAINER_VERSION")
 print_info "Using Docker image: $IMAGE_NAME"
+log_message "Using Docker image: $IMAGE_NAME"
 
 # Check if the Docker image exists
 if ! check_image_exists "$IMAGE_NAME"; then
+    finalize_logging
     exit 1
 fi
 
@@ -36,22 +43,25 @@ OUTPUT_FILE="$SANDBOX_ROOT/topologies/segment-routing/docker-compose.yml"
 
 # Validate input file exists
 if ! validate_file_exists "$INPUT_FILE" "Input file"; then
+    finalize_logging
     exit 1
 fi
 
 # Step 1: Generate docker-compose.yml using xr-compose
-if ! run_command "Generating docker-compose.yml using xr-compose..." \
+if ! log_exec "Generating docker-compose.yml using xr-compose..." \
     xr-compose \
     --input-file "$INPUT_FILE" \
     --output-file "$OUTPUT_FILE" \
     --image "$IMAGE_NAME"; then
+    finalize_logging
     exit 1
 fi
 print_success "Successfully generated $OUTPUT_FILE"
 
 # Step 2: Modify the generated file to replace interface names
-if ! run_command "Updating interface names in docker-compose.yml..." \
+if ! log_exec "Updating interface names in docker-compose.yml..." \
     sed -i.bak 's/linux:xr-120/linux:eth0/g' "$OUTPUT_FILE"; then
+    finalize_logging
     exit 1
 fi
 print_success "Interface names updated successfully"
@@ -62,16 +72,24 @@ if [[ $? -eq 0 ]] && [[ -n "$DETECTED_INTERFACE" ]]; then
     if ! run_command "Updating macvlan parent interface to $DETECTED_INTERFACE..." \
         update_macvlan_parent_interface "$OUTPUT_FILE" "$DETECTED_INTERFACE" "no-backup"; then
         print_warning "Failed to update macvlan parent interface, continuing with existing configuration"
+        log_message "[WARNING] Failed to update macvlan parent interface, continuing with existing configuration"
     fi
 else
     print_warning "Could not detect network interface for $SANDBOX_IP, using existing configuration"
+    log_message "[WARNING] Could not detect network interface for $SANDBOX_IP, using existing configuration"
 fi
 
 # Step 4: Deploy the topology
-if ! run_command "Deploying the Segment Routing topology..." \
+if ! log_exec "Deploying the Segment Routing topology..." \
     $CONTAINER_ENGINE compose --file "$OUTPUT_FILE" up --detach; then
+    finalize_logging
     exit 1
 fi
 
 # Step 5: Verify deployment
 verify_compose_deployment "$OUTPUT_FILE"
+
+# Finalize logging
+finalize_logging
+
+print_success "Segment Routing deployment completed successfully!"

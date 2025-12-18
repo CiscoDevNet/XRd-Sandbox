@@ -33,6 +33,9 @@ else
     exit 1
 fi
 
+# Initialize logging
+init_logging "environment-validation"
+
 # Define target user for validation
 readonly DEVELOPER_USER="developer"
 readonly DEVELOPER_HOME="/home/$DEVELOPER_USER"
@@ -63,6 +66,7 @@ print_info "Target validation user: $DEVELOPER_USER"
 
 # Validate developer user exists
 if ! validate_developer_user; then
+    finalize_logging
     exit 1
 fi
 
@@ -77,6 +81,8 @@ print_info "Forced SANDBOX_ROOT: $SANDBOX_ROOT"
 # Initialize environment with all required variables
 if ! init_sandbox_environment "XRD_CONTAINER_VERSION" "XRD_CONTAINER_ARCHIVE" "SANDBOX_ROOT" "SANDBOX_IP"; then
     print_error "Environment initialization failed"
+    log_message "[ERROR] Environment initialization failed"
+    finalize_logging
     exit 1
 fi
 
@@ -214,3 +220,6 @@ echo ""
 print_success "Environment validation completed successfully for user '$DEVELOPER_USER'!"
 print_info "All required components are available for XRd Sandbox deployment"
 print_info "The environment is ready for use by the developer user"
+log_message "[SUCCESS] Environment validation completed successfully for user '$DEVELOPER_USER'"
+
+finalize_logging

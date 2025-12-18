@@ -24,7 +24,11 @@ else
     print_success() { echo "[SUCCESS] $*"; }
 fi
 
+# Initialize logging
+init_logging "inject-local-user"
+
 print_info "Starting local user configuration injection for Always-On sandbox..."
+log_message "Starting local user configuration injection for Always-On sandbox..."
 
 # Define paths - support TEST_MODE for testing
 if [[ -n "$TEST_MODE" ]]; then
@@ -39,12 +43,16 @@ fi
 # Validate fallback config exists
 if [[ ! -f "$FALLBACK_CONFIG_FILE" ]]; then
     print_error "Fallback local user config file not found: $FALLBACK_CONFIG_FILE"
+    log_message "[ERROR] Fallback local user config file not found: $FALLBACK_CONFIG_FILE"
+    finalize_logging
     exit 1
 fi
 
 # Validate topology directory exists
 if [[ ! -d "$TOPOLOGY_DIR" ]]; then
     print_error "Topology directory not found: $TOPOLOGY_DIR"
+    log_message "[ERROR] Topology directory not found: $TOPOLOGY_DIR"
+    finalize_logging
     exit 1
 fi
 
@@ -166,6 +174,8 @@ if [[ ${#startup_files[@]} -eq 0 ]] || [[ ! -f "${startup_files[0]}" ]]; then
     print_error "No deployment configuration files found in $TOPOLOGY_DIR"
     print_error "Expected files: xrd-*-startup.deploy.cfg"
     print_error "These files should be created by the deploy.sh script before running injection scripts"
+    log_message "[ERROR] No deployment configuration files found"
+    finalize_logging
     exit 1
 fi
 
@@ -188,16 +198,23 @@ done
 # Summary and exit
 if [[ $files_injected -eq 0 && $files_skipped -gt 0 ]]; then
     print_info "All startup files already contain local user configuration - no changes made"
+    log_message "[INFO] All startup files already contain local user configuration - no changes made"
+    finalize_logging
     exit 0
 fi
 
 if [[ $files_injected -gt 0 ]]; then
     print_success "Local user configuration injection completed successfully!"
     print_info "Files updated: $files_injected, Files skipped: $files_skipped"
+    log_message "[SUCCESS] Local user configuration injection completed - Files updated: $files_injected, Files skipped: $files_skipped"
     
     if [[ -n "$FALLBACK_LOCAL_USERNAME" && -n "$FALLBACK_LOCAL_PASSWORD" ]]; then
         print_info "Used credentials: Username=$FALLBACK_LOCAL_USERNAME"
+        log_message "[INFO] Used credentials: Username=$FALLBACK_LOCAL_USERNAME"
     else
         print_info "Used default local user configuration from $FALLBACK_CONFIG_FILE"
+        log_message "[INFO] Used default local user configuration from $FALLBACK_CONFIG_FILE"
     fi
 fi
+
+finalize_logging

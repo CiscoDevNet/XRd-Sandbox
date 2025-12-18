@@ -31,6 +31,9 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/common.sh"
 
+# Initialize logging
+init_logging "cleanup-environment"
+
 # Initialize cleanup status tracking
 CLEANUP_SUCCESS=true
 CLEANUP_ERRORS=()
@@ -210,8 +213,12 @@ main() {
     
     # Print summary and exit with appropriate code
     if print_cleanup_summary; then
+        log_message "[SUCCESS] Cleanup completed successfully"
+        finalize_logging
         exit 0
     else
+        log_message "[ERROR] Cleanup completed with errors"
+        finalize_logging
         exit 1
     fi
 }
