@@ -4,6 +4,7 @@
   - [🔑 Getting Access](#-getting-access)
   - [📊 Connection Information](#-connection-information)
   - [⚖️ Shared Environment Guidelines](#️-shared-environment-guidelines)
+  - [🔧 Programmatic Access Examples](#-programmatic-access-examples)
   - [⚠️ Configuration State Notice](#️-configuration-state-notice)
   - [⚠️ Known Limitations](#️-known-limitations)
   - [📚 Learning Resources](#-learning-resources)
@@ -48,29 +49,21 @@ Welcome to the IOS XR Always-On Sandbox! This shared environment allows develope
 
 ## 📊 Connection Information
 
-### Nodes
+### Nodes & Ports
 
-| Node  | Hostname                    |
-| ----- | --------------------------- |
-| xrd-1 | `sandbox-iosxr-1.cisco.com` |
-| xrd-2 | `sandbox-iosxr-2.cisco.com` |
-| xrd-3 | `sandbox-iosxr-3.cisco.com` |
+| Node  | Hostname                    | SSH   | NETCONF | gNMI  |
+| ----- | --------------------------- | ----- | ------- | ----- |
+| xrd-1 | `sandbox-iosxr-1.cisco.com` | 10022 | 10830   | 10777 |
+| xrd-2 | `sandbox-iosxr-2.cisco.com` | 20022 | 20830   | 20777 |
+| xrd-3 | `sandbox-iosxr-3.cisco.com` | 30022 | 30830   | 30777 |
 
 **Example SSH connection:**
 
 ```bash
-ssh <your-username>@sandbox-iosxr-1.cisco.com
+ssh -p 10022 <your-username>@sandbox-iosxr-1.cisco.com
 ```
 
 > ⚠️ **Warning:** Do not modify the management IP address or you will lose access to the instances and the sandbox will have to be reset.
-
-### Supported Protocols
-
-| Protocol      | Port  |
-| ------------- | ----- |
-| SSH           | 22    |
-| NETCONF       | 830   |
-| gNMI (no TLS) | 57777 |
 
 ### Physical Topology Links
 
@@ -108,7 +101,7 @@ uv run --with ncclient python -c "
 from ncclient import manager
 with manager.connect(
     host='sandbox-iosxr-1.cisco.com',
-    port=830,
+    port=10830,
     username='<your-username>',
     password='<your-password>',
     hostkey_verify=False,
@@ -127,7 +120,7 @@ Requires `gnmic` [see the docs.](https://gnmic.openconfig.net/)
 
 ```bash
 gnmic \
-  --address sandbox-iosxr-1.cisco.com:57777 \
+  --address sandbox-iosxr-1.cisco.com:10777 \
   --username <your-username> \
   --password <your-password> \
   --encoding JSON_IETF \
@@ -139,7 +132,7 @@ gnmic \
 
 ```bash
 gnmic \
-  --address sandbox-iosxr-1.cisco.com:57777 \
+  --address sandbox-iosxr-1.cisco.com:10777 \
   --username <your-username> \
   --password <your-password> \
   --encoding ascii \
