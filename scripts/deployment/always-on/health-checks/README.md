@@ -143,7 +143,7 @@ export XRD_PASSWORD=secret
 
 ### 3. All Nodes Health Check (`check-all-nodes.sh`)
 
-Performs comprehensive health checks on all three XRd routers in the always-on topology. Tests both NETCONF and gNMI connectivity for each node (6 total checks).
+Performs comprehensive health checks on XRd routers. Tests both NETCONF and gNMI connectivity for each node. By default, checks the three routers in the always-on topology, but can be configured to check any list of IPs.
 
 **Prerequisites:**
 
@@ -153,33 +153,50 @@ Performs comprehensive health checks on all three XRd routers in the always-on t
 **Usage:**
 
 ```bash
-./check-all-nodes.sh [username] [password]
+./check-all-nodes.sh [username] [password] [ip1] [ip2] [ip3] ...
 ```
 
 **Default values:**
 
 - Username: `cisco` (or `$XRD_USERNAME`)
 - Password: `C1sco12345` (or `$XRD_PASSWORD`)
+- IPs: `10.10.20.101,10.10.20.102,10.10.20.103` (or `$XRD_IPS`)
 
-**Topology nodes checked:**
+**Environment Variables:**
 
-- xrd-1: `10.10.20.101`
-- xrd-2: `10.10.20.102`
-- xrd-3: `10.10.20.103`
+- `XRD_USERNAME` - Username for authentication
+- `XRD_PASSWORD` - Password for authentication
+- `XRD_IPS` - Comma-separated list of IP addresses to check
 
 **Examples:**
 
 ```bash
-# Use default credentials
+# Use all defaults (checks 10.10.20.101, 10.10.20.102, 10.10.20.103)
 ./check-all-nodes.sh
 
-# Use environment variables
+# Use environment variables for credentials
 export XRD_USERNAME=admin
 export XRD_PASSWORD=secret
 ./check-all-nodes.sh
 
 # Specify custom credentials (override env vars)
 ./check-all-nodes.sh myuser mypassword
+
+# Check custom IPs via environment variable
+export XRD_IPS="192.168.1.1,192.168.1.2,192.168.1.3"
+./check-all-nodes.sh
+
+# Check custom IPs via command-line arguments
+./check-all-nodes.sh cisco C1sco12345 192.168.1.1 192.168.1.2
+
+# Combine: custom credentials and IPs via environment
+export XRD_USERNAME=admin
+export XRD_PASSWORD=secret
+export XRD_IPS="131.226.217.228,131.226.217.230,131.226.217.231"
+./check-all-nodes.sh
+
+# Override everything via command line
+./check-all-nodes.sh xrdtest2 C1sco12345 131.226.217.228 131.226.217.230 131.226.217.231
 ```
 
 **Success output:**
@@ -199,6 +216,12 @@ Total Checks: 6
 Passed: 4
 Failed: 2
 ```
+
+**Notes:**
+
+- The script will check all provided IPs (default: 3 nodes = 6 checks)
+- You can provide any number of IPs via command-line or `$XRD_IPS`
+- Command-line IPs take precedence over environment variables
 
 ---
 
