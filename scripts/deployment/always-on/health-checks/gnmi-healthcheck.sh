@@ -25,16 +25,17 @@ PORT="${2:-57777}"
 USERNAME="${3:-${XRD_USERNAME:-cisco}}"
 PASSWORD="${4:-${XRD_PASSWORD:-C1sco12345}}"
 
+# gnmic supports both hostnames and IPs directly, so we just note what we're using
+ORIGINAL_HOST="$HOST"
+
 echo "======================================"
 echo "  gNMI Health Check"
 echo "======================================"
-echo "Target: $HOST:$PORT"
-echo "User: $USERNAME"
-echo "======================================" 
-echo ""
-
-# Dependency Check
-echo "Checking dependencies..."
+if [[ "$HOST" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Target: $HOST:$PORT (IP address)"
+else
+    echo "Target: $HOST:$PORT (hostname)"
+fi
 dependency_missing=0
 
 if command -v gnmic &> /dev/null; then

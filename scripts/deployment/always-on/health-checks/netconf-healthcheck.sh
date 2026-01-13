@@ -28,13 +28,7 @@ PASSWORD="${4:-${XRD_PASSWORD:-C1sco12345}}"
 echo "======================================"
 echo "  NETCONF Health Check"
 echo "======================================"
-echo "Host: $HOST"
-echo "Port: $PORT"
-echo "User: $USERNAME"
-echo "======================================" 
-echo ""
-
-# Dependency Check
+echo "Target: $HOST:$PORT"
 echo "Checking dependencies..."
 dependency_missing=0
 
@@ -64,11 +58,22 @@ echo "Connecting to NETCONF server (30s timeout)..."
 
 if uv run --with ncclient python -c "
 from ncclient import manager
+import socket
 import sys
+
+# Resolve hostname to IP (ncclient requires IP addresses)
+hostname = '$HOST'
+try:
+    ip = socket.gethostbyname(hostname)
+    if hostname != ip:
+        print(f'Resolved {hostname} to {ip}')
+except socket.gaierror as e:
+    print(f'Failed to resolve hostname {hostname}: {e}', file=sys.stderr)
+    sys.exit(1)
 
 try:
     with manager.connect(
-        host='$HOST',
+        host=ip,
         port=$PORT,
         username='$USERNAME',
         password='$PASSWORD',

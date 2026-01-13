@@ -105,8 +105,14 @@ Requires `uv` [see the docs.](https://docs.astral.sh/uv/)
 ```python
 uv run --with ncclient python -c "
 from ncclient import manager
+import socket
+# nnclient does not support hostnames. Resolve to IP first.
+hostname = 'sandbox-iosxr-1.cisco.com'
+ip = socket.gethostbyname(hostname)
+print(f'Connecting to {hostname} ({ip})...')
+
 with manager.connect(
-    host='sandbox-iosxr-1.cisco.com',
+    host=ip,
     port=830,
     username='<your-username>',
     password='<your-password>',
@@ -114,8 +120,7 @@ with manager.connect(
     device_params={'name': 'iosxr'}
 ) as session:
     config = session.get_config(source='running')
-    print(config)
-"
+    print(config)"
 ```
 
 ### gNMI Examples with gnmic
@@ -154,10 +159,10 @@ gnmic \
 
 The configurations below represent the **intended initial deployment state**. However, because this is a **shared environment**:
 
-- [~] Configuration may drift over time as other users make changes
-- [~] IP addresses and hostnames may be modified
-- [~] Protocol settings (OSPF, BGP) may be reconfigured or disabled
-- [~] Use this as a reference point. These configurations **are not enforced.**
+- [-] Configuration may drift over time as other users make changes
+- [-] IP addresses and hostnames may be modified
+- [-] Protocol settings (OSPF, BGP) may be reconfigured or disabled
+- [-] Use this as a reference point. These configurations **are not enforced.**
 
 > **Tip:** Always verify the current configuration state when you connect, as it may differ from the initial state shown below.
 

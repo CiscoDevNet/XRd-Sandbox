@@ -36,7 +36,7 @@ export XRD_PASSWORD=mypassword
 
 ### 1. NETCONF Health Check (`netconf-healthcheck.sh`)
 
-Verifies NETCONF connectivity by establishing a session and checking the hello exchange.
+Verifies NETCONF connectivity by establishing a session and checking the hello exchange. Supports both IP addresses and hostnames (hostnames are automatically resolved to IPs using Python's socket module).
 
 **Prerequisites:**
 
@@ -70,6 +70,9 @@ export XRD_PASSWORD="secret"
 # Specify custom host (use env vars for credentials)
 ./netconf-healthcheck.sh 192.168.1.100
 
+# Use hostname instead of IP
+./netconf-healthcheck.sh router1.example.com
+
 # Specify all parameters (override everything)
 ./netconf-healthcheck.sh 192.168.1.100 830 admin mypassword
 ```
@@ -86,11 +89,13 @@ export XRD_PASSWORD="secret"
 ✗ FAILED: NETCONF connection failed!
 ```
 
+**Note:** The script automatically resolves hostnames to IP addresses since ncclient requires IPs. If hostname resolution fails, the script will exit with an error message.
+
 ---
 
 ### 2. gNMI Health Check (`gnmi-healthcheck.sh`)
 
-Verifies gNMI connectivity by checking server capabilities.
+Verifies gNMI connectivity by checking server capabilities. Supports both IP addresses and hostnames natively (gnmic can handle both).
 
 **Prerequisites:**
 
@@ -123,6 +128,9 @@ export XRD_PASSWORD=secret
 # Specify custom host and port (use env vars for credentials)
 ./gnmi-healthcheck.sh 192.168.1.100 57400
 
+# Use hostname instead of IP
+./gnmi-healthcheck.sh router1.example.com 57777
+
 # Specify all parameters (override everything)
 ./gnmi-healthcheck.sh 192.168.1.100 57400 admin mypassword
 ```
@@ -138,6 +146,8 @@ export XRD_PASSWORD=secret
 ```
 ✗ FAILED: gNMI connection failed!
 ```
+
+**Note:** gnmic natively supports hostnames, so no resolution is needed. However, DNS must be properly configured for hostname resolution to work.
 
 ---
 
@@ -186,8 +196,15 @@ export XRD_PASSWORD=secret
 export XRD_IPS="192.168.1.1,192.168.1.2,192.168.1.3"
 ./check-all-nodes.sh
 
+# Check using hostnames via environment variable
+export XRD_IPS="router1.example.com,router2.example.com,router3.example.com"
+./check-all-nodes.sh
+
 # Check custom IPs via command-line arguments
 ./check-all-nodes.sh cisco C1sco12345 192.168.1.1 192.168.1.2
+
+# Check using hostnames via command-line arguments
+./check-all-nodes.sh cisco C1sco12345 router1.example.com router2.example.com
 
 # Combine: custom credentials and IPs via environment
 export XRD_USERNAME=admin
@@ -219,9 +236,11 @@ Failed: 2
 
 **Notes:**
 
-- The script will check all provided IPs (default: 3 nodes = 6 checks)
-- You can provide any number of IPs via command-line or `$XRD_IPS`
-- Command-line IPs take precedence over environment variables
+- The script will check all provided IPs/hostnames (default: 3 nodes = 6 checks)
+- You can provide any number of IPs or hostnames via command-line or `$XRD_IPS`
+- Hostnames are supported: NETCONF checks will auto-resolve to IP, gNMI uses hostnames directly
+- Command-line IPs/hostnames take precedence over environment variables
+- Ensure DNS is properly configured if using hostnames
 
 ---
 
@@ -364,6 +383,19 @@ This makes them suitable for use in CI/CD pipelines and monitoring systems.
 ---
 
 ## Troubleshooting
+
+### Hostname Resolution
+
+**Both scripts support hostnames:**
+
+- **NETCONF**: Hostnames are automatically resolved to IP addresses using Python's `socket` module (standard library)
+- **gNMI**: Hostnames are passed directly to gnmic, which handles resolution natively
+
+**Error: "Failed to resolve hostname"**
+
+- Verify DNS is properly configured
+- Check that the hostname is valid: `nslookup <hostname>` or `ping <hostname>`
+- Use IP address directly as a workaround
 
 ### NETCONF Issues
 
