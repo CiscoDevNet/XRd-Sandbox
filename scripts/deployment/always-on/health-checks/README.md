@@ -209,11 +209,11 @@ export XRD_IPS="router1.example.com,router2.example.com,router3.example.com"
 # Combine: custom credentials and IPs via environment
 export XRD_USERNAME=admin
 export XRD_PASSWORD=secret
-export XRD_IPS="131.226.217.228,131.226.217.230,131.226.217.231"
+export XRD_IPS="10.10.10.29,10.10.10.30,10.10.10.31"
 ./check-all-nodes.sh
 
 # Override everything via command line
-./check-all-nodes.sh xrdtest2 C1sco12345 131.226.217.228 131.226.217.230 131.226.217.231
+./check-all-nodes.sh cisco C1sco12345 10.10.10.29 10.10.10.30 10.10.10.31
 ```
 
 **Success output:**
