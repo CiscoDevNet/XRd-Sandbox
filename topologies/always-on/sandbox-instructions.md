@@ -1,30 +1,31 @@
-- [🔄 IOS XR Always-On Sandbox](#-ios-xr-always-on-sandbox)
-  - [🎯 What You Can Do](#-what-you-can-do)
-  - [🌐 Topology](#-topology)
-  - [🔑 Getting Access](#-getting-access)
-  - [📊 Connection Information](#-connection-information)
-  - [⚖️ Shared Environment Guidelines](#️-shared-environment-guidelines)
-  - [⚠️ Configuration State Notice](#️-configuration-state-notice)
-  - [⚠️ Known Limitations](#️-known-limitations)
-  - [📚 Learning Resources](#-learning-resources)
-  - [❓ Frequently Asked Questions](#-frequently-asked-questions)
-  - [🆘 Support](#-support)
+- [IOS XR Always-On Sandbox](#ios-xr-always-on-sandbox)
+  - [What You Can Do](#what-you-can-do)
+  - [Topology](#topology)
+  - [Getting Access](#getting-access)
+  - [Connection Information](#connection-information)
+  - [Shared Environment Guidelines](#shared-environment-guidelines)
+  - [Programmatic Access Examples](#programmatic-access-examples)
+  - [Configuration State Notice](#configuration-state-notice)
+  - [Known Limitations](#known-limitations)
+  - [Learning Resources](#learning-resources)
+  - [Frequently Asked Questions](#frequently-asked-questions)
+  - [Support](#support)
 
-# 🔄 IOS XR Always-On Sandbox
+# IOS XR Always-On Sandbox
 
 Welcome to the IOS XR Always-On Sandbox! This shared environment allows developers and network engineers to explore the programmability features of the IOS XR routing platform.
 
-## 🎯 What You Can Do
+## What You Can Do
 
-- 🧪 Test NETCONF/gRPC YANG configurations
-- 📊 Explore streaming telemetry capabilities
-- 🔌 Develop gNMI-based applications
-- 🏗️ Prototype network automation scripts
-- 📚 Learn IOS XR programmability features
+- [+] Test NETCONF/gRPC YANG configurations
+- [+] Explore streaming telemetry capabilities
+- [+] Develop gNMI-based applications
+- [+] Prototype network automation scripts
+- [+] Learn IOS XR programmability features
 
 [See these instructions on Github](https://github.com/CiscoDevNet/XRd-Sandbox/tree/main/topologies/always-on/sandbox-instructions.md)
 
-## 🌐 Topology
+## Topology
 
 ```plaintext
      xrd-1
@@ -32,7 +33,7 @@ Welcome to the IOS XR Always-On Sandbox! This shared environment allows develope
  xrd-2 -- xrd-3
 ```
 
-## 🔑 Getting Access
+## Getting Access
 
 **Important:** Static usernames and passwords are no longer provided. Each user receives unique, time-limited credentials.
 
@@ -46,9 +47,15 @@ Welcome to the IOS XR Always-On Sandbox! This shared environment allows develope
 
 > **Note:** A new unique password is generated each time you create a reservation.
 
-## 📊 Connection Information
+## Connection Information
 
-### Nodes
+### Access Ports (Common to All Nodes)
+
+- **SSH**: `22`
+- **NETCONF**: `830`
+- **gNMI**: `57777`
+
+### Node Hostnames
 
 | Node  | Hostname                    |
 | ----- | --------------------------- |
@@ -62,15 +69,7 @@ Welcome to the IOS XR Always-On Sandbox! This shared environment allows develope
 ssh <your-username>@sandbox-iosxr-1.cisco.com
 ```
 
-> ⚠️ **Warning:** Do not modify the management IP address or you will lose access to the instances and the sandbox will have to be reset.
-
-### Supported Protocols
-
-| Protocol      | Port  |
-| ------------- | ----- |
-| SSH           | 22    |
-| NETCONF       | 830   |
-| gNMI (no TLS) | 57777 |
+> **Warning:** Do not modify the management IP address or you will lose access to the instances and the sandbox will have to be reset.
 
 ### Physical Topology Links
 
@@ -80,22 +79,22 @@ ssh <your-username>@sandbox-iosxr-1.cisco.com
 | xrd-1  | `Gi0/0/0/1` | ←→  | `Gi0/0/0/1` | xrd-3  |
 | xrd-2  | `Gi0/0/0/2` | ←→  | `Gi0/0/0/2` | xrd-3  |
 
-## ⚖️ Shared Environment Guidelines
+## Shared Environment Guidelines
 
 **This is a shared sandbox** - multiple users can access it simultaneously. You may see other users' configurations, and they can see yours.
 
 ### Best Practices
 
-- ✅ **DO** explore, learn, and test your configurations
-- ✅ **DO** remove your configuration when finished
-- ✅ **DO** verify interoperability and functionality
-- ❌ **DO NOT** modify or delete others' configurations
-- ❌ **DO NOT** perform performance or load testing
-- ❌ **DO NOT** make changes to base system configurations (tacacs, aaa, mgmt IPs)
+- [+] **DO** explore, learn, and test your configurations
+- [+] **DO** remove your configuration when finished
+- [+] **DO** verify interoperability and functionality
+- [-] **DO NOT** modify or delete others' configurations
+- [-] **DO NOT** perform performance or load testing
+- [-] **DO NOT** make changes to base system configurations (tacacs, aaa, mgmt IPs)
 
-> 💡 **Need a dedicated environment?** If you require an isolated sandbox for extended testing or development, use the dedicated **XRd Sandbox** at [devnetsandbox.cisco.com](https://devnetsandbox.cisco.com/)
+> **Need a dedicated environment?** If you require an isolated sandbox for extended testing or development, use the dedicated **XRd Sandbox** at [devnetsandbox.cisco.com](https://devnetsandbox.cisco.com/)
 
-## 🔧 Programmatic Access Examples
+## Programmatic Access Examples
 
 Once you have your credentials from the **I/O** tab, you can use them to test programmatic interfaces like `NETCONF` and `gNMI`.
 
@@ -106,8 +105,14 @@ Requires `uv` [see the docs.](https://docs.astral.sh/uv/)
 ```python
 uv run --with ncclient python -c "
 from ncclient import manager
+import socket
+# nnclient does not support hostnames. Resolve to IP first.
+hostname = 'sandbox-iosxr-1.cisco.com'
+ip = socket.gethostbyname(hostname)
+print(f'Connecting to {hostname} ({ip})...')
+
 with manager.connect(
-    host='sandbox-iosxr-1.cisco.com',
+    host=ip,
     port=830,
     username='<your-username>',
     password='<your-password>',
@@ -115,8 +120,7 @@ with manager.connect(
     device_params={'name': 'iosxr'}
 ) as session:
     config = session.get_config(source='running')
-    print(config)
-"
+    print(config)"
 ```
 
 ### gNMI Examples with gnmic
@@ -149,16 +153,16 @@ gnmic \
 
 > **Note:** Replace `<your-username>` and `<your-password>` with the credentials provided in the **I/O** tab of your active reservation.
 
-## ⚠️ Configuration State Notice
+## Configuration State Notice
 
 ### Initial State Reference
 
 The configurations below represent the **intended initial deployment state**. However, because this is a **shared environment**:
 
-- 🔄 Configuration may drift over time as other users make changes
-- 🏷️ IP addresses and hostnames may be modified
-- ⚙️ Protocol settings (OSPF, BGP) may be reconfigured or disabled
-- 🚀 Use this as a reference point. These configurations **are not enforced.**
+- [-] Configuration may drift over time as other users make changes
+- [-] IP addresses and hostnames may be modified
+- [-] Protocol settings (OSPF, BGP) may be reconfigured or disabled
+- [-] Use this as a reference point. These configurations **are not enforced.**
 
 > **Tip:** Always verify the current configuration state when you connect, as it may differ from the initial state shown below.
 
@@ -172,7 +176,7 @@ The table below shows the initial IP addressing. These values may change over ti
 | xrd-2 | `2.2.2.2` | `2.2.2.2/32` |
 | xrd-3 | `3.3.3.3` | `3.3.3.3/32` |
 
-### 🔌 Addresses on Point-to-Point Links
+### Addresses on Point-to-Point Links
 
 | Node A | Interface   | IP Address | ←→  | IP Address | Interface   | Node B | Subnet        |
 | ------ | ----------- | ---------- | --- | ---------- | ----------- | ------ | ------------- |
@@ -180,7 +184,7 @@ The table below shows the initial IP addressing. These values may change over ti
 | xrd-1  | `Gi0/0/0/1` | `10.1.3.1` | ←→  | `10.1.3.3` | `Gi0/0/0/1` | xrd-3  | `10.1.3.0/24` |
 | xrd-2  | `Gi0/0/0/2` | `10.2.3.2` | ←→  | `10.2.3.3` | `Gi0/0/0/2` | xrd-3  | `10.2.3.0/24` |
 
-### 🔧 Protocol Configuration
+### Protocol Configuration
 
 A basic configuration is pre-applied to each node, including:
 
@@ -189,7 +193,7 @@ A basic configuration is pre-applied to each node, including:
 
 If you want to see the original configuration files used during deployment, please refer to the [XRd-Sandbox Repository Always On Topology](https://github.com/CiscoDevNet/XRd-Sandbox/tree/main/topologies/always-on).
 
-## ⚠️ Known Limitations
+## Known Limitations
 
 Please be aware of the following technical limitations:
 
@@ -202,10 +206,10 @@ Please be aware of the following technical limitations:
 
 This sandbox uses the **control plane version of XRd**, which is:
 
-- ✅ Ideal for testing configurations and programmability
-- ❌ Not designed for high-throughput data plane testing
+- [+] Ideal for testing configurations and programmability
+- [-] Not designed for high-throughput data plane testing
 
-## 📚 Learning Resources
+## Learning Resources
 
 ### Documentation & Guides
 
@@ -223,7 +227,7 @@ Explore configuration files, deployment scripts, and learn how this topology is 
 
 ---
 
-## ❓ Frequently Asked Questions
+## Frequently Asked Questions
 
 ### Access & Credentials
 
@@ -280,10 +284,10 @@ A: This sandbox uses XRd Control Plane, which is optimized for control plane ope
 
 **Q: Can I test [specific feature]?**
 
-A: Check the [Known Limitations](#️-known-limitations) section. If your feature isn't listed as unsupported, you can test it. Verify in the IOS XR documentation that it's supported on XRd.
+A: Check the [Known Limitations](#-known-limitations) section. If your feature isn't listed as unsupported, you can test it. Verify in the IOS XR documentation that it's supported on XRd.
 
 ---
 
-## 🆘 Support
+## Support
 
 Need help? Visit the [DevNet Sandbox Community](https://communities.cisco.com/community/developer/sandbox) for assistance.

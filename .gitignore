@@ -6,6 +6,7 @@ xrd-tools/
 tests/always-on/output/*.cfg
 tests/always-on/input/*.cfg
 *.deploy.cfg
+.DS_Store
 
 # Log files
 logs/
