@@ -1,129 +1,63 @@
 ---
 name: devnet-vm-infra
-description: Documents infrastructure workarounds required on the DevNet XRd Sandbox VM
+description: Infrastructure workarounds for the DevNet XRd Sandbox VM (Docker/Compose, mgmt network, launch flow)
 ---
 
 # DevNet VM Infrastructure Workarounds
 
-This VM has **22.6 GiB of RAM** and can support a maximum of **11 XRd
-instances** concurrently. Lab topologies must stay within this limit. If
-another lab is already running, account for its containers before launching a
-new one.
+**Capacity:** ~22.6 GiB RAM, max **11 XRd instances**. Account for other labs already running.
 
-The VM also ships with a Docker daemon and Compose plugin whose versions
-conflict in several ways. The workarounds below must be applied before labs
-will launch successfully.
+**Context:** Docker daemon (24.0.5, API 1.43) and Compose plugin v5 conflict. Apply everything below before labs will start reliably.
 
-## 1. Docker API Version Pinning
+## Docker API
 
-**Problem:** Docker Compose v5.1.0 (plugin) defaults to a client API version
-newer than the Docker daemon (24.0.5, API 1.43) supports, producing:
-
-```
-client version 1.53 is too new. Maximum supported API version is 1.43
-```
-
-**Fix:** Export the variable in every shell session that will run Docker
-commands:
+Compose v5 defaults to API 1.53; daemon max is **1.43**:
 
 ```bash
 export DOCKER_API_VERSION=1.43
 ```
 
-## 2. Docker Compose v5 Multi-Network Bug
+## Bring-up: never Compose v5 for multi-network labs
 
-**Problem:** Docker Compose v5 (`docker compose`) fails when creating
-containers attached to multiple custom networks, even with the API version
-pinned:
+Compose v5 fails attaching containers to multiple custom networks (`Container cannot be connected to network endpoints`). XRd labs use several `xr_l2network` segments plus macvlan `mgmt`, so this hits almost every topology.
 
-```
-Container cannot be connected to network endpoints: …
-```
+**Do not use `just launch` / `xr-compose -l`** — they invoke Compose v5.
 
-**Fix:** Do **not** use the Compose v5 plugin to bring up XRd labs. Instead:
-
-1. Use `xr-compose` to **generate** `docker-compose.yml` (omit the `-l` flag):
-
-   ```bash
-   xr-compose -f docker-compose.xr.yml -i <image>
-   ```
-
-2. Launch with the standalone `docker-compose` v1.29.2 (already installed via
-   pip):
-
-   ```bash
-   docker-compose up -d
-   ```
-
-> The standalone binary handles multi-network attachment correctly on this
-> daemon version.
-
-### `just launch` and `xr-compose -l` (why bring-up fails)
-
-The **xr-compose-tool** recipe `just launch <lab-path>` finishes by running
-`xr-compose -f ./docker-compose.xr.yml -i <image> -l` (the **`-l`** = launch flag).
-
-That **launch** flag tells `xr-compose` to start the topology immediately. On this VM that path goes through **Docker Compose v5** (the plugin). The same **multi-network attach** failure then appears for almost every real lab: each XRd router joins **several `xr_l2network` segments plus macvlan `mgmt`**, which triggers:
-
-`Container cannot be connected to network endpoints: …`
-
-So **`just launch` is not a supported way to start multi-network labs on DevNet**, even with `DOCKER_API_VERSION=1.43` exported. The fix is **not** “retry `just launch`” — it is to **avoid `-l`** and use the **generate + `docker-compose up -d`** sequence in the fix above (run from the lab directory that contains `docker-compose.xr.yml`).
-
-**End-to-end example** (repo root = `~/XRd-Sandbox`, lab path = `topologies/ospf_multiarea_stub`):
+**Do:** generate only, then standalone **docker-compose v1.29.2** (pip-installed):
 
 ```bash
 export DOCKER_API_VERSION=1.43
-export XR_LAB_XRD_IMAGE=ios-xr/xrd-control-plane:25.3.1   # see “XRd image” below
-cd ~/XRd-Sandbox/topologies/ospf_multiarea_stub
+export XR_LAB_XRD_IMAGE=ios-xr/xrd-control-plane:25.3.1   # use a tag from `docker images`
+cd <lab-dir>   # contains docker-compose.xr.yml
 xr-compose -f docker-compose.xr.yml -i "$XR_LAB_XRD_IMAGE"
-# If needed: §5 sed to set linux:eth0 on XR_MGMT_INTERFACES
+# if using macvlan mgmt: run the sed under “Macvlan management” below
 docker-compose up -d
 ```
 
-**What you can still use `just` for:** after containers are up, **`just wait-for-boot`**, **`just run`**, and **`just exec`** work as usual. **`just shutdown <lab-path>`** is also safe — it runs **`docker-compose down`** inside the lab directory and does **not** use `xr-compose -l`. Pass the same lab path (relative to `XR_LAB_ROOT`) as for launch.
+**After bring-up:** `just wait-for-boot`, `just run`, `just exec`, and `just shutdown <lab-path>` are fine. Shutdown uses `docker-compose down`, not `-l`. Manual bring-up skips `.xr-compose-tool/running/*.env`; use `docker ps` if you need ground truth.
 
-**Tracking file:** `just launch` writes `.xr-compose-tool/running/<lab-id>.env` under the repo. Manual bring-up skips that file; shutdown from `just` still works for local Docker. If you rely on `just running` to list labs, either adopt manual tracking or treat “containers up + `docker ps`” as source of truth.
+### Image pull errors
 
-### XRd image: `pull access denied` and `:latest`
+If pull fails for `ios-xr/xrd-control-plane`, the image is usually **local with a version tag**, not `latest`:
 
-`xr-compose -l` (and any step that **pulls** the `-i` image) may fail with:
+```bash
+docker images ios-xr/xrd-control-plane
+export XR_LAB_XRD_IMAGE=ios-xr/xrd-control-plane:<tag>
+```
 
-`pull access denied for ios-xr/xrd-control-plane …`
+## `just` binary
 
-The sandbox VM typically has XRd **pre-loaded under a version tag** (e.g. `25.3.1`), not as a registry pull for `latest`.
-
-1. Inspect tags: `docker images ios-xr/xrd-control-plane`
-2. Export the tag you have: `export XR_LAB_XRD_IMAGE=ios-xr/xrd-control-plane:<tag>`
-
-Use that same variable for **`xr-compose -f … -i "$XR_LAB_XRD_IMAGE"`** (no `-l`) so Compose does not try to pull an unreachable `latest` image.
-
-## 3. `just` Command Runner
-
-**Problem:** The `just` command runner is not pre-installed. The
-`xr-compose-tool` skill's `just-wrapper.sh` requires it.
-
-**Fix:** Install to `~/bin` (no root needed) and ensure it is on PATH:
+Not pre-installed; `xr-compose-tool` expects it:
 
 ```bash
 mkdir -p ~/bin
 curl -sSfL https://just.systems/install.sh | bash -s -- --to ~/bin
-export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/bin:$PATH"   # persist in ~/.bashrc if you want
 ```
 
-Persist the PATH addition in `~/.bashrc` if desired.
+## Static IP vs default gateway
 
-## 4. Docker Network Gateway Conflicts
-
-**Problem:** When a service is assigned a static `ipv4_address` that collides
-with Docker's auto-assigned gateway (typically the `.1` address in the
-subnet), container creation fails:
-
-```
-Cannot start service <name>: Address already in use
-```
-
-**Fix:** Explicitly set a non-conflicting `gateway` in the network IPAM
-config inside `docker-compose.xr.yml`:
+If a service `ipv4_address` collides with Docker’s auto gateway (often `.1`), you get `Address already in use`. Set an explicit **gateway** in that network’s IPAM (e.g. use `.254` and avoid overlapping service IPs):
 
 ```yaml
 networks:
@@ -136,93 +70,24 @@ networks:
       - router:Gi0/0/0/0
 ```
 
-Choose a gateway address that does not overlap with any service IP in the
-network.
+## Macvlan management (`mgmt`)
 
-## 5. Macvlan Management Interfaces (Required)
+Required for SSH from outside the host. Host iface **`ens192`**, subnet **`10.10.20.0/24`**. Add macvlan `mgmt` with `parent: ens192`, gateway e.g. `10.10.20.254`, attach **`Mg0/RP0/CPU0/0`** per router with `snoop_v4` / `snoop_v4_default_route` and static IPs. Prefer **`10.10.20.110+`** to avoid SR lab range `101–108`.
 
-Every lab **must** include a macvlan management network so users can SSH to the
-routers from external machines. The host management interface is `ens192` on
-subnet `10.10.20.0/24`.
-
-### docker-compose.xr.yml changes
-
-Add a `mgmt` network definition and attach every XRd service to it:
-
-```yaml
-networks:
-  mgmt:
-    xr_interfaces:
-      - router1:Mg0/RP0/CPU0/0
-      - router2:Mg0/RP0/CPU0/0
-    ipam:
-      config:
-        - subnet: 10.10.20.0/24
-          gateway: 10.10.20.254
-    driver: macvlan
-    driver_opts:
-      parent: ens192
-```
-
-Each XRd service needs `Mg0/RP0/CPU0/0` with `snoop_v4` and a static IP on
-the `mgmt` network:
-
-```yaml
-services:
-  router1:
-    xr_interfaces:
-      - Gi0/0/0/0
-      - Mg0/RP0/CPU0/0:
-          snoop_v4: True
-          snoop_v4_default_route: True
-    networks:
-      mgmt:
-        ipv4_address: 10.10.20.110
-```
-
-### Post-generation fix
-
-After running `xr-compose` to generate `docker-compose.yml`, replace the
-generated management interface name with `eth0` (the interface macvlan
-creates inside the container):
+After `xr-compose` generates `docker-compose.yml`, fix mgmt iface name for macvlan:
 
 ```bash
 sed -i 's/linux:xr-n[0-9]*,xr_name=Mg0/linux:eth0,xr_name=Mg0/g' docker-compose.yml
 ```
 
-Or use the editor to replace all occurrences of `linux:xr-n<N>` on
-`XR_MGMT_INTERFACES` lines with `linux:eth0`.
+**Note:** macvlan IPs are **not** reachable from the host; use external L2/VPN or `docker attach`. Router configs already suit `snoop_v4`.
 
-### IP address range
+## Checklist
 
-Use `10.10.20.110` and above to avoid conflicting with the segment-routing
-lab's range (`10.10.20.101–108`). The router configs do not need changes --
-`ssh server vrf default` is already configured and the `snoop_v4` flag
-handles IP assignment automatically.
-
-### Connectivity note
-
-Macvlan containers are **not** reachable from the host itself -- this is a
-known Docker macvlan limitation. The management IPs are reachable from
-external machines on the same L2 network (e.g., a laptop connected via the
-sandbox VPN). From the host, use `docker attach <container>` instead.
-
-## Quick-Start Checklist
-
-Before launching any lab on this VM, ensure:
-
-- [ ] `DOCKER_API_VERSION=1.43` is exported
-- [ ] `~/bin` is on PATH (for `just`)
-- [ ] Lab **bring-up** uses **`xr-compose` without `-l`** then **`docker-compose up -d`**
-      — do **not** rely on **`just launch`** for multi-network topologies (it uses
-      `xr-compose -l` → Compose v5 → attach failure)
-- [ ] `XR_LAB_XRD_IMAGE` points at a **local** tag from `docker images`, not an
-      unpullable `latest`
-- [ ] Labs are launched via standalone `docker-compose` (v1.29.2), not the
-      Compose v5 plugin
-- [ ] Any network with static service IPs has an explicit `gateway` in its
-      IPAM config
-- [ ] A macvlan `mgmt` network on `ens192` is included with
-      `Mg0/RP0/CPU0/0` (`snoop_v4`) on every XRd service
-- [ ] The generated `docker-compose.yml` has `linux:eth0` for management
-      interfaces (not the auto-generated `linux:xr-n<N>`)
+- [ ] `export DOCKER_API_VERSION=1.43`
+- [ ] `~/bin` on PATH if using `just`
+- [ ] Bring-up: `xr-compose` **without `-l`**, then **`docker-compose up -d`** (not `docker compose`, not `just launch`)
+- [ ] `XR_LAB_XRD_IMAGE` = local tag from `docker images`
+- [ ] Static-IP networks: explicit `gateway` in IPAM
+- [ ] `mgmt` macvlan on `ens192`; `Mg0/RP0/CPU0/0` + `snoop_v4` on each XRd service
+- [ ] Generated compose: `linux:eth0` on mgmt (`XR_MGMT_INTERFACES`), not `linux:xr-n<N>`
