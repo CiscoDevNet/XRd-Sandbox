@@ -152,6 +152,75 @@ developer@ubuntu:~$
 
 To practice, go to [developer.cisco.com/sandbox](https://developer.cisco.com/site/sandbox/) click on _"Launch Sandbox"_ look for the XRd Sandbox and create a reservation.
 
+## Bring Your Own AI Assistant to Build a Lab
+
+This Sandbox ships with **AI agent skills** that teach an IDE coding assistant how to design, launch, and interact with XRd labs. Instead of following step-by-step instructions, you can describe the network you want in plain language and let the agent build it for you.
+
+### What the Skills Provide
+
+The `xrd-tools/skills/` directory contains two skills:
+
+| Skill | Purpose |
+|-------|---------|
+| **xr-lab-assistant** | Designs lab topologies, writes IOS-XR router configs, launches labs, and runs post-launch validation |
+| **xr-compose-tool** | Wraps `xr-compose` and `docker-compose` behind a managed workflow with session tracking and resource awareness |
+
+A third skill, **`devnet-vm-infra`**, lives at the **project root** (not under `xrd-tools/`) and documents environment workarounds specific to the DevNet XRd Sandbox VM.
+
+Copy the skill directories into the location your IDE assistant uses for skill discovery. The lab skills are under `xrd-tools/skills/`; copy **`devnet-vm-infra`** from the repository root. The target path depends on your IDE—use the commands in **Install the Skills** below.
+
+### Install the Skills
+
+#### Cursor
+
+```bash
+mkdir -p ~/XRd-Sandbox/.cursor/skills
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.cursor/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.cursor/skills/
+cp -r ~/XRd-Sandbox/devnet-vm-infra                    ~/XRd-Sandbox/.cursor/skills/
+```
+
+#### Windsurf
+
+```bash
+mkdir -p ~/XRd-Sandbox/.windsurf/skills
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.windsurf/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.windsurf/skills/
+cp -r ~/XRd-Sandbox/devnet-vm-infra                    ~/XRd-Sandbox/.windsurf/skills/
+```
+
+#### GitHub Copilot (VS Code)
+
+```bash
+mkdir -p ~/XRd-Sandbox/.github/skills
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.github/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.github/skills/
+cp -r ~/XRd-Sandbox/devnet-vm-infra                    ~/XRd-Sandbox/.github/skills/
+```
+
+> [!NOTE]
+> The Sandbox VM has a few environment quirks that the agent will need to work around when launching labs. The `devnet-vm-infra` skill (copied from the project root above) documents these workarounds so the agent can handle them automatically.
+
+### Example: Ask Your Agent to Build a Lab
+
+Once the skills are installed, open the project in your IDE and start a conversation with the agent. Here is an example prompt:
+
+> _"Build a four-router OSPF lab with Area 0 in the core and two stub areas. Verify the OSPF database shows inter-area routes and all loopbacks are reachable."_
+
+The agent will:
+
+1. **Design the topology** -- create a `docker-compose.xr.yml` with routers, L2 links, and macvlan management (following the `devnet-vm-infra` skill on this VM).
+2. **Write router configs** -- one IOS-XR startup config per router (interfaces, loopbacks, `router ospf`, areas, and stub settings).
+3. **Launch the lab** -- generate `docker-compose.yml` with `xr-compose` and start containers.
+4. **Validate convergence** -- wait for boot, confirm OSPF neighbors are **FULL**, inspect the OSPF database for inter-area summaries, and test loopback reachability (e.g. ping).
+
+You can iterate from there: ask it to add new nodes, change policies, or explain what a particular 
+`show` command output means.
+
+You can also start a fresh conversation and describe a completely different lab from scratch -- the agent will design, configure, launch, and validate it the same way. Each new prompt can target a different protocol, topology size, or scenario without any dependency on previous sessions.
+
+The agent will typically add new labs under `topologies/<lab_name>/`.
+
 ## 🚀 Sandbox Deployment Workflow
 
 ### For Sandbox Team
