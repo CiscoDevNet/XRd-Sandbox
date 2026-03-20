@@ -2,6 +2,7 @@
 
 - [XRd Sandbox](#xrd-sandbox)
   - [Introduction](#introduction)
+  - [Access Details](#access-details)
   - [Lab](#lab)
     - [Docker Driver](#docker-driver)
     - [Host-check](#host-check)
@@ -12,6 +13,7 @@
     - [XRd management IP](#xrd-management-ip)
     - [End the XRd topology](#end-the-xrd-topology)
   - [Learn more](#learn-more)
+  - [VPN Instructions](https://developer.cisco.com/docs/sandbox/#!getting-started/sandbox-vpn-info)
   - [Help](#help)
   - [Appendix - Changes done on the VM](#appendix---changes-done-on-the-vm)
     - [Docker Pools](#docker-pools)
@@ -33,6 +35,11 @@ On this Sandbox, you find:
 At the end of this Sandbox, you learn how to work with XRd in a containerized environment with a working segment routing topology.
 
 > **NOTE:** In the [XRd-Sandbox GitHub repository](https://github.com/CiscoDevNet/XRd-Sandbox/blob/main/docker-compose.xr.yml) you can find the files used to create the sandbox. Additionally, you can review notes on the environment setup, and considerations.
+
+
+## Access Details
+After your lab reservation begins, you will receive software VPN information via email, or by clicking on the I/O tab. 
+
 
 ## Lab
 
@@ -267,8 +274,6 @@ To ssh a `XRd` instance, from your computer do.
 ```bash
 ssh cisco@10.10.20.101
 ```
-
-> **NOTE:** `SSH` from the host VM to the container doesn't work due to the `macvlan` driver.
 
 You can find the credentials set on the `xrd-<ID>-startup.cfg` file. For example, refer to `~/XRd-Sandbox/topologies/segment-routing/xrd-1-startup.cfg`.
 
