@@ -160,10 +160,10 @@ This Sandbox ships with **AI agent skills** that teach an IDE coding assistant h
 
 The `xrd-tools/skills/` directory contains two skills:
 
-| Skill | Purpose |
-|-------|---------|
-| **xr-lab-assistant** | Designs lab topologies, writes IOS-XR router configs, launches labs, and runs post-launch validation |
-| **xr-compose-tool** | Wraps `xr-compose` and `docker-compose` behind a managed workflow with session tracking and resource awareness |
+| Skill                | Purpose                                                                                                        |
+| -------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **xr-lab-assistant** | Designs lab topologies, writes IOS-XR router configs, launches labs, and runs post-launch validation           |
+| **xr-compose-tool**  | Wraps `xr-compose` and `docker-compose` behind a managed workflow with session tracking and resource awareness |
 
 A third skill, **`devnet-vm-infra`**, lives at the **project root** (not under `xrd-tools/`) and documents environment workarounds specific to the DevNet XRd Sandbox VM.
 
@@ -174,28 +174,31 @@ Copy the skill directories into the location your IDE assistant uses for skill d
 #### Cursor
 
 ```bash
-mkdir -p ~/XRd-Sandbox/.cursor/skills
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.cursor/skills/
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.cursor/skills/
-cp -r ~/XRd-Sandbox/devnet-vm-infra                    ~/XRd-Sandbox/.cursor/skills/
+mkdir -p ~/.cursor/skills
+chmod u+w ~/.cursor/skills
+cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/.cursor/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/.cursor/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/.cursor/skills/
 ```
 
 #### Windsurf
 
 ```bash
-mkdir -p ~/XRd-Sandbox/.windsurf/skills
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.windsurf/skills/
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.windsurf/skills/
-cp -r ~/XRd-Sandbox/devnet-vm-infra                    ~/XRd-Sandbox/.windsurf/skills/
+mkdir -p ~/.codeium/windsurf/skills/
+chmod u+w ~/.codeium/windsurf/skills/
+cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/.codeium/windsurf/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/.codeium/windsurf/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/.codeium/windsurf/skills/
 ```
 
 #### GitHub Copilot (VS Code)
 
 ```bash
-mkdir -p ~/XRd-Sandbox/.github/skills
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.github/skills/
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.github/skills/
-cp -r ~/XRd-Sandbox/devnet-vm-infra                    ~/XRd-Sandbox/.github/skills/
+mkdir -p ~/.agents/skills
+chmod u+w ~/.agents/skills
+cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/.agents/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/.agents/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/.agents/skills/
 ```
 
 > [!NOTE]
@@ -214,8 +217,7 @@ The agent will:
 3. **Launch the lab** -- generate `docker-compose.yml` with `xr-compose` and start containers.
 4. **Validate convergence** -- wait for boot, confirm OSPF neighbors are **FULL**, inspect the OSPF database for inter-area summaries, and test loopback reachability (e.g. ping).
 
-You can iterate from there: ask it to add new nodes, change policies, or explain what a particular 
-`show` command output means.
+You can iterate from there: ask it to add new nodes, change policies, or explain what a particular `show` command output means.
 
 You can also start a fresh conversation and describe a completely different lab from scratch -- the agent will design, configure, launch, and validate it the same way. Each new prompt can target a different protocol, topology size, or scenario without any dependency on previous sessions.
 

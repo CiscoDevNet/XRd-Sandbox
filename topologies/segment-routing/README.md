@@ -309,28 +309,31 @@ Copy the skill directories into the location your IDE assistant uses for skill d
 #### Cursor
 
 ```bash
-mkdir -p ~/XRd-Sandbox/.cursor/skills
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.cursor/skills/
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.cursor/skills/
-cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/XRd-Sandbox/.cursor/skills/
+mkdir -p ~/.cursor/skills
+chmod u+w ~/.cursor/skills
+cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/.cursor/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/.cursor/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/.cursor/skills/
 ```
 
 #### Windsurf
 
 ```bash
-mkdir -p ~/XRd-Sandbox/.windsurf/skills
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.windsurf/skills/
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.windsurf/skills/
-cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/XRd-Sandbox/.windsurf/skills/
+mkdir -p ~/.codeium/windsurf/skills/
+chmod u+w ~/.codeium/windsurf/skills/
+cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/.codeium/windsurf/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/.codeium/windsurf/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/.codeium/windsurf/skills/
 ```
 
 #### GitHub Copilot (VS Code)
 
 ```bash
-mkdir -p ~/XRd-Sandbox/.github/skills
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/XRd-Sandbox/.github/skills/
-cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/XRd-Sandbox/.github/skills/
-cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/XRd-Sandbox/.github/skills/
+mkdir -p ~/.agents/skills
+chmod u+w ~/.agents/skills
+cp -r ~/XRd-Sandbox/devnet-vm-infra                   ~/.agents/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-compose-tool  ~/.agents/skills/
+cp -r ~/XRd-Sandbox/xrd-tools/skills/xr-lab-assistant ~/.agents/skills/
 ```
 
 > **NOTE:** The Sandbox VM has a few environment quirks that the agent will need to work around when launching labs. The `devnet-vm-infra` skill (copied from the project root above) documents these workarounds so the agent can handle them automatically.
