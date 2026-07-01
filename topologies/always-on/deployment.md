@@ -158,8 +158,7 @@ xr-compose \
   --output-file /home/developer/XRd-Sandbox/topologies/always-on/docker-compose.yml \
   --image ios-xr/xrd-control-plane:25.3.1
 
-sed -i.bak 's/linux:xr-30/linux:eth0/g' \
-  /home/developer/XRd-Sandbox/topologies/always-on/docker-compose.yml
+make -C ~/XRd-Sandbox fix-mgmt-interface-always-on
 
 docker compose --file \
   /home/developer/XRd-Sandbox/topologies/always-on/docker-compose.yml \

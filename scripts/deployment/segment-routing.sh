@@ -14,6 +14,15 @@ else
     exit 1
 fi
 
+# Source fix-mgmt-interface utility
+FIX_MGMT_SCRIPT="$SCRIPT_DIR/../lib/fix-mgmt-interface.sh"
+if [[ -f "$FIX_MGMT_SCRIPT" ]]; then
+    source "$FIX_MGMT_SCRIPT"
+else
+    echo "ERROR: fix-mgmt-interface.sh not found: $FIX_MGMT_SCRIPT"
+    exit 1
+fi
+
 # Initialize logging for this script
 init_logging "segment-routing-deploy"
 
@@ -58,13 +67,11 @@ if ! log_exec "Generating docker-compose.yml using xr-compose..." \
 fi
 print_success "Successfully generated $OUTPUT_FILE"
 
-# Step 2: Modify the generated file to replace interface names
-if ! log_exec "Updating interface names in docker-compose.yml..." \
-    sed -i.bak 's/linux:xr-120/linux:eth0/g' "$OUTPUT_FILE"; then
+# Step 2: Fix XR_MGMT_INTERFACES linux interface name
+if ! fix_mgmt_interface "$OUTPUT_FILE"; then
     finalize_logging
     exit 1
 fi
-print_success "Interface names updated successfully"
 
 # Step 3: Detect and update macvlan parent interface
 DETECTED_INTERFACE=$(detect_network_interface "$SANDBOX_IP")

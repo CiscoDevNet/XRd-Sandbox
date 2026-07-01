@@ -123,12 +123,22 @@ setup-xrd: extract-xrd load-xrd
 cleanup-environment:
 	@echo "=== Cleaning Up Environment After Setup ==="
 	@chmod +x ./scripts/maintenance/cleanup.sh
-	@./scripts/maintenance/cleanup.sh
+	@./scripts/maintenance/cleanup.sh; EXIT_CODE=$$?; chown -R developer:developer $(SANDBOX_ROOT)/logs; exit $$EXIT_CODE
 
 test-always-on:
 	@echo "=== Running Always-On Scripts Tests ==="
 	@chmod +x ./tests/always-on/test-runner.sh
 	@./tests/always-on/test-runner.sh
+
+fix-mgmt-interface-segment-routing:
+	@echo "=== Fixing XR management interface in Segment Routing Compose file ==="
+	@chmod +x ./scripts/lib/fix-mgmt-interface.sh
+	@./scripts/lib/fix-mgmt-interface.sh $(SANDBOX_ROOT)/topologies/segment-routing/docker-compose.yml
+
+fix-mgmt-interface-always-on:
+	@echo "=== Fixing XR management interface in Always-On Compose file ==="
+	@chmod +x ./scripts/lib/fix-mgmt-interface.sh
+	@./scripts/lib/fix-mgmt-interface.sh $(SANDBOX_ROOT)/topologies/always-on/docker-compose.yml
 
 help:
 	@echo "Available targets:"
@@ -153,7 +163,9 @@ help:
 	@echo "  load-xrd                    - Load XRd container into $(CONTAINER_ENGINE_NAME)"
 	@echo "  setup-xrd                   - Extract and load XRd container (full setup)"
 	@echo "  cleanup-environment         - Clean up environment after successful setup"
-	@echo "  test-always-on              - Run tests for always-on injection scripts"
-	@echo "  help                        - Show this help message"
+	@echo "  test-always-on                       - Run tests for always-on injection scripts"
+	@echo "  fix-mgmt-interface-segment-routing   - Fix XR_MGMT_INTERFACES in Segment Routing compose file"
+	@echo "  fix-mgmt-interface-always-on         - Fix XR_MGMT_INTERFACES in Always-On compose file"
+	@echo "  help                                 - Show this help message"
 
-.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on create-always-on-configs inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on generate-compose-always-on start-always-on verify-always-on health-check-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment test-always-on help
+.PHONY: setup-ssh clone-xrd-tools validate-environment deploy-segment-routing undeploy-segment-routing follow-segment-routing-logs deploy-always-on create-always-on-configs inject-local-user-always-on inject-aaa-always-on inject-tacacs-always-on generate-compose-always-on start-always-on verify-always-on health-check-always-on undeploy-always-on follow-always-on-logs extract-xrd load-xrd setup-xrd cleanup-environment test-always-on fix-mgmt-interface-segment-routing fix-mgmt-interface-always-on help
