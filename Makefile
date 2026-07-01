@@ -123,7 +123,7 @@ setup-xrd: extract-xrd load-xrd
 cleanup-environment:
 	@echo "=== Cleaning Up Environment After Setup ==="
 	@chmod +x ./scripts/maintenance/cleanup.sh
-	@./scripts/maintenance/cleanup.sh
+	@./scripts/maintenance/cleanup.sh; EXIT_CODE=$$?; chown -R developer:developer $(SANDBOX_ROOT)/logs; exit $$EXIT_CODE
 
 test-always-on:
 	@echo "=== Running Always-On Scripts Tests ==="
