@@ -16,7 +16,10 @@ echo "Using SSH key path: $SSH_KEY_PATH"
 
 # Ensure remote .ssh directory and authorized_keys file exist, remove old sandbox key, using ControlMaster
 echo "Establishing control connection and removing any existing sandbox key from remote host..."
+# StrictHostKeyChecking=no and UserKnownHostsFile=/dev/null are needed because each
+# DevNet sandbox reservation creates a fresh VM with a new host key.
 ssh -o ControlMaster=auto -o ControlPersist=10s -o ControlPath="$CONTROL_PATH" \
+    -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
     "$SANDBOX_USER@$SANDBOX_IP" \
     "mkdir -p ~/.ssh && touch ~/.ssh/authorized_keys && chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys && sed -i '/sandbox@built.com/d' ~/.ssh/authorized_keys"
 echo "✓ Control connection established and old keys removed"
@@ -41,7 +44,8 @@ echo "✓ SSH key pair generated successfully"
 
 echo "Copying new public key to remote host (reusing control connection)..."
 # Copy the new key, reusing the ControlMaster connection
-ssh-copy-id -o ControlPath="$CONTROL_PATH" -f -i "$SSH_KEY_PATH.pub" "$SANDBOX_USER@$SANDBOX_IP"
+ssh-copy-id -o ControlPath="$CONTROL_PATH" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -f -i "$SSH_KEY_PATH.pub" "$SANDBOX_USER@$SANDBOX_IP"
 echo "✓ Public key copied to remote host"
 
 # Explicitly close the control master connection (optional due to ControlPersist and trap)
